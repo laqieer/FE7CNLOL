@@ -1,0 +1,48 @@
+# by laqieer
+# 2017/1/26
+
+# 指定工具链是arm-none-eabi-(arm体系结构,none厂商,eabi是编译环境,亦是arm-abi的编译环境)
+CROSS_COMPILE	:=	arm-none-eabi-
+
+# 指定目标编译器
+CC	:=	$(CROSS_COMPILE)gcc
+# 目标复制命令生成二进制文件
+OBJCOPY	:=	$(CROSS_COMPILE)objcopy
+# 库归档
+AR	:=	$(CROSS_COMPILE)gcc-ar
+
+# 基于arm架构
+# -mcpu=arm7tdmi 指定CPU型号
+# T 支持高密度16位的Thumb指令集
+# D 支持片上Debug
+# M 内嵌硬件乘法器（Multiplier）
+# I 嵌入式ICE，支持片上断点和调试点
+# -mabi=apcs-gnu 使用gnu的apcs（ARM PROCEDUCE CALL STANDARD），指定用何种方式来实现函数的调用
+# -mthumb 生成的目标文件是Thumb的
+# -mthumb-interwork 允许在ARM和Thumb之间交叉调用
+# ARCH	:=	-mcpu=arm7tdmi -mabi=apcs-gnu -mthumb -mthumb-interwork
+
+# error: Source object rom.o has EABI version 0, but target d:/FE_kaizou2/FE7CNLOL/FE7CNLOL.elf has EABI version 5
+# failed to merge target specific data of file rom.o
+# http://www.denx.de/wiki/DULG/SourceObjectHasEABIVersion4ButTargetHasEABIVersion0
+# note: valid arguments to '-mabi=' are: aapcs aapcs-linux apcs-gnu atpcs iwmmxt
+ARCH	:=	-mcpu=arm7tdmi -mabi=aapcs -mthumb -mthumb-interwork
+# ABI，application binary interface (ABI)，应用程序二进制接口
+# OABI中的O，表示“Old”，“Lagacy”，旧的，过时的，OABI就是旧的/老的ABI
+# EABI中的E，表示“Embedded”，嵌入式，是一种新的ABI
+
+# 为了使我们的Makefile简洁,需要将一些编译选项统统定义在CFLAGS中
+# -g 为了调试gdb使用
+# -O2 优化级别为2 https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
+# -Wall 允许所有警告(Warning)
+# -fomit-frame-pointer 忽略帧指针，这样就可以自由使用fp(r11)寄存器了
+# -ffast-math 浮点优化选项,极大地提高浮点运算速度
+# -fno-toplevel-reorder 保持输入文件中的次序,以某些优化作为代价
+# -nostdinc 不在标准系统目录中搜索头文件，只在-I指定的目录中搜索
+CFLAGS	:=	$(ARCH) -g -O2 -Wall -fomit-frame-pointer -ffast-math -fno-toplevel-reorder -nostdinc
+
+# 设置.rom段的段属性
+OBJCOPYFLAGS := --set-section-flags .rom="r,c,a"
+
+# -nostdlib 不连接标准启动文件和标准库文件
+LDFLAGS	:= -g -T$(LDS) -Wl,-Map,$(notdir $(OUTPUT)).map

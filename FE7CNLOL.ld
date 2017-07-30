@@ -1,0 +1,55 @@
+/*	by laqieer
+	2017/1/27
+	Á´½Ó½Å±¾
+*/
+
+SECTIONS
+{
+	. = 0x8000000;
+	.rom (COPY): {KEEP(*.o(.rom))}
+	. = 0x805609C;
+	.spellAnimationTableBase : {*.o(.spellAnimationTableBase)}
+	. = 0x8D61A1C;
+	.fireAnimationID : {*.o(.fireAnimationID)}
+	. = 0x8D61ACC;
+	.NosferatuAnimationID : {*.o(.NosferatuAnimationID)}
+	. = 0x8007774;	
+	.callBlink : {*.o(.callBlink)}
+	. = 0x80077E8;
+	.call_sub_80077E8 : {*.o(.call_sub_80077E8)}
+	. = 0x8007824;
+	.call_sub_8007824 : {*.o(.call_sub_8007824)}
+	. = 0x8007860;
+	.callWink : {*.o(.callWink)}
+	. = 0x8006C48;
+	.callChooseMainPortraitSpriteTemplate : {*.o(.callChooseMainPortraitSpriteTemplate)}
+	. = 0x8007160;
+	.callDrawPortraitInBox : {*.o(.callDrawPortraitInBox)}
+	. = 0x800749C;
+	.callMouthAnimation : {*.o(.callMouthAnimation)}
+/*	. = 0x8D5E23C + 28 * 0x16;
+	.LynPortraitH : {*.o(.LynPortraitH)}	
+	. = 0x8D5E23C + 28 * 0x16;
+	.LynPortraitV : {*.o(.LynPortraitV)}	
+	. = 0x8D5E23C + 28 * 0x16;
+	.TikiPortrait : {*.o(.TikiPortrait)}	
+	. = 0x8D5E23C + 28 * 0x20;
+	.SharonPortrait : {*.o(.SharonPortrait)}	
+	. = 0x8D5E23C + 28 * 0x20;
+	.TikiFPortrait : {*.o(.TikiFPortrait)}	*/
+	. = 0x8013318;
+	.callDecodeText : {*.o(.callDecodeText)}
+	. = 0x80056D8;
+	.callShowFont1 : {*.o(.callShowFont1)}
+	. = 0x80055DC;
+	.callShowFont2 : {*.o(.callShowFont2)}
+	. = 0x805480C;
+	.callBattleAnimationInit : {*.o(.callBattleAnimationInit)}	
+	. = 0x8C0A560;
+	.ekrUnitKakudaiEx : {*.o(.ekrUnitKakudaiEx)}
+	. = 0x8053C3C;
+	.callBattleAnimationEventHandlerEx : {*.o(.callBattleAnimationEventHandlerEx)}	
+	. = 0x9000000;	
+	.text : {*(.text)}
+	.rodata : {*(.rodata) . = ALIGN(4);}
+}

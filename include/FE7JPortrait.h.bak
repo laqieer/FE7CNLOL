@@ -1,0 +1,205 @@
+// by laqieer
+// 2017/3/22
+// 和头像相关的定义
+
+#pragma once
+
+#include "AgbTypes.h"
+#include "FE7JFunc.h"
+
+/*
+// Tile坐标
+struct TileCoordinate{
+	s8 xCoordinate;	// 横坐标(从左到右)
+	s8 yCoordinate;	// 纵坐标(从上到下)
+};
+*/
+
+/*
+// 眼睛控制标识定义
+enum {
+	eyeNormal = 1,
+	eyeAlwaysClosed = 6
+};
+*/
+
+/*
+// 新增的头像格式标识定义(为了兼容旧格式)
+enum {
+	oldPortraitFormat = 0,
+	newPortraitFormat = 1
+};
+*/
+
+/*
+// 眼睛状态标识定义
+enum {
+	eyeClosed = 0,
+	eyeHalfClosed = 1,
+	outsideEyeClosed = 0x80,
+	outsideEyeHalfClosed = 0x81
+};
+*/
+
+/*
+// 眨眼和使眼色的区分标识
+enum {
+	eyeBlink = 0,
+	eyeWink = 1
+};
+*/
+
+/*
+// 原来的头像指针结构体
+struct Portrait{
+	void *mainPortrait;	// 指向大头像的指针
+	void *miniPortrait;	// 指向小头像的指针
+	void *portraitPalette;	// 指向调色板的指针
+	void *mouthFrame;	// 指向嘴部帧的指针
+	void *classCard;	// 指向职业卡的指针
+	s8 mouthPositionX;	// 嘴部帧横位置
+	s8 mouthPositionY;	// 嘴部帧纵位置
+	s8 eyePositionX;		// 眼睛帧横位置
+	s8 eyePositionY;		// 眼睛帧纵位置
+	s8 eyeControlFlag;	// 眼睛控制标识
+	s8 dummy1;
+	s8 dummy2;
+	s8 dummy3;
+};
+*/
+
+// 拓展的头像指针结构体
+struct Portrait{
+	void *mainPortrait;	// 指向大头像的指针
+	void *miniPortrait;	// 指向小头像的指针
+	void *portraitPalette;	// 指向调色板的指针
+	void *mouthFrame;	// 指向嘴部帧的指针
+	void *classCard;	// 指向职业卡的指针(非职业卡的情况下是指向眼睛帧的指针)
+	s8 mouthPositionX;	// 嘴部帧横位置
+	s8 mouthPositionY;	// 嘴部帧纵位置
+	s8 eyePositionX;		// 眼睛帧横位置
+	s8 eyePositionY;		// 眼睛帧纵位置
+	s8 eyeControlFlag;	// 眼睛控制标识
+	s8 portraitFormatFlag;	// 区分新旧格式的标识，新格式进一步区分横式和立式
+	s8 boxPositionX;	// 人物数据界面头像框的横坐标
+	s8 boxPositionY;	// 人物数据界面头像框的纵坐标
+};
+
+// 大头像精灵组合模板
+
+// 老模板，头像在左侧，面向右侧
+#define	oldPortraitTemplateLeft		0x8BFF882
+// 老模板，头像在右侧，面向左侧
+#define	oldPortraitTemplateRight	0x8BFF85C
+
+// 人物详细界面头像框内TSA模板
+
+// 老模板，矮
+#define	oldPortraitInBoxTemplateLow		0x81911D4
+// 老模板，高
+#define	oldPortraitInBoxTemplateHigh	0x819128C
+
+// 头像指针表
+#define portraitTableBase	0x8D5E23C
+#define	portraitTable		(*(Portrait (*)[0xFFFF])portraitTableBase)
+
+// 根据头像ID计算ROM中的头像地址
+#define	GetPortrait			sub(80069B0)
+// Portrait * GetPortrait(int portraitIndex)
+
+// 在人物数据界面的头像框内画头像
+#define	DrawPortraitInBox	sub(8007160)
+// void DrawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIndex, int presentBGPaletteIndex)
+
+// 原来的眨眼和使眼色函数
+#define oldBlinkOrWink		sub(80075F0)
+// void oldBlinkOrWink(u32 *mempool, int eyeStatus);
+
+// 新的眨眼/使眼色(眨半边眼)函数,直接覆写VRAM中的Tile数据(原来的是新增一个精灵) (横式)
+void blinkOrWinkH(u32 *mempool, int eyeStatus);
+
+// 获取眼睛帧的起始Tile编号差值
+int getEyeFrameTileNoDeltaH(struct Portrait *portrait);
+
+// 根据新老格式的不同调用相应的眨眼/使眼色函数
+void callBlinkOrWink(u32 *mempool, int eyeStatus);
+
+// 眨眼/使眼色函数接口
+void callCallBlinkOrWink(u32 *mempool, int eyeStatus);
+
+// 调用到BlinkOrWink的函数1
+// 眨眼
+void blink(s16 *mempool);
+
+// 调用到BlinkOrWink的函数1接口
+#pragma long_calls
+void callBlink(s16 *mempool);
+#pragma long_calls_off
+
+// 调用到BlinkOrWink的函数2
+void sub_80077E8(s16 *mempool);
+
+// 调用到BlinkOrWink的函数2接口
+void call_sub_80077E8(s16 *mempool);
+
+// 调用到BlinkOrWink的函数3
+#pragma long_calls
+void sub_8007824(s16 *mempool);
+#pragma long_calls_off
+
+// 调用到BlinkOrWink的函数3接口
+void call_sub_8007824(s16 *mempool);
+
+// 调用到BlinkOrWink的函数4
+// 使眼色
+void wink(s16 *mempool);
+
+// 调用到BlinkOrWink的函数4接口
+void callWink(s16 *mempool);
+
+// 选择大头像精灵组合模板
+void chooseMainPortraitSpriteTemplate(u32 *mempool);
+
+// 新的选择大头像精灵组合模板函数的接口
+void callChooseMainPortraitSpriteTemplate(s16 *mempool);
+
+// 根据头像ID判断头像框是否需要下移
+#define	PortraitHeightFix	sub(80070AC)
+// signed int PortraitHeightFix(int portraitID)
+
+// 填充头像框TSA(下移一个Tile)
+#define	WriteHighPortraitTSAInBox	sub(8007054)
+// void WriteHighPortraitTSAInBox(u16 *TSABufferInWRAM, unsigned __int16 tileIndexAndPaletteIndex, Portrait *portrait)
+
+// 填充头像框TSA(无下移)
+#define	WriteLowPortraitTSAInBox	sub(8007000)
+// void WriteLowPortraitTSAInBox(u16 *TSABufferInWRAM, unsigned __int16 tileIndexAndPaletteIndex, Portrait *portrait)
+
+// 新的人物详情界面头像框绘制函数
+void drawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIndex, int presentBGPaletteIndex);
+
+// 填充新格式头像框TSA
+void writePortraitTSAInBoxH(u16 *TSABufferInWRAM, u16 tileIndexAndPaletteIndex, struct Portrait *portrait);
+
+// 新的人物详情界面头像框绘制函数的接口
+void callDrawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIndex, int presentBGPaletteIndex);
+
+// 计算头像模板中每个精灵的3个属性
+// X和Y分别是对应原来横式头像的参考点的像素偏移量
+#define	getObjectAttribute1(shape,Y)		((((shape)&3)<<14)|((Y)&255))
+#define	getObjectAttribute2(size,HFlip,X)	((((size)&3)<<14)|(((HFlip)&1)<<12)|((X)&511))
+#define	getObjectAttribute3(tileNo)			((tileNo)&1023)
+
+// 计算人物界面头像框TSA(tile编号)
+// x和y分别是对应Tile在256x32的图中的坐标
+#define	getTileNo(x,y)						((32 * (y) + (x))&1023)
+
+// 取2个数的较小值
+#define min(a,b)	((a)<(b)?(a):(b))
+
+// 眨眼和使眼色 (立式)
+void blinkOrWinkV(u32 *mempool, int eyeStatus);
+
+// 填充新格式头像框TSA (立式)
+void writePortraitTSAInBoxV(u16 *TSABufferInWRAM, u16 tileIndexAndPaletteIndex, struct Portrait *portrait);
+

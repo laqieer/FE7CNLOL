@@ -1,0 +1,9 @@
+build
+*.gba
+*.elf
+FE7CNLOL_??.png
+FE7CNLOL.I??
+FE7CNLOL.P*
+*.sav
+*.sgm
+*.ss?

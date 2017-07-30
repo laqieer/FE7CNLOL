@@ -1,0 +1,762 @@
+// by laqieer
+// 2017/3/25
+// 新头像格式的实现
+
+#include "FE7JPortrait.h"
+
+// 大头像精灵组合模板
+
+// 新模板，头像在右侧，面向左侧 (横式)
+const u16 newPortraitTemplateRightH[1 + 3 * 10] =
+{
+	10,	// 精灵数量
+	// 每个精灵3个word
+	0x4000, 0xC1E0, 0,
+	0x4020, 0xC1E0, 8,
+	0x4040, 0x81E0, 0x10,
+	0x4040, 0x8000, 0x50,
+	0x8030, 0x81D0, 0x14,
+	0x8030, 0x8020, 0x16,
+	0x8010, 0x81D0, 0x18,
+	0x8010, 0x8020, 0x1A,
+	0, 0x41D0, 0x5C,
+	0, 0X4020, 0X5E
+};
+
+// 新模板，头像在左侧，面向右侧 (横式)
+const u16 newPortraitTemplateLeftH[1 + 3 * 10] =
+{
+	10,
+	0x4000, 0xD1E0, 0,
+	0x4020, 0xD1E0, 8,
+	0x4040, 0x91E0, 0x50,
+	0x4040, 0x9000, 0x10,
+	0x8030, 0x91D0, 0x16,
+	0x8030, 0x9020, 0x14,
+	0x8010, 0x91D0, 0x1A,
+	0x8010, 0x9020, 0x18,
+	0, 0x51D0, 0x5E,
+	0, 0X5020, 0X5C
+};
+
+// 新模板，头像在左侧，面向右侧 (立式)
+const u16 newPortraitTemplateLeftV[1 + 3 * 10] =
+{
+	7,	// 精灵数量
+	// 每个精灵3个word (3个OAM属性，求或的基础值)
+	getObjectAttribute1(1,-16), getObjectAttribute2(3,1,40 - 64), getObjectAttribute3(0),											// 1
+	getObjectAttribute1(2,-16), getObjectAttribute2(2,1,-40), getObjectAttribute3(8),										// 2
+	getObjectAttribute1(1,16), getObjectAttribute2(3,1,40 - 64), getObjectAttribute3(8 + 2),										// 3
+	getObjectAttribute1(2,16), getObjectAttribute2(2,1,-40), getObjectAttribute3(8 + 2 + 8),								// 4
+	getObjectAttribute1(1,16 + 32), getObjectAttribute2(3,1,40 - 64), getObjectAttribute3(8 + 2 + 8 + 2),							// 5
+	getObjectAttribute1(0,16 + 32), getObjectAttribute2(1,1,-40), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2),			// 6
+	getObjectAttribute1(0,16 + 32 + 16), getObjectAttribute2(1,1,-40), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2 + 2)	// 7
+
+};
+
+// 新模板，头像在右侧，面向左侧 (立式)
+const u16 newPortraitTemplateRightV[1 + 3 * 10] =
+{
+	7,
+	getObjectAttribute1(1,-16), getObjectAttribute2(3,0,-40), getObjectAttribute3(0),											// 1
+	getObjectAttribute1(2,-16), getObjectAttribute2(2,0,40 - 16), getObjectAttribute3(8),										// 2
+	getObjectAttribute1(1,16), getObjectAttribute2(3,0,-40), getObjectAttribute3(8 + 2),										// 3
+	getObjectAttribute1(2,16), getObjectAttribute2(2,0,40 - 16), getObjectAttribute3(8 + 2 + 8),								// 4
+	getObjectAttribute1(1,16 + 32), getObjectAttribute2(3,0,-40), getObjectAttribute3(8 + 2 + 8 + 2),							// 5
+	getObjectAttribute1(0,16 + 32), getObjectAttribute2(1,0,40 - 16), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2),			// 6
+	getObjectAttribute1(0,16 + 32 + 16), getObjectAttribute2(1,0,40 - 16), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2 + 2)	// 7
+};
+
+// 人物详细界面头像框内TSA模板
+
+// 新模板，x=0,y=0 (横式)
+const u16 newPortraitInBoxTemplateH[1 + 10 * 9 + 1] =
+{
+	0x809, // 宽度9+1,高度8+1
+	0x55, 0x10, 0x11, 0x12, 0x13, 0x50, 0x51, 0x52, 0x53, 0x56,
+	0x35, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x36,
+	0x15, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x16,
+	0x79, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x7A,
+	0x59, 8, 9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x5A,
+	0x39, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x3A,
+	0x19, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x1A,
+	0x7D, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x7E,
+	0x5D, 0, 1, 2, 3, 4, 5, 6, 7, 0x5E,
+	0
+};
+
+// 新模板，x=-1,y=0 (横式)
+const u16 newPortraitInBoxTemplateLH[1 + 10 * 9 + 1] =
+{
+	0x809, // 宽度9+1,高度8+1
+	0x10, 0x11, 0x12, 0x13, 0x50, 0x51, 0x52, 0x53, 0x56, 0x57,
+	0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x36, 0x37,
+	0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x16, 0x17,
+	0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x7A, 0x7B,
+	8, 9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x5A, 0x5B,
+	0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x3A, 0x3B,
+	0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x1A, 0x1B,
+	0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x7E, 0x7F,
+	0, 1, 2, 3, 4, 5, 6, 7, 0x5E, 0x5F,
+	0
+};
+
+// 新模板，x=1,y=0 (横式)
+const u16 newPortraitInBoxTemplateRH[1 + 10 * 9 + 1] =
+{
+	0x809, // 宽度9+1,高度8+1
+	0x54, 0x55, 0x10, 0x11, 0x12, 0x13, 0x50, 0x51, 0x52, 0x53,
+	0x34, 0x35, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
+	0x14, 0x15, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F,
+	0x78, 0x79, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
+	0x58, 0x59, 8, 9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF,
+	0x38, 0x39, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
+	0x18, 0x19, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
+	0x7C, 0x7D, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+	0x5C, 0x5D, 0, 1, 2, 3, 4, 5, 6, 7,
+	0
+};
+
+// 新模板，x=0,y=-1 (横式)
+const u16 newPortraitInBoxTemplateUH[1 + 10 * 9 + 1] =
+{
+	0x809, // 宽度9+1,高度8+1
+	0x75, 0x30, 0x31, 0x32, 0x33, 0x70, 0x71, 0x72, 0x73, 0x76,
+	0x55, 0x10, 0x11, 0x12, 0x13, 0x50, 0x51, 0x52, 0x53, 0x56,
+	0x35, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x36,
+	0x15, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x16,
+	0x79, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x7A,
+	0x59, 8, 9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x5A,
+	0x39, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x3A,
+	0x19, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x1A,
+	0x7D, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x7E,
+	0
+};
+
+// 新模板，x=-1,y=-1 (横式)
+const u16 newPortraitInBoxTemplateLUH[1 + 10 * 9 + 1] =
+{
+	0x809, // 宽度9+1,高度8+1
+	0x30, 0x31, 0x32, 0x33, 0x70, 0x71, 0x72, 0x73, 0x76, 0x77,
+	0x10, 0x11, 0x12, 0x13, 0x50, 0x51, 0x52, 0x53, 0x56, 0x57,
+	0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x36, 0x37,
+	0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x16, 0x17,
+	0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x7A, 0x7B,
+	8, 9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x5A, 0x5B,
+	0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x3A, 0x3B,
+	0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x1A, 0x1B,
+	0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x7E, 0x7F,
+	0
+};
+
+// 新模板，x=1,y=-1 (横式)
+const u16 newPortraitInBoxTemplateRUH[1 + 10 * 9 + 1] =
+{
+	0x809, // 宽度9+1,高度8+1
+	0x74, 0x75, 0x30, 0x31, 0x32, 0x33, 0x70, 0x71, 0x72, 0x73,
+	0x54, 0x55, 0x10, 0x11, 0x12, 0x13, 0x50, 0x51, 0x52, 0x53,
+	0x34, 0x35, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
+	0x14, 0x15, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F,
+	0x78, 0x79, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
+	0x58, 0x59, 8, 9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF,
+	0x38, 0x39, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
+	0x18, 0x19, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
+	0x7C, 0x7D, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+	0
+};
+
+// 新模板，y=0 (立式)
+const u16 newPortraitInBoxTemplateV[1 + 10 * 9 + 1] =
+{
+	0x809, // 宽度9+1,高度8+1
+	getTileNo(20,3), getTileNo(21,3), getTileNo(22,3), getTileNo(23,3), getTileNo(24,3), getTileNo(25,3), getTileNo(26,3), getTileNo(27,3), getTileNo(30,3), getTileNo(31,3),
+	getTileNo(20,2), getTileNo(21,2), getTileNo(22,2), getTileNo(23,2), getTileNo(24,2), getTileNo(25,2), getTileNo(26,2), getTileNo(27,2), getTileNo(30,2), getTileNo(31,2),
+	getTileNo(20,1), getTileNo(21,1), getTileNo(22,1), getTileNo(23,1), getTileNo(24,1), getTileNo(25,1), getTileNo(26,1), getTileNo(27,1), getTileNo(28,3), getTileNo(29,3),
+	getTileNo(20,0), getTileNo(21,0), getTileNo(22,0), getTileNo(23,0), getTileNo(24,0), getTileNo(25,0), getTileNo(26,0), getTileNo(27,0), getTileNo(28,2), getTileNo(29,2),
+	getTileNo(10,3), getTileNo(11,3), getTileNo(12,3), getTileNo(13,3), getTileNo(14,3), getTileNo(15,3), getTileNo(16,3), getTileNo(17,3), getTileNo(18,3), getTileNo(19,3),
+	getTileNo(10,2), getTileNo(11,2), getTileNo(12,2), getTileNo(13,2), getTileNo(14,2), getTileNo(15,2), getTileNo(16,2), getTileNo(17,2), getTileNo(18,2), getTileNo(19,2),
+	getTileNo(10,1), getTileNo(11,1), getTileNo(12,1), getTileNo(13,1), getTileNo(14,1), getTileNo(15,1), getTileNo(16,1), getTileNo(17,1), getTileNo(18,1), getTileNo(19,1),
+	getTileNo(10,0), getTileNo(11,0), getTileNo(12,0), getTileNo(13,0), getTileNo(14,0), getTileNo(15,0), getTileNo(16,0), getTileNo(17,0), getTileNo(18,0), getTileNo(19,0),
+	getTileNo(0,3), getTileNo(1,3), getTileNo(2,3), getTileNo(3,3), getTileNo(4,3), getTileNo(5,3), getTileNo(6,3), getTileNo(7,3), getTileNo(8,3), getTileNo(9,3),
+	0
+};
+
+// 新模板，y=-1 (立式)
+const u16 newPortraitInBoxTemplateUV[1 + 10 * 9 + 1] =
+{
+	0x809, // 宽度9+1,高度8+1
+	getTileNo(20,2), getTileNo(21,2), getTileNo(22,2), getTileNo(23,2), getTileNo(24,2), getTileNo(25,2), getTileNo(26,2), getTileNo(27,2), getTileNo(30,2), getTileNo(31,2),
+	getTileNo(20,1), getTileNo(21,1), getTileNo(22,1), getTileNo(23,1), getTileNo(24,1), getTileNo(25,1), getTileNo(26,1), getTileNo(27,1), getTileNo(28,3), getTileNo(29,3),
+	getTileNo(20,0), getTileNo(21,0), getTileNo(22,0), getTileNo(23,0), getTileNo(24,0), getTileNo(25,0), getTileNo(26,0), getTileNo(27,0), getTileNo(28,2), getTileNo(29,2),
+	getTileNo(10,3), getTileNo(11,3), getTileNo(12,3), getTileNo(13,3), getTileNo(14,3), getTileNo(15,3), getTileNo(16,3), getTileNo(17,3), getTileNo(18,3), getTileNo(19,3),
+	getTileNo(10,2), getTileNo(11,2), getTileNo(12,2), getTileNo(13,2), getTileNo(14,2), getTileNo(15,2), getTileNo(16,2), getTileNo(17,2), getTileNo(18,2), getTileNo(19,2),
+	getTileNo(10,1), getTileNo(11,1), getTileNo(12,1), getTileNo(13,1), getTileNo(14,1), getTileNo(15,1), getTileNo(16,1), getTileNo(17,1), getTileNo(18,1), getTileNo(19,1),
+	getTileNo(10,0), getTileNo(11,0), getTileNo(12,0), getTileNo(13,0), getTileNo(14,0), getTileNo(15,0), getTileNo(16,0), getTileNo(17,0), getTileNo(18,0), getTileNo(19,0),
+	getTileNo(0,3), getTileNo(1,3), getTileNo(2,3), getTileNo(3,3), getTileNo(4,3), getTileNo(5,3), getTileNo(6,3), getTileNo(7,3), getTileNo(8,3), getTileNo(9,3),
+	getTileNo(0,2), getTileNo(1,2), getTileNo(2,2), getTileNo(3,2), getTileNo(4,2), getTileNo(5,2), getTileNo(6,2), getTileNo(7,2), getTileNo(8,2), getTileNo(9,2),
+	0
+};
+
+// 新模板，y=-2 (立式)
+const u16 newPortraitInBoxTemplateUUV[1 + 10 * 9 + 1] =
+{
+	0x809, // 宽度9+1,高度8+1
+	getTileNo(20,1), getTileNo(21,1), getTileNo(22,1), getTileNo(23,1), getTileNo(24,1), getTileNo(25,1), getTileNo(26,1), getTileNo(27,1), getTileNo(28,3), getTileNo(29,3),
+	getTileNo(20,0), getTileNo(21,0), getTileNo(22,0), getTileNo(23,0), getTileNo(24,0), getTileNo(25,0), getTileNo(26,0), getTileNo(27,0), getTileNo(28,2), getTileNo(29,2),
+	getTileNo(10,3), getTileNo(11,3), getTileNo(12,3), getTileNo(13,3), getTileNo(14,3), getTileNo(15,3), getTileNo(16,3), getTileNo(17,3), getTileNo(18,3), getTileNo(19,3),
+	getTileNo(10,2), getTileNo(11,2), getTileNo(12,2), getTileNo(13,2), getTileNo(14,2), getTileNo(15,2), getTileNo(16,2), getTileNo(17,2), getTileNo(18,2), getTileNo(19,2),
+	getTileNo(10,1), getTileNo(11,1), getTileNo(12,1), getTileNo(13,1), getTileNo(14,1), getTileNo(15,1), getTileNo(16,1), getTileNo(17,1), getTileNo(18,1), getTileNo(19,1),
+	getTileNo(10,0), getTileNo(11,0), getTileNo(12,0), getTileNo(13,0), getTileNo(14,0), getTileNo(15,0), getTileNo(16,0), getTileNo(17,0), getTileNo(18,0), getTileNo(19,0),
+	getTileNo(0,3), getTileNo(1,3), getTileNo(2,3), getTileNo(3,3), getTileNo(4,3), getTileNo(5,3), getTileNo(6,3), getTileNo(7,3), getTileNo(8,3), getTileNo(9,3),
+	getTileNo(0,2), getTileNo(1,2), getTileNo(2,2), getTileNo(3,2), getTileNo(4,2), getTileNo(5,2), getTileNo(6,2), getTileNo(7,2), getTileNo(8,2), getTileNo(9,2),
+	getTileNo(0,1), getTileNo(1,1), getTileNo(2,1), getTileNo(3,1), getTileNo(4,1), getTileNo(5,1), getTileNo(6,1), getTileNo(7,1), getTileNo(8,1), getTileNo(9,1),
+	0
+};
+
+// 新模板，y=-3 (立式)
+const u16 newPortraitInBoxTemplateUUUV[1 + 10 * 9 + 1] =
+{
+	0x809, // 宽度9+1,高度8+1
+	getTileNo(20,0), getTileNo(21,0), getTileNo(22,0), getTileNo(23,0), getTileNo(24,0), getTileNo(25,0), getTileNo(26,0), getTileNo(27,0), getTileNo(28,2), getTileNo(29,2),
+	getTileNo(10,3), getTileNo(11,3), getTileNo(12,3), getTileNo(13,3), getTileNo(14,3), getTileNo(15,3), getTileNo(16,3), getTileNo(17,3), getTileNo(18,3), getTileNo(19,3),
+	getTileNo(10,2), getTileNo(11,2), getTileNo(12,2), getTileNo(13,2), getTileNo(14,2), getTileNo(15,2), getTileNo(16,2), getTileNo(17,2), getTileNo(18,2), getTileNo(19,2),
+	getTileNo(10,1), getTileNo(11,1), getTileNo(12,1), getTileNo(13,1), getTileNo(14,1), getTileNo(15,1), getTileNo(16,1), getTileNo(17,1), getTileNo(18,1), getTileNo(19,1),
+	getTileNo(10,0), getTileNo(11,0), getTileNo(12,0), getTileNo(13,0), getTileNo(14,0), getTileNo(15,0), getTileNo(16,0), getTileNo(17,0), getTileNo(18,0), getTileNo(19,0),
+	getTileNo(0,3), getTileNo(1,3), getTileNo(2,3), getTileNo(3,3), getTileNo(4,3), getTileNo(5,3), getTileNo(6,3), getTileNo(7,3), getTileNo(8,3), getTileNo(9,3),
+	getTileNo(0,2), getTileNo(1,2), getTileNo(2,2), getTileNo(3,2), getTileNo(4,2), getTileNo(5,2), getTileNo(6,2), getTileNo(7,2), getTileNo(8,2), getTileNo(9,2),
+	getTileNo(0,1), getTileNo(1,1), getTileNo(2,1), getTileNo(3,1), getTileNo(4,1), getTileNo(5,1), getTileNo(6,1), getTileNo(7,1), getTileNo(8,1), getTileNo(9,1),
+	getTileNo(0,0), getTileNo(1,0), getTileNo(2,0), getTileNo(3,0), getTileNo(4,0), getTileNo(5,0), getTileNo(6,0), getTileNo(7,0), getTileNo(8,0), getTileNo(9,0),
+	0
+};
+
+// 模板表
+
+// 横式
+const void *newPortraitInBoxTemplateTableH[3 * 2] =
+{
+	newPortraitInBoxTemplateLH,
+	newPortraitInBoxTemplateH,
+	newPortraitInBoxTemplateRH,
+	newPortraitInBoxTemplateLUH,
+	newPortraitInBoxTemplateUH,
+	newPortraitInBoxTemplateRUH
+};
+
+// 立式
+const void *newPortraitInBoxTemplateTableV[4] =
+{
+	newPortraitInBoxTemplateV,
+	newPortraitInBoxTemplateUV,
+	newPortraitInBoxTemplateUUV,
+	newPortraitInBoxTemplateUUUV
+};
+
+// 眨眼和使眼色 (横式)
+void blinkOrWinkH(u32 *mempool, int eyeStatus)
+{
+	int eyeShape;	// 闭眼还是半闭眼
+	int winkFlag;	// 是否只针对外侧的那只眼睛
+	struct Portrait *portrait;	// 头像
+	
+	portrait = (struct Portrait *)(*(u32 *)(mempool[11] + 44));
+	if(getEyeFrameTileNoDeltaH(portrait) == -1)	// 超出64x64的范围
+		return;
+	if(eyeStatus & (~0x81))
+	{
+		changeTiles((int)portrait->mainPortrait + 4 + 32 * getEyeFrameTileNoDeltaH(portrait),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + getEyeFrameTileNoDeltaH(portrait)) & 0x3FF),4,1);
+		if(getEyeFrameTileNoDeltaH(portrait) >= 32 * 3 && getEyeFrameTileNoDeltaH(portrait) <= 32 * 3 + 4)
+			changeTiles((int)portrait->mainPortrait + 4 + 32 * (getEyeFrameTileNoDeltaH(portrait) - 32 * 3 + 8),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + getEyeFrameTileNoDeltaH(portrait) - 32 * 3 + 8) & 0x3FF),4,1);
+		else
+			changeTiles((int)portrait->mainPortrait + 4 + 32 * (getEyeFrameTileNoDeltaH(portrait) + 32),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + getEyeFrameTileNoDeltaH(portrait) - 32 * 3 + 8) & 0x3FF),4,1);
+		return;
+	}
+	eyeShape = eyeStatus & 1;
+	winkFlag = eyeStatus & 0x80;
+	if(getEyeFrameTileNoDeltaH(portrait) >= 32 * 3 && getEyeFrameTileNoDeltaH(portrait) <= 32 * 3 + 4)	// 2个上下相邻的64x32的矩形区域的交界处
+		if(winkFlag)
+		{
+			changeTiles((int)portrait->classCard + 32 * (4 * 2 * eyeShape + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + getEyeFrameTileNoDeltaH(portrait) + 2) & 0x3FF),2,1);
+			changeTiles((int)portrait->classCard + 32 * (4 * (2 * eyeShape + 1) + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + getEyeFrameTileNoDeltaH(portrait) + 2 - 32 * 3 + 8) & 0x3FF),2,1);
+		}
+		else
+		{
+			changeTiles((int)portrait->classCard + 32 * 4 * 2 * eyeShape,0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + getEyeFrameTileNoDeltaH(portrait)) & 0x3FF),4,1);
+			changeTiles((int)portrait->classCard + 32 * 4 * (2 * eyeShape + 1),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + getEyeFrameTileNoDeltaH(portrait) - 32 * 3 + 8) & 0x3FF),4,1);
+		}
+	else	// 在任意一个64x32的矩形区域内部
+		if(winkFlag)
+		{
+			changeTiles((int)portrait->classCard + 32 * (4 * 2 * eyeShape + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + getEyeFrameTileNoDeltaH(portrait) + 2) & 0x3FF),2,1);
+			changeTiles((int)portrait->classCard + 32 * (4 * (2 * eyeShape + 1) + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + getEyeFrameTileNoDeltaH(portrait) + 2 + 32) & 0x3FF),2,1);
+		}
+		else
+			changeTiles((int)portrait->classCard + 32 * 4 * 2 * eyeShape,0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + getEyeFrameTileNoDeltaH(portrait)) & 0x3FF),4,2);
+}
+
+// 眨眼和使眼色 (立式)
+void blinkOrWinkV(u32 *mempool, int eyeStatus)
+{
+	int eyeShape;	// 闭眼还是半闭眼
+	int winkFlag;	// 是否只针对外侧的那只眼睛
+	struct Portrait *portrait;	// 头像
+	// portrait->eyePositionX和portrait->eyePositionY的参考原点是横式的，需要把坐标系变换到立式，所以定义如下2个变量
+	int x;	// 眼睛帧横坐标(坐标系变换后的)
+	int y;	// 眼睛帧纵坐标(坐标系变换后的)
+	
+	portrait = (struct Portrait *)(*(u32 *)(mempool[11] + 44));
+	x = portrait->eyePositionX - 1;
+	y = portrait->eyePositionY + 2;
+	if(x < 0 || x > 6 || y < 0 || y > 10 || (x > 4 && y > 6))	// 从实际应用场景出发忽略了部分区域6和7的情形
+		return;
+	eyeShape = min(eyeStatus & 3,2);
+	if(++eyeShape == 3)
+		eyeShape = 0;
+	winkFlag = eyeStatus & 0x80;
+	
+	if(y <= 2)	// 完全被包含在区域1和2的内部
+	{
+		if(winkFlag)
+		{
+			changeTiles((int)portrait->classCard + 32 * (4 * 2 * eyeShape + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * y + x + 2) & 0x3FF),2,1);
+			changeTiles((int)portrait->classCard + 32 * (4 * (2 * eyeShape + 1) + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * y + x + 2) & 0x3FF),2,1);
+		}
+		else
+			changeTiles((int)portrait->classCard + 32 * 4 * 2 * eyeShape,0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * y + x) & 0x3FF),4,2);
+	}
+	else if(y <= 3)	// 位于区域12和34的交界处
+	{
+		if(winkFlag)
+		{
+			changeTiles((int)portrait->classCard + 32 * (4 * 2 * eyeShape + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * y + x + 2) & 0x3FF),2,1);
+			changeTiles((int)portrait->classCard + 32 * (4 * (2 * eyeShape + 1) + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 4 + 1) + 10 + x + 2) & 0x3FF),2,1);
+		}
+		else
+		{
+			changeTiles((int)portrait->classCard + 32 * 4 * 2 * eyeShape,0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * y + x) & 0x3FF),4,1);
+			changeTiles((int)portrait->classCard + 32 * 4 * 2 * eyeShape,0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 4 + 1) + 10 + x) & 0x3FF),4,1);
+		}
+	}
+	else if(y <= 6)	// 完全被包含在区域3和4的内部
+	{
+		if(winkFlag)
+		{
+			changeTiles((int)portrait->classCard + 32 * (4 * 2 * eyeShape + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 4) + 10 + x + 2) & 0x3FF),2,1);
+			changeTiles((int)portrait->classCard + 32 * (4 * (2 * eyeShape + 1) + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 4 + 1) + 10 + x + 2) & 0x3FF),2,1);
+		}
+		else
+			changeTiles((int)portrait->classCard + 32 * 4 * 2 * eyeShape,0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 4) + 10 + x) & 0x3FF),4,2);
+	}
+	else if(y <= 7)	// 位于区域3和5的交界处
+	{
+		if(winkFlag)
+		{
+			changeTiles((int)portrait->classCard + 32 * (4 * 2 * eyeShape + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 4) + 10 + x + 2) & 0x3FF),2,1);
+			changeTiles((int)portrait->classCard + 32 * (4 * (2 * eyeShape + 1) + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 8 + 1) + 20 + x + 2) & 0x3FF),2,1);
+		}
+		else
+		{
+			changeTiles((int)portrait->classCard + 32 * 4 * 2 * eyeShape,0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 4) + 10 + x) & 0x3FF),4,1);
+			changeTiles((int)portrait->classCard + 32 * 4 * 2 * eyeShape,0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 8 + 1) + 20 + x) & 0x3FF),4,1);
+		}
+	}
+	else	// 位于区域5的内部
+	{
+		if(winkFlag)
+		{
+			changeTiles((int)portrait->classCard + 32 * (4 * 2 * eyeShape + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 8) + 20 + x + 2) & 0x3FF),2,1);
+			changeTiles((int)portrait->classCard + 32 * (4 * (2 * eyeShape + 1) + 2),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 8 + 1) + 20 + x + 2) & 0x3FF),2,1);
+		}
+		else
+			changeTiles((int)portrait->classCard + 32 * 4 * 2 * eyeShape,0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + 32 * (y - 8) + 20 + x) & 0x3FF),4,2);
+	}
+	
+}
+
+
+// 获取眼睛帧的起始Tile编号差值 (横式)
+int getEyeFrameTileNoDeltaH(struct Portrait *portrait)
+{
+	if(portrait->eyePositionX < 2 || portrait->eyePositionX > 6 || portrait->eyePositionY < 0 || portrait->eyePositionY > 6)
+		return -1;
+	else
+		if(portrait->eyePositionY < 4)
+			return 32 * portrait->eyePositionY + portrait->eyePositionX - 2;
+		else
+			return 32 * (portrait->eyePositionY - 4) + portrait->eyePositionX - 2 + 8;
+}
+
+// 根据新老格式的不同调用相应的眨眼/使眼色函数
+void callBlinkOrWink(u32 *mempool, int eyeStatus)
+{
+	struct Portrait *portrait;	// 头像
+
+//	portrait = (struct Portrait *)(mempool[11] + 11);
+	portrait = (struct Portrait *)(*(u32 *)(mempool[11] + 44));
+	if(portrait->portraitFormatFlag)		
+	{
+		if(portrait->portraitFormatFlag & 2)	
+			blinkOrWinkV(mempool,eyeStatus);	// 立式
+		else
+			blinkOrWinkH(mempool,eyeStatus);	// 横式
+	}											
+	else										
+		oldBlinkOrWink(mempool,eyeStatus);		// 老式
+}
+
+// 眨眼/使眼色函数接口
+void callCallBlinkOrWink(u32 *mempool, int eyeStatus)
+{
+	callBlinkOrWink(mempool,eyeStatus);
+}
+
+// 调用到BlinkOrWink的函数1
+// 眨眼
+void blink(s16 *mempool)
+{
+	int eyeStatus;
+
+	eyeStatus = 2;
+	if(mempool[26] <= 0xA)
+	{
+		switch(mempool[26])
+		{
+			case 3u:
+			case 4u:
+			case 5u:
+				eyeStatus = 0;
+				break;
+			case 0u:
+			case 1u:
+			case 2u:
+			case 6u:
+			case 7u:
+			case 8u:
+				eyeStatus = 1;
+				break;
+			case 0xAu:
+				sub(80045FC)((int)mempool,0);
+				break;
+			default:
+				break;
+		}
+	}
+	callCallBlinkOrWink((u32 *)mempool,eyeStatus);
+	++mempool[26];
+}
+
+// 调用到BlinkOrWink的函数1接口
+__attribute__((section(".callBlink")))
+void callBlink(s16 *mempool)
+{
+	blink(mempool);
+}
+
+// 调用到BlinkOrWink的函数2
+void sub_80077E8(s16 *mempool)
+{
+	if(mempool[26] > 5)
+	{
+		callCallBlinkOrWink((u32 *)mempool,0);
+		if(!mempool[25])
+			sub(80045FC)((int)mempool,1);
+	}
+	else
+		blink(mempool);
+}
+
+// 调用到BlinkOrWink的函数2接口
+__attribute__((section(".call_sub_80077E8")))
+void call_sub_80077E8(s16 *mempool)
+{
+	sub_80077E8(mempool);
+}
+
+// 调用到BlinkOrWink的函数3
+void sub_8007824(s16 *mempool)
+{
+	if(mempool[26] > 2)
+	{
+		callCallBlinkOrWink((u32 *)mempool,1);
+		if(!mempool[25])
+			sub(80045FC)((int)mempool,1);
+	}
+	else
+		blink(mempool);
+}
+
+// 调用到BlinkOrWink的函数3接口
+__attribute__((section(".call_sub_8007824")))
+void call_sub_8007824(s16 *mempool)
+{
+	sub_8007824(mempool);
+}
+
+// 调用到BlinkOrWink的函数4
+// 使眼色
+void wink(s16 *mempool)
+{
+	int eyeStatus;
+
+	eyeStatus = 2;
+	if(mempool[26] <= 0xA)
+	{
+		switch(mempool[26])
+		{
+			case 3u:
+			case 4u:
+			case 5u:
+				eyeStatus = 0;
+				break;
+			case 0u:
+			case 1u:
+			case 2u:
+			case 6u:
+			case 7u:
+			case 8u:
+				eyeStatus = 1;
+				break;
+			case 0xAu:
+				sub(80045FC)((int)mempool,0);
+				break;
+			default:
+				break;
+		}
+	}
+	callCallBlinkOrWink((u32 *)mempool,eyeStatus + 0x80);
+	++mempool[26];
+}
+
+// 调用到BlinkOrWink的函数4接口
+__attribute__((section(".callWink")))
+void callWink(s16 *mempool)
+{
+	wink(mempool);
+}
+
+// 选择大头像精灵组合模板
+// 总共有8种模板，左右对称，4-6-8-8(总精灵数)，2x4=8种，我这里只扩展6块的模板，其他的也可以做类似扩展，但是我不清楚其余的模板在哪里被用到，所以暂不扩展
+void chooseMainPortraitSpriteTemplate(u32 *mempool)
+{
+	u32 flag1;	// 控制模板选择
+	void *templateSelected;	// 选中的模板
+	u32 flag2;
+	s16 delta;
+	struct Portrait *portrait;	// 头像
+
+	portrait = (struct Portrait *)mempool[11];
+	flag1 = mempool[12] & 0x807;
+	if ( flag1 == 3 )
+	{
+		if(portrait->portraitFormatFlag & 2)
+			templateSelected = (void *)&newPortraitTemplateLeftV;
+		else
+			if(portrait->portraitFormatFlag)
+				templateSelected = (void *)&newPortraitTemplateLeftH;
+			else
+				templateSelected = oldPortraitTemplateLeft;
+LABEL_18:
+		mempool[14] = (u32)templateSelected;
+		goto LABEL_19;
+	}
+	if ( flag1 <= 3 )
+	{
+		if ( flag1 == 1 )
+		{
+			templateSelected = 0x8BFF828 + 26;
+		}
+		else if ( flag1 > 1 )
+		{
+			if(portrait->portraitFormatFlag & 2)
+				templateSelected = (void *)&newPortraitTemplateRightV;
+			else
+				if(portrait->portraitFormatFlag)
+					templateSelected = (void *)&newPortraitTemplateRightH;
+				else
+					templateSelected = oldPortraitTemplateRight;
+
+		}
+		else
+		{
+			templateSelected = 0x8BFF828;
+		}
+		goto LABEL_18;
+	}
+	if ( flag1 == 5 )
+	{
+		templateSelected = 0x8BFF8A8 + 50;
+		goto LABEL_18;
+	}
+	if ( flag1 < 5 )
+	{
+		templateSelected = 0x8BFF8A8;
+		goto LABEL_18;
+	}
+	if ( flag1 == 0x800 )
+	{
+		templateSelected = 0x8BFF90C;
+		goto LABEL_18;
+	}
+	if ( flag1 == 0x801 )
+	{
+		templateSelected = 0x8BFF90C + 50;
+		goto LABEL_18;
+	}
+LABEL_19:
+	flag2 = mempool[12] & 0x3C0;
+	if ( flag2 == 0x80 )
+	{
+		delta = 0x400;
+	}
+	else if ( flag2 > 0x80 )
+	{
+		if ( flag2 != 512 )
+			goto LABEL_28;
+		delta = 0xC00;
+	}
+	else
+	{
+		if ( flag2 != 0x40 )
+		{
+LABEL_28:
+			delta = 0x800;
+			goto LABEL_29;
+		}
+		delta = 0;
+	}
+LABEL_29:
+	*((s16 *)mempool + 30) = (*(s32 *)(8 * *((s8 *)mempool + 64) + 0x202A580) >> 5)
+															 + ((*(s16 *)(8 * *((s8 *)mempool + 64) + 0x202A584) & 0xF) << 12)
+															 + delta;
+}
+
+// 新的选择大头像精灵组合模板函数的接口
+__attribute__((section(".callChooseMainPortraitSpriteTemplate")))
+void callChooseMainPortraitSpriteTemplate(s16 *mempool)
+{
+	chooseMainPortraitSpriteTemplate((u32 *)mempool);
+}
+
+// 新的人物详情界面头像框绘制函数
+void drawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIndex, int presentBGPaletteIndex)
+{
+	struct Portrait *portrait;	// 头像
+	u16 *i;
+	signed int j;
+
+	if(!portraitID)
+		return;
+	portrait = GetPortrait(portraitID);
+	OutputToBGPaletteBuffer(portrait->portraitPalette, 32 * presentBGPaletteIndex, 32);
+	if(portrait->mainPortrait)	// 有头像画头像
+	{
+		AutoCopyOrDecompressImageToVRAM(portrait->mainPortrait, 32 * presentBGTileIndex + 0x6000000);
+		OutputToBGPaletteBuffer(portrait->portraitPalette, 32 * presentBGPaletteIndex, 32);
+		if(portrait->portraitFormatFlag)	// 新头像格式
+		{
+			if(portrait->portraitFormatFlag & 2)
+				writePortraitTSAInBoxV(TSABufferInWRAM, ((presentBGPaletteIndex & 0xF)<< 12) + (presentBGTileIndex & 0x3FF), portrait);
+			else
+				writePortraitTSAInBoxH(TSABufferInWRAM, ((presentBGPaletteIndex & 0xF)<< 12) + (presentBGTileIndex & 0x3FF), portrait);
+		}
+		else	// 旧头像格式
+		{
+			if(PortraitHeightFix(portraitID)<<24)
+				WriteHighPortraitTSAInBox(TSABufferInWRAM, ((presentBGPaletteIndex & 0xF)<< 12) + (presentBGTileIndex & 0x3FF), portrait);
+			else
+				WriteLowPortraitTSAInBox(TSABufferInWRAM, ((presentBGPaletteIndex & 0xF)<< 12) + (presentBGTileIndex & 0x3FF), portrait);
+			// 裁掉左上和右上个一个6像素竖条
+			i = TSABufferInWRAM;
+			j = 5;
+			do
+			{
+				*i = 0;
+				i[9] = 0;
+				i += 32;
+				--j;
+			}
+			while(j >= 0);
+		}
+	}
+	else	// 无头像画职业卡
+	{
+		AutoCopyOrDecompressImageToVRAM(portrait->classCard, 32 * presentBGTileIndex + 0x6000000);
+		writePlainTSA(TSABufferInWRAM, (presentBGPaletteIndex << 12) + (presentBGTileIndex & 0x3FF), 10, 9);
+	}
+}
+
+// 填充新格式头像框TSA (横式)
+void writePortraitTSAInBoxH(u16 *TSABufferInWRAM, u16 tileIndexAndPaletteIndex, struct Portrait *portrait)
+{
+	int x;	// 嘴部帧在头像框中的横坐标
+	int y;	// 嘴部帧在头像框中的纵坐标
+	void *templateSelected;	// 选中的模板地址
+	u16 *mouthTSA;	// 嘴部帧TSA的起始地址
+
+	x = portrait->mouthPositionX - 1 + portrait->boxPositionX;
+	y = portrait->mouthPositionY + portrait->boxPositionY;
+	// 根据头像框位置偏移选择模板
+	if(portrait->boxPositionX > -2 && portrait->boxPositionX < 2 && portrait->boxPositionY > -2 && portrait->boxPositionY < 1)
+		templateSelected = newPortraitInBoxTemplateTableH[-3 * portrait->boxPositionY + portrait->boxPositionX + 1];
+	else
+		templateSelected = newPortraitInBoxTemplateH;
+		
+	// 根据选中的填充TSA
+	sub(80C0C28)(TSABufferInWRAM, templateSelected, tileIndexAndPaletteIndex);
+	
+	// 填充嘴部帧TSA
+	if(!(portrait->boxPositionX > -2 && portrait->boxPositionX < 2 && portrait->boxPositionY > -2 && portrait->boxPositionY < 1))
+		{
+			x = portrait->mouthPositionX - 1;
+			y = portrait->mouthPositionY;
+		}
+	mouthTSA = &TSABufferInWRAM[32 * y + x];
+	mouthTSA[0] = tileIndexAndPaletteIndex + 28;
+	mouthTSA[1] = tileIndexAndPaletteIndex + 29;
+	mouthTSA[2] = tileIndexAndPaletteIndex + 30;
+	mouthTSA[3] = tileIndexAndPaletteIndex + 31;
+	mouthTSA[32] = tileIndexAndPaletteIndex + 60;
+	mouthTSA[33] = tileIndexAndPaletteIndex + 61;
+	mouthTSA[34] = tileIndexAndPaletteIndex + 62;
+	mouthTSA[35] = tileIndexAndPaletteIndex + 63;
+}
+
+// 填充新格式头像框TSA (立式)
+void writePortraitTSAInBoxV(u16 *TSABufferInWRAM, u16 tileIndexAndPaletteIndex, struct Portrait *portrait)
+{
+	int y;	// 嘴部帧在头像框中的纵坐标
+	void *templateSelected;	// 选中的模板地址
+	u16 *mouthTSA;	// 嘴部帧TSA的起始地址
+
+	y = portrait->mouthPositionY - portrait->boxPositionY - 1;
+	// 根据头像框位置偏移选择模板
+	if(portrait->boxPositionY > -4 && portrait->boxPositionY < 1)
+		templateSelected = newPortraitInBoxTemplateTableV[- portrait->boxPositionY];
+	else
+		templateSelected = newPortraitInBoxTemplateV;	// 不合法的值强制使用默认模板
+		
+	// 根据选中的填充TSA
+	sub(80C0C28)(TSABufferInWRAM, templateSelected, tileIndexAndPaletteIndex);
+	
+	// 不合法的值则视为0
+	if(portrait->boxPositionY < -3 || portrait->boxPositionY > 0)
+		y = portrait->mouthPositionY;
+	// 填充嘴部帧TSA
+	mouthTSA = &TSABufferInWRAM[32 * y];
+	mouthTSA[0] = tileIndexAndPaletteIndex + 28;
+	mouthTSA[1] = tileIndexAndPaletteIndex + 29;
+	mouthTSA[2] = tileIndexAndPaletteIndex + 30;
+	mouthTSA[3] = tileIndexAndPaletteIndex + 31;
+	mouthTSA[32] = tileIndexAndPaletteIndex + 60;
+	mouthTSA[33] = tileIndexAndPaletteIndex + 61;
+	mouthTSA[34] = tileIndexAndPaletteIndex + 62;
+	mouthTSA[35] = tileIndexAndPaletteIndex + 63;
+}
+
+
+// 新的人物详情界面头像框绘制函数的接口
+__attribute__((section(".callDrawPortraitInBox")))
+void callDrawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIndex, int presentBGPaletteIndex)
+{
+	drawPortraitInBox(TSABufferInWRAM, portraitID, presentBGTileIndex, presentBGPaletteIndex);
+}
+
