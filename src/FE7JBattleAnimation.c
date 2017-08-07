@@ -810,6 +810,7 @@ LABEL_141:
 }
 */
 
+/*
 // 处理动画事件
 void battleAnimationEventHandlerEx()
 {
@@ -1366,6 +1367,7 @@ LABEL_141:
 	}
 	while ( v2 <= 3 );
 }
+*/
 
 __attribute__((section(".callBattleAnimationEventHandlerEx")))
 void callBattleAnimationEventHandlerEx()
