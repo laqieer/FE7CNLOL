@@ -1369,9 +1369,11 @@ LABEL_141:
 }
 */
 
+/*
 __attribute__((section(".callBattleAnimationEventHandlerEx")))
 void callBattleAnimationEventHandlerEx()
 {
 	battleAnimationEventHandlerEx();
 }
+*/
 

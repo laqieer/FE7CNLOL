@@ -102,11 +102,11 @@ enum {
 void UnitKakudai1Ex(struct context *ctx);
 
 // 处理动画事件(扩展)
-#pragma long_calls
-void battleAnimationEventHandlerEx();
-#pragma long_calls_off
+//#pragma long_calls
+//void battleAnimationEventHandlerEx();
+//#pragma long_calls_off
 
-void callBattleAnimationEventHandlerEx();
+//void callBattleAnimationEventHandlerEx();
 
 // 原来的战斗动画事件处理程序
 // void battleAnimationEventHandler();

@@ -47,8 +47,10 @@ SECTIONS
 	.callBattleAnimationInit : {*.o(.callBattleAnimationInit)}	
 	. = 0x8C0A560;
 	.ekrUnitKakudaiEx : {*.o(.ekrUnitKakudaiEx)}
-	. = 0x8053C3C;
-	.callBattleAnimationEventHandlerEx : {*.o(.callBattleAnimationEventHandlerEx)}	
+/*	. = 0x8053C3C;
+	.callBattleAnimationEventHandlerEx : {*.o(.callBattleAnimationEventHandlerEx)}	*/
+	. = 0x805408C;
+	.C0DHandlerJPTCase0_1_2_3_9 : {*.o(.C0DHandlerJPTCase0_1_2_3_9)}
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}
