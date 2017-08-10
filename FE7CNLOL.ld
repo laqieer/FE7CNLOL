@@ -51,6 +51,12 @@ SECTIONS
 	.callBattleAnimationEventHandlerEx : {*.o(.callBattleAnimationEventHandlerEx)}	*/
 	. = 0x805408C;
 	.C0DHandlerJPTCase0_1_2_3_9 : {*.o(.C0DHandlerJPTCase0_1_2_3_9)}
+	. = 0x8053CB4;
+	.battleAnimationEventHandlerJPT : {*.o(.battleAnimationEventHandlerJPT)}
+	. = 0x8006580;
+	.sub_8006518JPT : {*.o(.sub_8006518JPT)}
+	. = 0x8068050;
+	.playBattleAnimationSFXJPT : {*.o(.playBattleAnimationSFXJPT)}
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}
