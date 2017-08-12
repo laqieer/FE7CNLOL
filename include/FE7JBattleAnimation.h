@@ -121,3 +121,26 @@ void UnitKakudai1Ex(struct context *ctx);
 #define a1e a1
 */
 
+#pragma long_calls
+void sub_8054AC0(int xl, int xr);
+#pragma long_calls_off
+
+void call_sub_8054AC0(int xl, int xr);
+
+// 战斗双方AIS初始化
+// xl和xr分别为左右双方偏离中央的距离
+// 进接攻击: xl = xr = 6
+// 远程攻击: xl = xr = 8
+// void battleAnimationAISInit(int xl,int xr);
+#define battleAnimationAISInit	sub_8054AC0
+
+
+#pragma long_calls
+void sub_8054D7C(int a1, int a2);
+#pragma long_calls_off
+
+void call_sub_8054D7C(int a1, int a2);
+
+// 判断动画是在左边还是右边
+// bool isUnitAtRightOrLeft(int AIS);
+#define isUnitAtRightOrLeft		sub(8054E60)

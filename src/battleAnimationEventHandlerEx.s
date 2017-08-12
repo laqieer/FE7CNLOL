@@ -7,6 +7,10 @@
 .equ BattleAnimationSectionInfoRightSide,0x2000060
 .equ BattleAnimationEventBufferLeftSide,0x200F1C8
 .equ BattleAnimationSectionInfoLeftSide,0x200005C
+.equ isUnitAtRightOrLeft,0x8054E60
+.equ BattleAnimationEventBufferRightSide,0x2011BC8
+.equ BattleAnimationOAML2RBuffer,0x20041C8
+
 @ .equ loc_80541DA,0x80541DA
 @ .equ loc_80541B8,0x80541B8
 @ battleAnimationEventHandlerEx.s:34:(.text+0x8): relocation truncated to fit: R_ARM_THM_JUMP11 against `*ABS*0x80541b8'
@@ -33,6 +37,7 @@
 @ case 0,1,2,3,9 的分支
 @ .section .text
 .text
+.align
 C0DHandlerJPTCase0_1_2_3_9:
 	MOVS    R0, #1          @ jumptable 08054080 cases 0-3,9
 	NEG    R0, R0
@@ -414,6 +419,7 @@ BX_r4:
 @ 85 00 XX 01
 @ XX为循环的4字节数
 .text
+.align
 loc_80065EC_EX:
 	LDR     R0, =0xFFF      @ jumptable 08006578 case 5
 	LDRH    R5, [R2,#0xC]
@@ -557,6 +563,8 @@ BX_r0:
 @ 战斗动画音效播放指令扩展
 @ 85 XX YY 48 播放音效XXYY
 @ case 72(0x48)
+.text
+.align
 loc_806829C_EX:
 	ldr r4,[sp,#0x1C]	@ 读取AIS地址
 	ldr r4,[r4,#0x20]	@ 读取下一条指令地址
@@ -566,3 +574,157 @@ loc_806829C_EX:
 	lsr	r4,r4,#10	@ 取音效ID,即XXYY
 	ldr r0,=0x80682D8
 	mov pc,r0
+
+.align
+.global	sub_8054D7C
+.thumb_func
+sub_8054D7C:
+	@ battleAnimationEventHandler+494p ...
+	PUSH    {R4-R7,LR}
+	MOVS    R4, R0
+	MOVS    R6, R1
+	PUSH	{R4}
+	LDR	R4, =1+0x8054E4C
+	BL	BX_r4
+	POP	{R4}
+	CMP     R0, #0
+	BNE     loc_8054D9C
+	LDR     R0, =0x81DE1E0
+	LSL    R1, R6, #2
+	ADD    R2, R1, R0
+	LDRB    R5, [R2]
+	ADD    R1, #1
+	ADD    R1, R1, R0
+	B       loc_8054DAA
+	.ltorg
+	@ ---------------------------------------------------------------------------
+@off_8054D98:     .word 0x81DE1E0       @ DATA XREF: 0x8054D7C+Er
+	@ ---------------------------------------------------------------------------
+loc_8054D9C:                             @ CODE XREF: 0x8054D7C+Cj
+	LDR     R2, =0x81DE1E0
+	LSL    R1, R6, #2
+	ADD    R0, R1, #2
+	ADD    R0, R0, R2
+	LDRB    R5, [R0]
+	ADD    R1, #3
+	ADD    R1, R1, R2
+loc_8054DAA:                             @ CODE XREF: 0x8054D7C+1Aj
+	LDRB    R7, [R1]
+	CMP     R5, #0xFF
+	BEQ     loc_8054DF0
+	MOVS    R0, R4
+	PUSH	{R4}
+@	LDR	R4, =1+isUnitAtRightOrLeft @ 判断动画是在左边还是右边
+	@	gdb卡调试死的bug
+	ldr r4,=0x8054E61
+	BL	BX_r4
+	POP	{R4}
+	CMP     R0, #0
+	BNE     loc_8054DD4
+	LDR     R0, =BattleAnimationSectionInfoLeftSide
+	LDR     R1, [R0]
+	LSL    R0, R5, #2
+	ADD    R0, R0, R1
+	LDR     R1, [R0]
+	LDR     R0, =BattleAnimationEventBufferLeftSide
+	@ 添加无压缩动画事件脚本支持
+	ldr	r2,[r0]
+	ldr r3,=0x71616C
+	cmp r2,r3
+	bne	loc_8054DE0
+	ldr r0,[r0,#4]
+	@ 添加部分结束
+	B       loc_8054DE0
+	.ltorg
+	@ ---------------------------------------------------------------------------
+@off_8054DC8:     .word 0x81DE1E0       @ DATA XREF: 0x8054D7C:loc_8054D9Cr
+@off_8054DCC:     .word BattleAnimationSectionInfoLeftSide
+	@ DATA XREF: 0x8054D7C+3Er
+@off_8054DD0:     .word BattleAnimationEventBufferLeftSide
+	@ DATA XREF: 0x8054D7C+48r
+	@ ---------------------------------------------------------------------------
+loc_8054DD4:                             @ CODE XREF: 0x8054D7C+3Cj
+	LDR     R0, =BattleAnimationSectionInfoRightSide
+	LDR     R1, [R0]
+	LSL    R0, R5, #2
+	ADD    R0, R0, R1
+	LDR     R1, [R0]
+	LDR     R0, =BattleAnimationEventBufferRightSide
+	@ 添加无压缩动画事件脚本支持
+	ldr	r2,[r0]
+	ldr r3,=0x71616C
+	cmp r2,r3
+	bne	loc_8054DE0
+	ldr r0,[r0,#4]
+	@ 添加部分结束
+loc_8054DE0:                             @ CODE XREF: 0x8054D7C+4Aj
+	ADD    R1, R1, R0
+	STR     R1, [R4,#0x24]
+	STR     R1, [R4,#0x20]
+	B       loc_8054DFA
+	.ltorg
+	@ ---------------------------------------------------------------------------
+@off_8054DE8:     .word BattleAnimationSectionInfoRightSide
+	@ DATA XREF: 0x8054D7C:loc_8054DD4r
+@off_8054DEC:     .word BattleAnimationEventBufferRightSide
+	@ DATA XREF: 0x8054D7C+62r
+	@ ---------------------------------------------------------------------------
+loc_8054DF0:                             @ CODE XREF: 0x8054D7C+32j
+	LDR     R0, =0x8C0A5D8
+	STR     R0, [R4,#0x24]
+	STR     R0, [R4,#0x20]
+	MOVS    R0, #0
+	STRH    R0, [R4,#0x10]
+loc_8054DFA:                             @ CODE XREF: 0x8054D7C+6Aj
+	MOVS    R3, #0
+	MOVS    R2, #0
+	STRH    R7, [R4,#0xA]
+	LDR     R0, =0xF3FF
+	LDRH    R1, [R4,#8]
+	AND    R0, R1
+	MOV    R5, #0x8
+	LSL    R5, R5, #8
+	MOVS    R1, R5
+	ORR    R0, R1
+	STRH    R0, [R4,#8]
+	STRH    R2, [R4,#6]
+	MOV    R0, #0x7
+	LSL    R0, R0, #8
+	LDRH    R1, [R4,#0xC]
+	AND    R0, R1
+	STRH    R0, [R4,#0xC]
+	STRB    R6, [R4,#0x12]
+	STRB    R3, [R4,#0x14]
+	MOVS    R0, R4
+	PUSH	{R4}
+	LDR	R4, =1+isUnitAtRightOrLeft @ 判断动画是在左边还是右边
+	BL	BX_r4
+	POP	{R4}
+	LSL    R1, R0, #1
+	ADD    R1, R1, R0
+	LSL    R1, R1, #2
+	SUB    R1, R1, R0
+	LSL    R1, R1, #0xB
+	LDR     R0, =BattleAnimationOAML2RBuffer
+	ADD    R1, R1, R0
+	@ 添加无压缩OAM支持
+	ldr	r2,[r1]
+	ldr r3,=0x71616C	@ 用这个特征码区分是否压缩
+	cmp r2,r3
+	bne	compressedOAM
+@ 用0x10压缩头区分
+@	ldrb r2,[r1]
+@	cmp	r2,#0x10
+@	beq	compressedOAM
+	ldr r1,[r1,#4]
+compressedOAM:	
+	@ 添加部分结束
+	STR     R1, [R4,#0x30]
+	PUSH	{R4}
+	LDR	R4, =1+0x8006488
+	BL	BX_r4
+	POP	{R4}
+	POP     {R4-R7}
+	POP     {R0}
+	BX      R0
+	

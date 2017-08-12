@@ -46,17 +46,24 @@ SECTIONS
 	. = 0x805480C;
 	.callBattleAnimationInit : {*.o(.callBattleAnimationInit)}	
 	. = 0x8C0A560;
-	.ekrUnitKakudaiEx : {*.o(.ekrUnitKakudaiEx)}
+	.ekrUnitKakudaiEx : {*.o(.ekrUnitKakudaiEx)}	
 /*	. = 0x8053C3C;
 	.callBattleAnimationEventHandlerEx : {*.o(.callBattleAnimationEventHandlerEx)}	*/
-	. = 0x805408C;
-	.C0DHandlerJPTCase0_1_2_3_9 : {*.o(.C0DHandlerJPTCase0_1_2_3_9)}
+	. = 0x805408C;	
+/*	.C0DHandlerJPTCase0_1_2_3_9 : {*.o(.C0DHandlerJPTCase0_1_2_3_9)}	*/
+	.C0DHandlerJPT : {*.o(.C0DHandlerJPT)}	
 	. = 0x8053CB4;
-	.battleAnimationEventHandlerJPT : {*.o(.battleAnimationEventHandlerJPT)}
+	.battleAnimationEventHandlerJPT : {*.o(.battleAnimationEventHandlerJPT)}	
 	. = 0x8006580;
-	.sub_8006518JPT : {*.o(.sub_8006518JPT)}
+	.sub_8006518JPT : {*.o(.sub_8006518JPT)}	
 	. = 0x8068050;
-	.playBattleAnimationSFXJPT : {*.o(.playBattleAnimationSFXJPT)}
+	.playBattleAnimationSFXJPT : {*.o(.playBattleAnimationSFXJPT)}	
+	. = 0x8054AC0;
+	.callBattleAnimationAISInit : {*.o(.callBattleAnimationAISInit)}	
+	. = 0x8054D7C;
+	.call_sub_8054D7C : {*.o(.call_sub_8054D7C)}	
+	. = 0x8E00008 + 0x20 * (0x5E - 1);
+	.NinoSageAnimation : {*.o(.NinoSageAnimation)}	
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}

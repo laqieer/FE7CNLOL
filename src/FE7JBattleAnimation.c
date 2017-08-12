@@ -183,7 +183,8 @@ void UnitKakudai1Ex(struct context *ctx)
 	else
 		v3 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[v2];
 	
-    v4 = (void *)*((u32 *)v3 + 1);
+//    v4 = (void *)*((u32 *)v3 + 1);
+	v4 = *((void **)v3 + 1);
 //    *(u32 *)&ctx->userSpace[43] = (char *)BattleAnimationOAML2RBuffer + *((u32 *)v3 + 2);
 
 // 无压缩data4支持
@@ -219,7 +220,8 @@ void UnitKakudai1Ex(struct context *ctx)
     FE7JLZ77UnCompWram(*(void **)0x203E088, 0x2001088);
   if ( *(u32 *)0x203E08C )
     FE7JLZ77UnCompWram(*(void **)0x203E08C, 0x2003088);
-  TileTransferInfoAdd(*(void **)0x2000088, (void *)0x6014000, 0x4000);
+//  TileTransferInfoAdd(*(void **)0x2000088, (void *)0x6014000, 0x4000);
+	TileTransferInfoAdd(0x2000088, (void *)0x6014000, 0x4000);
   *(u16 *)&ctx->userSpace[3] = 0;
   *(u16 *)&ctx->userSpace[5] = 11;
   *(u16 *)&ctx->userSpace[9] = 16 * *(u16 *)0x203E006 + 8;
@@ -1376,4 +1378,267 @@ void callBattleAnimationEventHandlerEx()
 	battleAnimationEventHandlerEx();
 }
 */
+
+// 左侧AIS初始化
+// x控制近接还是远程
+void InitLeftAIS(int x)
+{
+	char v1; // r7@1
+	int v2; // r5@1
+	__int16 v3; // r6@1
+	int v4; // r8@1
+	__int16 v5; // r9@1
+	__int16 v6; // r4@1
+	char *v7; // r0@1
+	int *v8; // r0@3
+	char *v9; // r0@3
+	int *v10; // r0@5
+
+	v1 = x;
+	v2 = LOBYTE(((u32 *)0x81DE1E0)[x]);
+	v3 = BYTE1(((u32 *)0x81DE1E0)[x]);
+	v4 = BYTE2(((u32 *)0x81DE1E0)[x]);
+	v5 = BYTE3(((u32 *)0x81DE1E0)[x]);
+//	v6 = (unsigned __int8)((u8 *)0x81DE20D)[(*(u16 *)0x203E004)];
+	v6 = ((u8 *)0x81DE20D)[(*(u16 *)0x203E004)];
+//	LOWORD((*(u32 *)0x2000030)) = -*((_WORD *)(*(u32 *)0x81DE218) + (*(u16 *)0x203E004));
+	LOWORD((*(u32 *)0x2000030)) = -*((_WORD *)0x81DE218 + *(u16 *)0x203E004);
+	(*(u16 *)0x2000034) = 0;
+	LOWORD((*(u32 *)0x2000028)) = (*(u32 *)0x2000030) + v6;
+	(*(u16 *)0x200002C) = 88;
+//	v7 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[v2];
+
+	// 扩展非压缩data2
+	if(BattleAnimationEventBufferLeftSide[0] == 'l' + ('a'<<8) +('q'<<16))
+		v7 = (char *)BattleAnimationEventBufferLeftSide[1] + BattleAnimationSectionInfoLeftSide[v2];
+	else
+		v7 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[v2];
+	
+	if ( v2 == 255 )
+		v7 = (char *)0x8C0A5D8;
+	v8 = sub(8006424)((int)v7, v3);
+	*((_WORD *)v8 + 1) = (*(u32 *)0x2000028) - (*(u32 *)0x201FB00);
+	*((_WORD *)v8 + 2) = (*(u16 *)0x200002C);
+	*((_WORD *)v8 + 4) = 0x7A00;
+	*((_WORD *)v8 + 6) |= 0x400u;
+	*((_WORD *)v8 + 7) = 0;
+	*((_BYTE *)v8 + 18) = v1;
+	v8[11] = 0x2000088;
+//	v8[12] = BattleAnimationOAML2RBuffer;
+
+	// 扩展无压缩data4
+	v8[12] = (((u32 *)BattleAnimationOAML2RBuffer)[0] == 'l' + ('a'<<8) +('q'<<16))?((void **)BattleAnimationOAML2RBuffer)[1]:BattleAnimationOAML2RBuffer;
+
+	((u32 *)0x2000000)[0] = (int)v8;
+//	v9 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[v4];
+
+	// 扩展非压缩data2
+	if(BattleAnimationEventBufferLeftSide[0] == 'l' + ('a'<<8) +('q'<<16))
+		v9 = (char *)BattleAnimationEventBufferLeftSide[1] + BattleAnimationSectionInfoLeftSide[v4];
+	else
+		v9 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[v4];
+
+	if ( v4 == 255 )
+		v9 = (char *)0x8C0A5D8;
+	v10 = sub(8006424)((int)v9, v5);
+	*((_WORD *)v10 + 1) = (*(u32 *)0x2000028) - (*(u32 *)0x201FB00);
+	*((_WORD *)v10 + 2) = (*(u16 *)0x200002C);
+	*((_WORD *)v10 + 4) = 0x7A00;
+	*((_WORD *)v10 + 6) |= 0x500u;
+	*((_WORD *)v10 + 7) = 0;
+	*((_BYTE *)v10 + 18) = v1;
+	v10[11] = 0x2000088;
+//	v10[12] = BattleAnimationOAML2RBuffer;
+
+	// 扩展无压缩data4
+	v10[12] = (((u32 *)BattleAnimationOAML2RBuffer)[0] == 'l' + ('a'<<8) +('q'<<16))?((void **)BattleAnimationOAML2RBuffer)[1]:BattleAnimationOAML2RBuffer;
+
+	(*(u32 *)0x2000004) = (int)v10;
+}
+
+//  右侧AIS初始化
+// x控制近接还是远程
+void InitRightAIS(int x)
+{
+	char v1; // r5@1
+	int v2; // r3@1
+	__int16 v3; // r4@1
+	int v4; // r6@1
+	__int16 v5; // r7@1
+	__int16 v6; // r2@1
+	char *v7; // r0@1
+	int *v8; // r0@3
+	char *v9; // r0@3
+	int *v10; // r0@5
+
+	v1 = x;
+	v2 = LOBYTE(((u32 *)0x81DE1E0)[x]);
+	v3 = BYTE1(((u32 *)0x81DE1E0)[x]);
+	v4 = BYTE2(((u32 *)0x81DE1E0)[x]);
+	v5 = BYTE3(((u32 *)0x81DE1E0)[x]);
+	v6 = (unsigned __int8)((u8 *)0x81DE212)[(*(u16 *)0x203E004)];
+	HIWORD((*(u32 *)0x2000030)) = 0;
+	(*(u16 *)0x2000036) = 0;
+	HIWORD((*(u32 *)0x2000028)) = v6;
+	(*(u16 *)0x200002E) = 88;
+//	v7 = (char *)BattleAnimationEventBufferRightSide + BattleAnimationSectionInfoRightSide[v2];
+
+	// 扩展无压缩data2
+	if(BattleAnimationEventBufferRightSide[0] == 'l' + ('a'<<8) +('q'<<16))
+		v7 = (char *)BattleAnimationEventBufferRightSide[1] + BattleAnimationSectionInfoRightSide[v2];
+	else
+		v7 = (char *)BattleAnimationEventBufferRightSide + BattleAnimationSectionInfoRightSide[v2];
+
+	// 恶搞:先变身成左边的
+//	v7 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[v2];
+	
+	if ( v2 == 255 )
+		v7 = (char *)0x8C0A5D8;
+	v8 = sub(8006424)((int)v7, v3);
+	*((_WORD *)v8 + 1) = HIWORD((*(u32 *)0x2000028)) - (*(u32 *)0x201FB00);
+	*((_WORD *)v8 + 2) = (*(u16 *)0x200002E);
+	*((_WORD *)v8 + 4) = -25856;
+	*((_WORD *)v8 + 6) |= 0x600u;
+	*((_WORD *)v8 + 7) = 0;
+	*((_BYTE *)v8 + 18) = v1;
+	v8[11] = 0x2002088;
+//	v8[12] = BattleAnimationOAMR2LBuffer;
+
+	// 扩展无压缩data3
+	v8[12] = (((u32 *)BattleAnimationOAMR2LBuffer)[0] == 'l' + ('a'<<8) +('q'<<16))?((void **)BattleAnimationOAMR2LBuffer)[1]:BattleAnimationOAMR2LBuffer;
+//	v8[12] = (((u32 *)BattleAnimationOAMR2LBuffer)[0] == 'l' + ('a'<<8) +('q'<<16))?((u32 *)BattleAnimationOAMR2LBuffer)[1]:(int)BattleAnimationOAMR2LBuffer;
+	(*(u32 *)0x2000008) = (int)v8;
+//	v9 = (char *)BattleAnimationEventBufferRightSide + BattleAnimationSectionInfoRightSide[v4];
+	
+	//	恶搞:先变身成左边的
+//	v8[12] = BattleAnimationOAML2RBuffer;
+
+	// 扩展非压缩data2
+	if(BattleAnimationEventBufferRightSide[0] == 'l' + ('a'<<8) +('q'<<16))
+		v9 = (char *)BattleAnimationEventBufferRightSide[1] + BattleAnimationSectionInfoRightSide[v4];
+	else
+		v9 = (char *)BattleAnimationEventBufferRightSide + BattleAnimationSectionInfoRightSide[v4];
+
+	// 恶搞:先变身成左边的
+//	v9 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[v4];
+
+	if ( v4 == 255 )
+		v9 = (char *)0x8C0A5D8;
+	v10 = sub(8006424)((int)v9, v5);
+	*((_WORD *)v10 + 1) = HIWORD((*(u32 *)0x2000028)) - (*(u32 *)0x201FB00);
+	*((_WORD *)v10 + 2) = (*(u16 *)0x200002E);
+	*((_WORD *)v10 + 4) = -25856;
+	*((_WORD *)v10 + 6) |= 0x700u;
+	*((_WORD *)v10 + 7) = 0;
+	*((_BYTE *)v10 + 18) = v1;
+	v10[11] = (int)0x2002088;
+//	v10[12] = BattleAnimationOAMR2LBuffer;
+
+	// 扩展无压缩data3
+	v10[12] = (((u32 *)BattleAnimationOAMR2LBuffer)[0] == 'l' + ('a'<<8) +('q'<<16))?((void **)BattleAnimationOAMR2LBuffer)[1]:BattleAnimationOAMR2LBuffer;
+//	v10[12] = (((u32 *)BattleAnimationOAMR2LBuffer)[0] == 'l' + ('a'<<8) +('q'<<16))?((u32 *)BattleAnimationOAMR2LBuffer)[1]:(int)BattleAnimationOAMR2LBuffer;
+
+	//	恶搞:先变身成左边的
+//	v10[12] = BattleAnimationOAML2RBuffer;
+
+	(*(u32 *)0x200000C) = (int)v10;
+}
+
+__attribute__((section(".callBattleAnimationAISInit")))
+void call_sub_8054AC0(int xl, int xr)
+{
+	sub_8054AC0(xl,xr);
+}
+
+// 战斗双方AIS初始化
+// xl和xr控制近接还是远程
+// 进接攻击: xl = xr = 6
+// 远程攻击: xl = xr = 8
+void sub_8054AC0(int xl, int xr)
+{
+	// AIS指针数组初始化
+	*(u32 *)0x2000000 = 0;
+	*(u32 *)0x2000004 = 0;
+	*(u32 *)0x2000008 = 0;
+	*(u32 *)0x200000C = 0;
+	// 分别初始化左右两侧的AIS
+	if(IfBattleAnimationIsAtTheLeftSide == 1)
+		InitLeftAIS(xl);
+	if(IfBattleAnimationIsAtTheRightSide == 1)
+		InitRightAIS(xr);
+	// 法师斗篷循环标识	[0x203E004]=4
+	if(*(u16 *)0x203E004 == 4)
+	{
+//		*(u16 *)(*(u32 *)0x2000000) |= 2;
+//		*(u16 *)(*(u32 *)0x2000004) |= 2;
+		**(u16 **)0x2000000 |= 2u;
+		**(u16 **)0x2000004 |= 2u;
+	}
+}
+
+// 命中的时候地面消失和miss的时候自己消失的bug
+/*
+void sub_8054D7C(int a1, int a2)
+{
+	int v2; // r4@1
+	int v3; // r6@1
+	int v4; // r5@2
+	char *v5; // r1@2
+	__int16 v6; // r7@4
+	int v7; // r1@6
+	u32 *v8; // r0@6
+	int v9; // r1@8
+
+	v2 = a1;
+	v3 = a2;
+	if ( sub(8054E4C)(a1) )
+	{
+		v4 = BYTE2(((u32 *)0x81DE1E0)[v3]);
+		v5 = (char *)(0x81DE1E0 + 4 * (v3)) + 3;
+	}
+	else
+	{
+		v4 = LOBYTE(((u32 *)0x81DE1E0)[v3]);
+		v5 = (char *)(0x81DE1E0 + 4 * (v3)) + 1;
+	}
+	v6 = (unsigned __int8)*v5;
+	if ( v4 == 255 )
+	{
+		*(_DWORD *)(v2 + 36) = (*(u32 *)0x8C0A5D8);
+		*(_DWORD *)(v2 + 32) = (*(u32 *)0x8C0A5D8);
+		*(_WORD *)(v2 + 16) = 0;
+	}
+	else
+	{
+		if ( isUnitAtRightOrLeft(v2) )
+		{
+			v7 = BattleAnimationSectionInfoRightSide[v4];
+			v8 = BattleAnimationEventBufferRightSide;
+		}
+		else
+		{
+			v7 = BattleAnimationSectionInfoLeftSide[v4];
+			v8 = BattleAnimationEventBufferLeftSide;
+		}
+		v9 = (int)v8 + v7;
+		*(_DWORD *)(v2 + 36) = v9;
+		*(_DWORD *)(v2 + 32) = v9;
+	}
+	*(_WORD *)(v2 + 10) = v6;
+	*(_WORD *)(v2 + 8) = *(_WORD *)(v2 + 8) & 0xF3FF | 0x800;
+	*(_WORD *)(v2 + 6) = 0;
+	*(_WORD *)(v2 + 12) &= 0x700u;
+	*(_BYTE *)(v2 + 18) = v3;
+	*(_BYTE *)(v2 + 20) = 0;
+	*(_DWORD *)(v2 + 48) = (char *)BattleAnimationOAML2RBuffer + 0x5800 * isUnitAtRightOrLeft(v2);
+	sub(8006488)();
+}
+*/
+
+__attribute__((section(".call_sub_8054D7C")))
+void call_sub_8054D7C(int a1, int a2)
+{
+	sub_8054D7C(a1,a2);
+//	sub(8054D7C)(a1,a2);
+}
 
