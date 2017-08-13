@@ -66,8 +66,8 @@ SECTIONS
 	.C2E_EX : {*.o(.C2E_EX)}
 	. = 0x8053D70;
 	.C2F_EX : {*.o(.C2F_EX)}
-/*	. = 0x8006594;
-	.capeFlowingAnimationEx : {*.o(.capeFlowingAnimationEx)}	*/
+	. = 0x8006594;
+	.capeFlowingAnimationEx : {*.o(.capeFlowingAnimationEx)}	
 	. = 0x806810C;
 	.battleAnimationSoundEx : {*.o(.battleAnimationSoundEx)}
 	. = 0x8E00008 + 0x20 * (0x5E - 1);

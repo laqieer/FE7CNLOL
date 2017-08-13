@@ -478,7 +478,7 @@ callExtraCRTEnd:
 @ 法师斗篷动画整体循环扩展(case 5)
 @ 85 00 XX 01
 @ XX为循环的4字节数
-@ 有卡机bug
+@ 有卡机bug(已修复 2017/8/13)
 .text
 .align
 .global	loc_80065EC_EX
@@ -539,7 +539,8 @@ loc_8006642:                             @ CODE XREF: 0x8006518+FEj
 	lsr	r3,r3,#24
 	lsl r3,r3,#2
 @	bl	0x804dd50
-	ldr r0,=0x804dd50
+@	ldr r0,=0x804dd50
+	ldr r0,=1+0x804dd50
 	bl	BX_r0
 	cmp r0,#1
 	bne	loop

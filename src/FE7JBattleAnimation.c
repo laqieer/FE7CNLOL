@@ -40,7 +40,7 @@ const int C0DHandlerJPT[] = {
 };
 
 // 法师施法斗篷飘动效果扩展(整体循环)
-// 有卡机bug
+// 有卡机bug(已修复 2017/8/13)
 __attribute__((section(".capeFlowingAnimationEx")))
 const int capeFlowingAnimationEx = &loc_80065EC_EX;
 
