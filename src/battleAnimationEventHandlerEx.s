@@ -15,13 +15,18 @@
 @ .equ loc_80541B8,0x80541B8
 @ battleAnimationEventHandlerEx.s:34:(.text+0x8): relocation truncated to fit: R_ARM_THM_JUMP11 against `*ABS*0x80541b8'
 
+@ 在汇编里指定.word 标签并无卵用！实际根本不会更改
+
+@ 注意:def_???????的地址并不是0x???????,而是0x???????处switch语句的default case,jpt_???????同理，是0x???????(mov pc,rx)处switch语句的跳转表
+
+/*
 @ C0D指令处理函数中的跳转表
 .section .C0DHandlerJPT
 .align
-/* .word 0x080540B4 @ case 0
-.word 0x080540B4 @ case 1
-.word 0x080540B4 @ case 2
-.word 0x080540B4 @ case 3 */
+@ .word 0x080540B4 @ case 0
+@ .word 0x080540B4 @ case 1
+@ .word 0x080540B4 @ case 2
+@ .word 0x080540B4 @ case 3 
 .word C0DHandlerJPTCase0_1_2_3_9
 .word C0DHandlerJPTCase0_1_2_3_9
 .word C0DHandlerJPTCase0_1_2_3_9
@@ -33,10 +38,13 @@
 .word 0x080541C6 @ case 8
 @ .word 0x080540B4 @ case 9
 .word C0DHandlerJPTCase0_1_2_3_9
+*/
 
 @ case 0,1,2,3,9 的分支
+@ 还有卡机bug
 @ .section .text
 .text
+.global	C0DHandlerJPTCase0_1_2_3_9
 .align
 C0DHandlerJPTCase0_1_2_3_9:
 	MOVS    R0, #1          @ jumptable 08054080 cases 0-3,9
@@ -316,6 +324,7 @@ BX_r4:
 	blh $1568
 	lsl r1, r0, #0x8 */
 
+/*
 @ 事件处理总跳转表
 .section .battleAnimationEventHandlerJPT
 .align
@@ -365,8 +374,10 @@ BX_r4:
 .word	0x08054460 @ case 2B
 .word	0x08054330 @ case 2C
 .word	0x08054344 @ case 2D
-.word	0x0805438E @ case 2E
-.word	0x080543A4 @ case 2F
+@.word	0x0805438E @ case 2E
+.word	callExtraAnimation
+@.word	0x080543A4 @ case 2F
+.word	callExtraAnimationCRT
 .word	0x080543BA @ case 30
 .word	0x080543D0 @ case 31
 .word	0x080543E6 @ case 32
@@ -402,7 +413,54 @@ BX_r4:
 .word	0x080544EE @ case 50
 .word	0x0805446E @ case 51
 .word	0x08054492 @ case 52
+*/
 
+@ 用C实现
+.extern	battleExtraAnimation
+
+@ 外挂背景动画扩展
+@ 85 00 XX 2E	(普通)
+@ 调用索引为XX的外挂程序
+@ XX=00时，为原来的贤者施法魔法阵
+.text
+.align
+.global	callExtraAnimation
+callExtraAnimation:
+	mov r0,r7
+	ldr r4,=1+0x8054E4C
+	bl BX_r4
+	cmp r0,#0
+	bne callExtraEnd
+	mov r0,r7
+	mov r1,#0
+	ldr r4,=1+battleExtraAnimation
+	bl BX_r4
+callExtraEnd:
+	ldr r4,=0x80544EE
+	mov pc,r4
+	
+@ 外挂背景动画扩展
+@ 85 00 XX 2F	(必杀)
+@ 调用索引为XX的外挂程序
+@ XX=00时，为原来的贤者施法魔法阵
+.text
+.align
+.global	callExtraAnimationCRT
+callExtraAnimationCRT:
+	mov r0,r7
+	ldr r4,=1+0x8054E4C
+	bl BX_r4
+	cmp r0,#0
+	bne callExtraEnd
+	mov r0,r7
+	mov r1,#1
+	ldr r4,=1+battleExtraAnimation
+	bl BX_r4
+callExtraCRTEnd:
+	ldr r4,=0x80544EE
+	mov pc,r4
+
+/*	
 @ 函数sub_8006518的跳转表
 .section	.sub_8006518JPT
 .align
@@ -414,12 +472,15 @@ BX_r4:
 @.word	0x080065EC @ case 5
 .word	loc_80065EC_EX
 .word	0x0800664A @ case 6
+*/
 
 @ 法师斗篷动画整体循环扩展(case 5)
 @ 85 00 XX 01
 @ XX为循环的4字节数
+@ 有卡机bug
 .text
 .align
+.global	loc_80065EC_EX
 loc_80065EC_EX:
 	LDR     R0, =0xFFF      @ jumptable 08006578 case 5
 	LDRH    R5, [R2,#0xC]
@@ -489,11 +550,12 @@ loop:
 	STR     R0, [R2,#0x20]
 @	B       def_8006578     @ jumptable 08006578 default case
 goto_8006578:
-	ldr r0,=0x8006578
+	ldr r0,=0x800668C
 	mov pc,r0
 BX_r0:
 	bx r0
 
+/*
 @ 职业战斗动画音效播放函数
 @ 是C19,C1B-C25,C28-C2B,C33-C38,C3A-C3C,C3E-C46,C48-C4D,C4F的处理函数
 @ C2E和C2F的处理也调用到了它
@@ -559,12 +621,14 @@ BX_r0:
 .word	0x080682D6 @ case 78
 .word	0x080682C8 @ case 79
 .word	0x080682D0 @ case 80
+*/
 
 @ 战斗动画音效播放指令扩展
 @ 85 XX YY 48 播放音效XXYY
 @ case 72(0x48)
 .text
 .align
+.global	loc_806829C_EX
 loc_806829C_EX:
 	ldr r4,[sp,#0x1C]	@ 读取AIS地址
 	ldr r4,[r4,#0x20]	@ 读取下一条指令地址

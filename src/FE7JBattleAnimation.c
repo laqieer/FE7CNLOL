@@ -4,6 +4,8 @@
 
 #include "FE7JBattleAnimation.h"
 
+#include	"spellIceWorld.h"
+
 // 扩展后的战斗动画协程
 __attribute__((section(".ekrUnitKakudaiEx")))
 const struct coroutine ekrUnitKakudaiEx[] =
@@ -16,10 +18,85 @@ const struct coroutine ekrUnitKakudaiEx[] =
 	endofCoroutine
 };
 
+// C0D指令处理函数中的跳转表扩展
+// 还有卡机bug
+__attribute__((section(".C0DHandlerJPT")))
+const int C0DHandlerJPT[] = {
+//	0x080540B4,
+	&C0DHandlerJPTCase0_1_2_3_9,
+//	0x080540B4,
+	&C0DHandlerJPTCase0_1_2_3_9,
+//	0x080540B4,
+	&C0DHandlerJPTCase0_1_2_3_9,
+//	0x080540B4,
+	&C0DHandlerJPTCase0_1_2_3_9,
+	0x080541B8,
+	0x080541B8,
+	0x080541C6,
+	0x080541C6,
+	0x080541C6,
+//	0x080540B4
+	&C0DHandlerJPTCase0_1_2_3_9
+};
+
+// 法师施法斗篷飘动效果扩展(整体循环)
+// 有卡机bug
+__attribute__((section(".capeFlowingAnimationEx")))
+const int capeFlowingAnimationEx = &loc_80065EC_EX;
+
+// 战斗动画中声音播放扩展
+__attribute__((section(".battleAnimationSoundEx")))
+const int battleAnimationSoundEx = &loc_806829C_EX;
+
+// 附加动画扩展C2E(普通)
+__attribute__((section(".C2E_EX")))
+const int C2E_EX = &callExtraAnimation;
+// int C2E_EX = callExtraAnimation;
+
+// 附加动画扩展C2F(必杀)
+__attribute__((section(".C2F_EX")))
+const int C2F_EX = &callExtraAnimationCRT;
+// int C2F_EX = callExtraAnimationCRT;
+
 // 战斗动画库地址表
 const BattleAnimation * const battleAnimationBank[] =
 {
 	FE7BattleAnimationBank
+};
+
+// 水平翻转的冰块背景
+void loadFimbulvetrBGFlipH(void *AIS)
+{
+//  void *v1; // r4@1
+	struct context *ctx; // r5@1
+
+//  v1 = AIS;
+	++*(u32 *)0x201774C;
+	ctx = createContext(efxFimbulvetrBG, 3);
+	*(_DWORD *)&ctx->userSpace[51] = AIS;
+	*(_WORD *)&ctx->userSpace[3] = 0;
+	*(_DWORD *)&ctx->userSpace[27] = 0;
+	*(_DWORD *)&ctx->userSpace[31] = 0x81EE05A;
+	*(_DWORD *)&ctx->userSpace[35] = 0x8C10FD0;
+	*(_DWORD *)&ctx->userSpace[39] = 0x8C10FD0;
+	*(_DWORD *)&ctx->userSpace[43] = 0x8C10FFC;
+	sub(8050E10)((const char *)0x8219AF4, 32);
+//	if ( *(u16 *)0x203E004 )
+//	{
+		if ( !isUnitAtRightOrLeft(*(_DWORD *)&ctx->userSpace[51]) )
+			setBGnPosition(1u, 232 - 40, 0);
+		else
+			setBGnPosition(1u, 24 + 40, 0);
+//	}
+	sub(805081C)();
+}
+
+
+// 附加外挂动画函数指针表
+const PTRFUN ExtraAnimation[] = {
+	loadMagfcast,
+//	loadFimbulvetrBG
+	loadFimbulvetrBGFlipH
 };
 
 // 读取战斗动画相关数据到内存
@@ -87,6 +164,11 @@ void battleAnimationInit()
   if ( IfBattleAnimationIsAtTheRightSide == 1 )
   {
     animationID = BattleAnimationIDRightSide;
+
+//	映射敌人的战斗动画
+	if(animationID == MirrorBattleAnimationID - 1)
+		animationID = BattleAnimationIDLeftSide;
+
     palSlotIDInPalGroup = BattleAnimationPalSlotRightSide;
     characterBattlePaletteID = CharaterBattleAnimationPaletteIDRightSide;
 //    animation = FE7BattleAnimationBank + BattleAnimationIDRightSide;
@@ -1640,5 +1722,20 @@ void call_sub_8054D7C(int a1, int a2)
 {
 	sub_8054D7C(a1,a2);
 //	sub(8054D7C)(a1,a2);
+}
+
+// 外挂背景动画扩展
+// 扩展C2E和C2F指令
+// ifCritical是否必杀
+void battleExtraAnimation(void *AIS, bool ifCritical)
+{
+	u32 *position;	// 当前执行到的位置的下一条指令(事件脚本)
+	u8 index;	// 要调用的函数索引
+
+	position = *((u32 **)AIS + 0x20/4);
+//	index = *position << 16 >> 24;
+	index = *(position - 1) << 16 >> 24;
+	// 要取的是当前执行的指令(即position指向的位置的上一条指令)
+	(*ExtraAnimation[index])(AIS,ifCritical);
 }
 

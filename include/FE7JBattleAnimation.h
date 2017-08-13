@@ -144,3 +144,33 @@ void call_sub_8054D7C(int a1, int a2);
 // 判断动画是在左边还是右边
 // bool isUnitAtRightOrLeft(int AIS);
 #define isUnitAtRightOrLeft		sub(8054E60)
+
+// 映射敌人的战斗动画
+#define	MirrorBattleAnimationID		0x5E5E
+
+// 外挂背景动画扩展
+// 扩展C2E和C2F指令
+// ifCritical是否必杀
+void battleExtraAnimation(void *AIS, bool ifCritical);
+
+// 贤者施法魔法阵动画
+// void loadMagfcast(void *AIS, bool ifCritical)
+#define	loadMagfcast	sub(8063400)
+
+// 汇编实现附加动画扩展
+extern const int callExtraAnimation;
+extern const int callExtraAnimationCRT;
+// extern int callExtraAnimation;
+// extern int callExtraAnimationCRT;
+
+// 冰块背景协程
+#define	efxFimbulvetrBG		((struct coroutine*)0x8C10FB8)
+
+// 汇编扩展C0D指令，使其支持无压缩data
+extern const int C0DHandlerJPTCase0_1_2_3_9;
+
+// 法师斗篷循环扩展
+extern const int loc_80065EC_EX;
+
+// 声音播放扩展
+extern const int loc_806829C_EX;

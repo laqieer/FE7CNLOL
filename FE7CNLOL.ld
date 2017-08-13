@@ -49,21 +49,31 @@ SECTIONS
 	.ekrUnitKakudaiEx : {*.o(.ekrUnitKakudaiEx)}	
 /*	. = 0x8053C3C;
 	.callBattleAnimationEventHandlerEx : {*.o(.callBattleAnimationEventHandlerEx)}	*/
-	. = 0x805408C;	
+/*	. = 0x805408C;	*/
 /*	.C0DHandlerJPTCase0_1_2_3_9 : {*.o(.C0DHandlerJPTCase0_1_2_3_9)}	*/
-	.C0DHandlerJPT : {*.o(.C0DHandlerJPT)}	
-	. = 0x8053CB4;
+/*	.C0DHandlerJPT : {*.o(.C0DHandlerJPT)}	*/
+/*	. = 0x8053CB4;
 	.battleAnimationEventHandlerJPT : {*.o(.battleAnimationEventHandlerJPT)}	
 	. = 0x8006580;
 	.sub_8006518JPT : {*.o(.sub_8006518JPT)}	
 	. = 0x8068050;
-	.playBattleAnimationSFXJPT : {*.o(.playBattleAnimationSFXJPT)}	
+	.playBattleAnimationSFXJPT : {*.o(.playBattleAnimationSFXJPT)}	*/
 	. = 0x8054AC0;
 	.callBattleAnimationAISInit : {*.o(.callBattleAnimationAISInit)}	
 	. = 0x8054D7C;
 	.call_sub_8054D7C : {*.o(.call_sub_8054D7C)}	
-	. = 0x8E00008 + 0x20 * (0x5E - 1);
-	.NinoSageAnimation : {*.o(.NinoSageAnimation)}	
+	. = 0x8053D6C;
+	.C2E_EX : {*.o(.C2E_EX)}
+	. = 0x8053D70;
+	.C2F_EX : {*.o(.C2F_EX)}
+/*	. = 0x8006594;
+	.capeFlowingAnimationEx : {*.o(.capeFlowingAnimationEx)}	*/
+	. = 0x806810C;
+	.battleAnimationSoundEx : {*.o(.battleAnimationSoundEx)}
+/*	. = 0x8E00008 + 0x20 * (0x5E - 1);
+	.NinoSageAnimation : {*.o(.NinoSageAnimation)}	*/
+	. = 0x8E00008 + 0x20 * (0x11 - 1);
+	.LynBladeLordSwordAnimation : {*.o(.LynBladeLordSwordAnimation)}
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}
