@@ -49,9 +49,9 @@ SECTIONS
 	.ekrUnitKakudaiEx : {*.o(.ekrUnitKakudaiEx)}	
 /*	. = 0x8053C3C;
 	.callBattleAnimationEventHandlerEx : {*.o(.callBattleAnimationEventHandlerEx)}	*/
-/*	. = 0x805408C;	*/
+	. = 0x805408C;	
 /*	.C0DHandlerJPTCase0_1_2_3_9 : {*.o(.C0DHandlerJPTCase0_1_2_3_9)}	*/
-/*	.C0DHandlerJPT : {*.o(.C0DHandlerJPT)}	*/
+	.C0DHandlerJPT : {*.o(.C0DHandlerJPT)}	
 /*	. = 0x8053CB4;
 	.battleAnimationEventHandlerJPT : {*.o(.battleAnimationEventHandlerJPT)}	
 	. = 0x8006580;
@@ -70,8 +70,8 @@ SECTIONS
 	.capeFlowingAnimationEx : {*.o(.capeFlowingAnimationEx)}	*/
 	. = 0x806810C;
 	.battleAnimationSoundEx : {*.o(.battleAnimationSoundEx)}
-/*	. = 0x8E00008 + 0x20 * (0x5E - 1);
-	.NinoSageAnimation : {*.o(.NinoSageAnimation)}	*/
+	. = 0x8E00008 + 0x20 * (0x5E - 1);
+	.NinoSageAnimation : {*.o(.NinoSageAnimation)}	
 	. = 0x8E00008 + 0x20 * (0x11 - 1);
 	.LynBladeLordSwordAnimation : {*.o(.LynBladeLordSwordAnimation)}
 	. = 0x9000000;	

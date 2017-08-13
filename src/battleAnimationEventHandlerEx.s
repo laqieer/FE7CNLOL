@@ -41,7 +41,7 @@
 */
 
 @ case 0,1,2,3,9 的分支
-@ 还有卡机bug
+@ 还有卡机bug(已修复 2017/8/13)
 @ .section .text
 .text
 .global	C0DHandlerJPTCase0_1_2_3_9
@@ -139,7 +139,8 @@ loc_8054126:                             @ CODE XREF: battleAnimationEventHandle
 	ldr r2,[r1]
 	cmp r0,r2
 	bne compressedEvent
-	ldr r1,[r0,#4]
+@	ldr r1,[r0,#4]
+	ldr r1,[r1,#4]
 compressedEvent:
 	@ 添加结束
 	ADD    R1, R4, R1

@@ -19,7 +19,7 @@ const struct coroutine ekrUnitKakudaiEx[] =
 };
 
 // C0D指令处理函数中的跳转表扩展
-// 还有卡机bug
+// 还有卡机bug(已修复 2017/8/13)
 __attribute__((section(".C0DHandlerJPT")))
 const int C0DHandlerJPT[] = {
 //	0x080540B4,
