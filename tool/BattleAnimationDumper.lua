@@ -68,6 +68,7 @@ Main options:
 -i			Set the index of the animation
 -n			Set the name for the animation
 -o			Set the output path
+-s			Enable the section name output (for linker script)
 	]])
 	closeAllAndExit(0);
 end
@@ -134,6 +135,8 @@ handler['-a'] = function(para)
 				end
 
 handler['-i'] = function(para)
+					-- Fix: attempt to compare number with string
+					para = tonumber(para)
 					if(para >= 0 and para < 0x10000)
 					then
 						index = para
@@ -149,6 +152,10 @@ handler['-n'] = function(para)
 				
 handler['-o'] = function(para)
 					path = para
+				end
+				
+handler['-s'] = function(para)
+					enableSectonName = true
 				end
 				
 -- 不认识的参数直接忽略掉
@@ -287,7 +294,9 @@ cs:write([[#include	"FE7JBattleAnimation.h"
 ]])
 
 -- dump data1
-cs:write('const int * const '..name..'_data1[] = {\n')
+-- cs:write('const int * const '..name..'_data1[] = {\n')
+-- cs:write('const int const '..name..'_data1[] = {\n')
+cs:write('const int '..name..'_data1[] = {\n')
 -- print(rom:seek())
 rom:seek("set",pdata1 - 0x8000000)
 -- print(pdata1 - 0x8000000)
@@ -332,6 +341,14 @@ end
 cs:write('\t0,0,0,0,0,0,0,0,0,0,0,0\n};\n\n')
 
 -- dump动画结构体
+
+-- 添加段名以便于在链接脚本中指定该段的位置(可选)
+if(enableSectonName == true)
+then
+	cs:write([[__attribute__((section(".]]..name..[[")))
+]])
+end 
+
 cs:write('const BattleAnimation '..name..' = {\n')
 cs:write('\t'..'\"'..identifier..'\",\t// Identifier\n')
 -- cs:write('\t'..string.format("0x%X",pdata1)..',\t// Mode divider\n')
@@ -340,7 +357,7 @@ cs:write('\t'..name..'_data1,\t// Mode divider\t// '..string.format("0x%X",pdata
 cs:write('\t'..name..'_data2,\t// Script\t// '..string.format("0x%X",pdata2)..'\n')
 cs:write('\t'..string.format("0x%X",pdata3)..',\t// Right X Y Position\n')
 cs:write('\t'..string.format("0x%X",pdata4)..',\t// Left X Y Position\n')
-cs:write('\t'..string.format("0x%X",pdata5)..',\t// Palette Group\n')
+cs:write('\t'..string.format("0x%X",pdata5)..'\t// Palette Group\n')
 cs:write('};\n\n')
 
 -- dump data2
@@ -424,7 +441,11 @@ for i=1,data2size,4 do
 	p0 = p
 end
 
-script:write('}\n')
+-- 删除最后一个元素后的逗号
+-- script:seek("cur",-1)
+-- 不删也没事
+
+script:write('};\n')
 
 -- 程序成功退出
 closeAllAndExit(1)
