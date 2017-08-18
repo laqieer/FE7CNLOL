@@ -223,7 +223,8 @@
 #define	loadSpellCast			sub(8050348)
 
 // 战斗中减HP条
-// void reduceHPBar(int a1, int a2);
+// 减血条(对象的AIS指针,是否命中)
+// void reduceHPBar(void *targetAIS, bool ifMiss)
 #define	reduceHPBar				sub(805091C)
 
 // 吸血HP条动画
@@ -326,3 +327,8 @@
 // int geneateRNRange(int range);
 #define	geneateRNRange		sub(8000E08)
 
+// 获取对方(攻击对象)的AIS指针
+// void *getTargetAIS(int a1);
+#define	getTargetAIS		sub(8054F90)
+
+#define loadFlashBG			sub(804F7B8)

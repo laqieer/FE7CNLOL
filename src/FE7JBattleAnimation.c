@@ -64,7 +64,7 @@ const BattleAnimation * const battleAnimationBank[] =
 	FE7BattleAnimationBank
 };
 
-// 水平翻转的冰块背景
+// 水平翻转再加一定位移的冰块背景
 void loadFimbulvetrBGFlipH(void *AIS)
 {
 //  void *v1; // r4@1
@@ -91,12 +91,78 @@ void loadFimbulvetrBGFlipH(void *AIS)
 	sub(805081C)();
 }
 
+// 寒风
+void showColdWind(void *AIS)
+{
+	void *targetAIS = getTargetAIS(AIS);
+	loadFimbulvetrBGTR(targetAIS);
+    loadFimbulvetrOBJ2(targetAIS);
+    LOBYTE(BLDCNTBuffer) = BLDCNTBuffer & 0x3F | 0x40;
+    BLDALPHABuffer = 0x1000;
+    BLDYBuffer = 0;
+    loadALPHA(targetAIS, 0, 16, 0, 16, 0);
+//    PlaySFX(290, 256, *((_WORD *)targetAIS + 1), 1);
+}
+
+// 攻击附带碎冰效果
+void showIcePiecesEffect(void *AIS,bool ifCritical)
+{
+	void *targetAIS = getTargetAIS(AIS);
+	loadFimbulvetrOBJ(targetAIS);
+/*	if(ifCritical)
+	{
+//		loadFlashBG(AIS,4);
+		loadFimbulvetrBG(targetAIS);
+//		loadALPHA(targetAIS, 24, 16, 16, 0, 0);
+//		PlaySFX(291, 256, *((_WORD *)targetAIS + 1), 1);
+	}	*/
+}
+
+// 冰封效果
+void showIceCrystal(void *AIS)
+{
+	void *targetAIS = getTargetAIS(AIS);
+	loadFimbulvetrBG(targetAIS);
+//	loadALPHA(targetAIS, 24, 16, 16, 0, 0);
+	PlaySFX(291, 256, *((_WORD *)targetAIS + 1), 1);
+}
+
+// 攻击附带火炎效果
+void showFireHitEffect(void *AIS,bool ifCritical)
+{
+	u16 *targetAIS = getTargetAIS(AIS);
+	
+	// 为了避免和8500001A(Normal hit)互相干扰,用此函数取代之
+	// 让动画能继续进行下去
+	if(targetAIS[0])
+	{
+		targetAIS[8] |= 9u;
+		reduceHPBar(targetAIS,sub(8054E74)(sub(8054FEC)(AIS)));
+	}
+	
+	if(ifCritical)
+	{
+		PlaySFX(248, 256, targetAIS[1], 1);
+        loadElfireBG(targetAIS);
+        loadElfireBGCOL(targetAIS);
+        loadElfireOBJ(targetAIS);
+	}
+	else
+	{
+		PlaySFX(247, 256, targetAIS[1], 1);
+        loadFireHITBG(targetAIS);
+	}
+}
 
 // 附加外挂动画函数指针表
 const PTRFUN ExtraAnimation[] = {
 	loadMagfcast,
 //	loadFimbulvetrBG
-	loadFimbulvetrBGFlipH
+	loadFimbulvetrBGFlipH,
+	showIcePiecesEffect,
+	showColdWind,
+	showIceCrystal,
+	showFireHitEffect
 };
 
 // 读取战斗动画相关数据到内存

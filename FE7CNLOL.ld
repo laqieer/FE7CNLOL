@@ -76,6 +76,8 @@ SECTIONS
 	.LynBladeLordSwordAnimation : {*.o(.LynBladeLordSwordAnimation)}
 	. = 0x8E00008 + 0x20 * (0x84 - 1);
 	.FalconKnightSpearAnimationWithIceEffect : {*.o(.FalconKnightSpearAnimationWithIceEffect)}
+	. = 0x8E00008 + 0x20 * (4 - 1);
+	.LordKnightEliwoodDurandalAnimation : {*.o(.LordKnightEliwoodDurandalAnimation)}
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}

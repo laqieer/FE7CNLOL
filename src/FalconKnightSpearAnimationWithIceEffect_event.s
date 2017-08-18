@@ -33,6 +33,8 @@ FalconKnightSpearAnimationWithIceEffect_Mode1:	@ Normal attack (Layered in front
 	.word	0x8500001A
 	.word	0x85000024
 	.word	0x85000021
+	@ 命中冰花效果
+	.word	0x8500022E
 	.word	0x860B0004, 0x8F51C20, 0xCF0
 	.word	0x86110004, 0x8F52F8C, 0xE64
 	.word	0x86130001, 0x8F52F8C, 0xF90
@@ -101,6 +103,8 @@ FalconKnightSpearAnimationWithIceEffect_Mode2:	@ Normal attack (Layered behind t
 	.word	0x8500001A
 	.word	0x85000024
 	.word	0x85000021
+	@ 命中冰花效果
+	.word	0x8500022E
 	.word	0x860C0004, 0x8F51C20, 0xDD4
 	.word	0x86120004, 0x8F52F8C, 0xF6C
 	.word	0x86120001, 0x8F52F8C, 0xF6C
@@ -150,11 +154,16 @@ FalconKnightSpearAnimationWithIceEffect_Mode3:	@ Critical attack (Layered in fro
 	.word	0x86000001, 0x8F4EA00, 0x0
 	.word	0x86350004, 0x8F51C20, 0x288C
 	.word	0x85000038
+	@ 寒风效果
+@	.word	0x8500032F
+	@ 重复调用会死机
 	.word	0x86360002, 0x8F51C20, 0x2994
 	.word	0x86370003, 0x8F51C20, 0x2A90
 	.word	0x86380001, 0x8F51C20, 0x2B8C
 	.word	0x86390002, 0x8F51C20, 0x2C88
 	.word	0x85000038
+	@ 寒风效果
+	.word	0x8500032F
 	.word	0x86360002, 0x8F51C20, 0x2994
 	.word	0x86370001, 0x8F51C20, 0x2A90
 	.word	0x86380001, 0x8F51C20, 0x2B8C
@@ -184,6 +193,8 @@ FalconKnightSpearAnimationWithIceEffect_Mode3:	@ Critical attack (Layered in fro
 	.word	0x86050003, 0x8F4FAA8, 0x648
 	.word	0x86060004, 0x8F4FAA8, 0x7D4
 	.word	0x85000025
+	@ 冰封效果
+	.word	0x8500042F
 	.word	0x86070002, 0x8F50D84, 0x930
 	.word	0x86080011, 0x8F4FAA8, 0xA50
 	.word	0x85000023
@@ -192,6 +203,8 @@ FalconKnightSpearAnimationWithIceEffect_Mode3:	@ Critical attack (Layered in fro
 	.word	0x8500000C
 	.word	0x85000024
 	.word	0x85000021
+	@ 必杀碎冰效果
+	.word	0x8500022F
 	.word	0x860B0004, 0x8F51C20, 0xCF0
 	.word	0x86110004, 0x8F52F8C, 0xE64
 	.word	0x86130001, 0x8F52F8C, 0xF90
@@ -241,11 +254,15 @@ FalconKnightSpearAnimationWithIceEffect_Mode4:	@ Critical attack (Layered behind
 	.word	0x860D0001, 0x8F4EA00, 0xE04
 	.word	0x86100004, 0x8F51C20, 0xE4C
 	.word	0x85000038
+	@ 寒风效果
+@	.word	0x8500032F
 	.word	0x86100003, 0x8F51C20, 0xE4C
 	.word	0x86100002, 0x8F51C20, 0xE4C
 	.word	0x86100001, 0x8F51C20, 0xE4C
 	.word	0x86100002, 0x8F51C20, 0xE4C
 	.word	0x85000038
+	@ 寒风效果
+	.word	0x8500032F
 	.word	0x86100002, 0x8F51C20, 0xE4C
 	.word	0x86100001, 0x8F51C20, 0xE4C
 	.word	0x86100001, 0x8F51C20, 0xE4C
@@ -275,6 +292,8 @@ FalconKnightSpearAnimationWithIceEffect_Mode4:	@ Critical attack (Layered behind
 	.word	0x860E0003, 0x8F4FAA8, 0xE1C
 	.word	0x860E0004, 0x8F4FAA8, 0xE1C
 	.word	0x85000025
+	@ 冰封效果
+	.word	0x8500042F
 	.word	0x860F0002, 0x8F50D84, 0xE34
 	.word	0x860E0011, 0x8F4FAA8, 0xE1C
 	.word	0x85000023
@@ -283,6 +302,8 @@ FalconKnightSpearAnimationWithIceEffect_Mode4:	@ Critical attack (Layered behind
 	.word	0x8500000C
 	.word	0x85000024
 	.word	0x85000021
+	@ 必杀碎冰效果
+	.word	0x8500022F
 	.word	0x860C0004, 0x8F51C20, 0xDD4
 	.word	0x86120004, 0x8F52F8C, 0xF6C
 	.word	0x86120001, 0x8F52F8C, 0xF6C

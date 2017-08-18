@@ -288,3 +288,19 @@ struct context{
 
 // 音效播放协程
 #define efxSoundSE					((struct coroutine*)0x8C4A2B4)
+
+// 终末之冬(A理)魔法动画相关
+#define	loadFimbulvetrOBJ			sub(805947C)
+// #define	efxFimbulvetrOBJ			((struct coroutine*)0x8C11028)
+#define	loadFimbulvetrOBJ2			sub(8059510)
+#define	loadFimbulvetrOBJ2Fall		sub(8059588)
+#define	loadFimbulvetrBG			sub(8059394)
+#define	loadFimbulvetrBGTR			sub(80592AC)
+
+// 火魔法动画相关
+#define	loadFireBG					sub(8058CB8)
+#define	loadFireOBJ					sub(8058D70)
+#define	loadElfireBG				sub(8058F2C)
+#define	loadElfireBGCOL				sub(8058FF8)
+#define	loadElfireOBJ				sub(8059084)
+#define	loadFireHITBG				sub(8058E44)

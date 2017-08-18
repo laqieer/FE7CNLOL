@@ -79,6 +79,11 @@ typedef struct {
 #define	BattleAnimationOAML2RBuffer					((void *)0x20041C8)
 // 右侧动画OAM信息缓存
 #define	BattleAnimationOAMR2LBuffer					((void *)0x20099C8)
+// 左侧武器的魔法动画ID
+#define	SpellAnimationIDLeftSide					(*(u16 *)0x203DFFC)
+// 右侧武器的魔法动画ID
+#define	SpellAnimationIDRightSide					(*(u16 *)0x203DFFE)
+// 说明魔法动画ID也是作为双字节处理的,因此在此基础上可以很容易扩展上限到0xFFFF,不过考虑到魔法动画本身超过255个的情形很少，所以暂不扩展
 
 // 相关函数
 
