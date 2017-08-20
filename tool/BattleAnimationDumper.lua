@@ -4,6 +4,7 @@
 -- 2017/8/13
 
 require "lz77"
+-- require "math"
 
 -- 关闭文件句柄并退出程序
 --[[
@@ -414,10 +415,27 @@ else
 end
 cs:write('};\n')
 
+-- OBJAttribute尺寸定义表
+OBJDimension = {}
+OBJDimension[1] = {'_8x8','_16x16','_32x32','_64x64'}	-- Square
+OBJDimension[2] = {'_16x8','_32x8','_32x16','_64x32'}	-- Horizontal
+OBJDimension[3] = {'_8x16','_8x32','_16x32','_32x64'}	-- Vertical
+
 if(dumpAll == true)
 then
 	-- dump data5
-	data5,data5size = lz77:decode(rom,pdata5 - 0x8000000)
+	rom:seek("set",pdata5 - 0x8000000)
+	if(readByte(rom) == 0x10)
+	then
+		data5,data5size = lz77:decode(rom,pdata5 - 0x8000000)
+	else
+		data5size = 0x80
+		data5 = {}
+		rom:seek("cur",-1)
+		for i=1,data5size do
+			data5[i] = rom:read(1)
+		end
+	end
 	paletteComment = {'Player','Enemy','NPC','4th(arena)'}
 	cs:write('\nconst u16 '..name..'_data5[] = {\n')
 	for i=1,data5size,2 do
@@ -433,8 +451,53 @@ then
 	end
 	cs:write('};\n')
 	-- dump data3&4
-	data3,data3size = lz77:decode(rom,pdata3 - 0x8000000)
-	data4,data4size = lz77:decode(rom,pdata4 - 0x8000000)
+	rom:seek("set",pdata3 - 0x8000000)
+	if(readByte(rom) == 0x10)
+	then
+		data3,data3size = lz77:decode(rom,pdata3 - 0x8000000)		-- lz77压缩格式
+	else
+		rom:seek("cur",-1)
+		data3 = {}
+		if(readInt(rom) == string.byte('l') + string.byte('a') * 0x100 + string.byte('q') * 0x10000)
+		then
+			data3size = 0x5800										-- 不要拷贝到RAM里的无压缩格式(头部4字节:字符串'laq',大小固定,以01000000 00000000 00000000 00000000结尾)
+			for i=1,data3size do
+				data3[i] = rom:read(1)
+			end
+		else
+			i = 1													-- 需要拷贝到RAM里的无压缩格式(无头部,大小不定,以连续12个0xFF结尾,节约空间)
+			rom:seek("cur",-4)
+			while(i < 13 or data3[i-1] ~= 0xFF or  data3[i-2] ~= 0xFF or data3[i-3] ~= 0xFF or data3[i-4] ~= 0xFF or data3[i-5] ~= 0xFF or data3[i-6] ~= 0xFF or data3[i-7] ~= 0xFF or data3[i-8] ~= 0xFF or data3[i-9] ~= 0xFF or data3[i-10] ~= 0xFF or data3[i-11] ~= 0xFF or data3[i-12] ~= 0xFF)
+			do
+				data3[i] = readByte(rom)
+			end
+			data3size = i - 1
+		end
+	end
+	-- data4,data4size = lz77:decode(rom,pdata4 - 0x8000000)
+	rom:seek("set",pdata4 - 0x8000000)
+	if(readByte(rom) == 0x10)
+	then
+		data4,data4size = lz77:decode(rom,pdata4 - 0x8000000)		-- lz77压缩格式
+	else
+		rom:seek("cur",-1)
+		data4 = {}
+		if(readInt(rom) == string.byte('l') + string.byte('a') * 0x100 + string.byte('q') * 0x10000)
+		then
+			data4size = 0x5800										-- 不要拷贝到RAM里的无压缩格式(头部4字节:字符串'laq',大小固定,以01000000 00000000 00000000 00000000结尾)
+			for i=1,data4size do
+				data4[i] = rom:read(1)
+			end
+		else
+			i = 1													-- 需要拷贝到RAM里的无压缩格式(无头部,大小不定,以连续12个0xFF结尾,节约空间)
+			rom:seek("cur",-4)
+			while(i < 13 or data4[i-1] ~= 0xFF or  data4[i-2] ~= 0xFF or data4[i-3] ~= 0xFF or data4[i-4] ~= 0xFF or data4[i-5] ~= 0xFF or data4[i-6] ~= 0xFF or data4[i-7] ~= 0xFF or data4[i-8] ~= 0xFF or data4[i-9] ~= 0xFF or data4[i-10] ~= 0xFF or data4[i-11] ~= 0xFF or data4[i-12] ~= 0xFF)
+			do
+				data4[i] = readByte(rom)
+			end
+			data4size = i - 1
+		end
+	end
 	oam = openAndRegister(path..'/'..name..'_OAMInfo.s','w')
 	oamInc = openAndRegister(path..'/'..name..'_OAMInfo.inc','w')
 	scriptInc = openAndRegister(path..'/'..name..'_event.inc','w')
@@ -458,6 +521,7 @@ then
 	frame = 0
 	frameSection[0] = frame
 	oam:write(name..'_frame_R_'..frame..':\n')
+	--[[
 	for i=0,data3size-1,2 do
 		if(i%12 == 0)
 		then
@@ -474,6 +538,46 @@ then
 			end
 		end
 	end
+	--]]
+	for i=1,data3size,12 do
+		if(string.byte(data3[i]) == 1)
+		then
+			frame = frame + 1
+			-- frameSection[i-1] = frame
+			-- print(i-1,frame)
+			frameSection[i-1+12] = frame
+			oam:write('\n\n'..name..'_frame_R_'..frame..':\n')
+		else
+			--[[
+			shape = string.byte(data3[i+1])/0x40
+			size = string.byte(data3[i+3])/0x40
+			y0 = 8 * string.byte(data3[i+4])/0x20
+			x0 = 8 * string.byte(data3[i+4])%0x20
+			--]]
+			shape = string.byte(data3[i+1])%0x40
+			shape = (string.byte(data3[i+1]) - shape)/0x40
+			size = (string.byte(data3[i+3]) - string.byte(data3[i+3])%0x40)/0x40
+			x0 = string.byte(data3[i+4])%0x20
+			y0 = (string.byte(data3[i+4]) - x0)/0x20
+			x0 = 8 * x0
+			y0 = 8 * y0
+			-- y0,x0 = math.modf(8 * string.byte(data3[i+4])/0x20)
+			-- deltaX = 8 * (string.byte(data3[i+6]) + string.byte(data3[i+7]) * 0x100)
+			deltaX = string.byte(data3[i+6])
+			if(string.byte(data3[i+7]) ~= 0)
+			then
+				deltaX = deltaX - 0x100
+			end
+			-- deltaX = 8 * (string.byte(data3[i+8]) + string.byte(data3[i+9]) * 0x100)
+			deltaY = string.byte(data3[i+8])
+			if(string.byte(data3[i+9]) ~= 0)
+			then
+				deltaY = deltaY - 0x100
+			end
+			-- print(shape,size)
+			oam:write(string.format('\tOBJ\t%s, %d, %d, %d, %d\n',OBJDimension[shape+1][size+1],x0,y0,deltaX,deltaY))
+		end
+	end
 	oam:write('\n')
 	for i=0,frame-1 do
 		oamInc:write('\t.global\t'..name..'_frame_R_'..i..'\n')
@@ -485,6 +589,7 @@ then
 	-- frame = 1
 	frame = 0
 	oam:write(name..'_frame_L_'..frame..':\n')
+	--[[
 	for i=0,data4size-1,2 do
 		if(i%12 == 0)
 		then
@@ -498,6 +603,38 @@ then
 				frame = frame + 1
 				oam:write('\n\n'..name..'_frame_L_'..frame..':\n')
 			end
+		end
+	end
+	--]]
+	for i=1,data4size,12 do
+		if(string.byte(data4[i]) == 1)
+		then
+			frame = frame + 1
+			-- frameSection[i-1] = frame
+			oam:write('\n\n'..name..'_frame_L_'..frame..':\n')
+		else
+			--[[
+			shape = string.byte(data4[i+1])/0x40
+			size = string.byte(data4[i+3])/0x40
+			y0 = 8 * string.byte(data4[i+4])/0x20
+			x0 = 8 * string.byte(data4[i+4])%0x20
+			--]]
+			shape = (string.byte(data4[i+1]) - string.byte(data4[i+1])%0x40)/0x40
+			size = (string.byte(data4[i+3]) - string.byte(data4[i+3])%0x40)/0x40
+			x0 = string.byte(data4[i+4])%0x20
+			y0 = 8 * (string.byte(data4[i+4]) - x0)/0x20
+			x0 = 8 * x0
+			deltaX = string.byte(data4[i+6])
+			if(string.byte(data4[i+7]) ~= 0)
+			then
+				deltaX = deltaX - 0x100
+			end
+			deltaY = string.byte(data4[i+8])
+			if(string.byte(data4[i+9]) ~= 0)
+			then
+				deltaY = deltaY - 0x100
+			end
+			oam:write(string.format('\tOBJ\t%s, %d, %d, %d, %d\n',OBJDimension[shape+1][size+1],x0,y0,deltaX,deltaY))
 		end
 	end
 	oam:write('\n')
@@ -659,10 +796,50 @@ function C85H()
 	script:write(string.format('Cmd 0x%X',string.byte(decompressedData2[i])))
 end
 
--- C86 
+-- 压缩sheet图片
+sheets = {}
+-- 当前sheet编号
+sheet = 1
+
+-- C86
 function C86H()
 	-- script:write(string.format('ShowFrame %d, %d, 0x%X, 0x%X',string.byte(decompressedData2[i]),string.byte(decompressedData2[i+2]),string.byte(decompressedData2[i+4])+string.byte(decompressedData2[i+5])*0x100+string.byte(decompressedData2[i+6])*0x10000+string.byte(decompressedData2[i+7])*0x1000000,string.byte(decompressedData2[i+8])+string.byte(decompressedData2[i+9])*0x100))
-	script:write(string.format('ShowFrame %d, %d, 0x%X, %s',string.byte(decompressedData2[i]),string.byte(decompressedData2[i+2]),string.byte(decompressedData2[i+4])+string.byte(decompressedData2[i+5])*0x100+string.byte(decompressedData2[i+6])*0x10000+string.byte(decompressedData2[i+7])*0x1000000,name..'_frame_R_'..frameSection[string.byte(decompressedData2[i+8])+string.byte(decompressedData2[i+9])*0x100]..' - '..name..'_data3'))
+	-- script:write(string.format('ShowFrame %d, %d, 0x%X, %s',string.byte(decompressedData2[i]),string.byte(decompressedData2[i+2]),string.byte(decompressedData2[i+4])+string.byte(decompressedData2[i+5])*0x100+string.byte(decompressedData2[i+6])*0x10000+string.byte(decompressedData2[i+7])*0x1000000,name..'_frame_R_'..frameSection[string.byte(decompressedData2[i+8])+string.byte(decompressedData2[i+9])*0x100]..' - '..name..'_data3'))
+	sheetAddr = string.byte(decompressedData2[i+4])+string.byte(decompressedData2[i+5])*0x100+string.byte(decompressedData2[i+6])*0x10000+string.byte(decompressedData2[i+7])*0x1000000 - 0x8000000
+	script:write(string.format('Show %d, ',string.byte(decompressedData2[i+2])))
+	-- 判断该sheet是第一次出现还是和之前的有重复
+	for k,v in ipairs(sheets) do  
+		if(v == sheetAddr)
+		then
+			script:write(name..'_sheet_'..k)
+			dup = true
+			break
+		end
+	end
+	if(not dup)
+	then
+		sheets[sheet] = sheetAddr
+		scriptInc:write('\n\t.section\t.rodata\n\t.align\n'..name..'_sheet_'..sheet..':')
+		-- print(string.format('0x%X',sheetAddr))
+		decompressedSheet,sheetSize = lz77:decode(rom,sheetAddr)
+		for i=1,sheetSize do
+			if((i-1)%16 == 0)
+			then
+				scriptInc:write('\n\t.byte\t')
+			end
+			scriptInc:write(string.format(' 0x%02X',string.byte(decompressedSheet[i])))
+			if(i%16 ~= 0)
+			then
+				scriptInc:write(',')
+			end
+		end
+		scriptInc:write('\n\n')
+		script:write(name..'_sheet_'..sheet)
+		sheet = sheet + 1
+	end
+	-- print(string.byte(decompressedData2[i+8])+string.byte(decompressedData2[i+9])*0x100)
+	script:write(string.format(', %s, %d',name..'_frame_R_'..frameSection[string.byte(decompressedData2[i+8])+string.byte(decompressedData2[i+9])*0x100]..' - '..name..'_data3',string.byte(decompressedData2[i])))
+	dup = nil
 	i = i + 8
 end
 
