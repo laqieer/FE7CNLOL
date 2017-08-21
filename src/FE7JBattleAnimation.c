@@ -199,15 +199,27 @@ void battleAnimationInit()
 	
     BattleAnimationSectionInfoLeftSide = animation->sectionOffset;
     animationID_PalGroup = getAnimationIDForPaletteGroup(animationID, 0);
-    FE7JLZ77UnCompWram(
-//      FE7BattleAnimationBank[animationID_PalGroup].palGroup,
-	  battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
-      BattleAnimationPaletteGroupBufferLeftSide);
+	
+//	无压缩data5支持
+	if( *(u8 *)battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup == 0x10)
+    	FE7JLZ77UnCompWram(
+	//      FE7BattleAnimationBank[animationID_PalGroup].palGroup,
+		  battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
+	      BattleAnimationPaletteGroupBufferLeftSide);
+	else
+		FE7JCPUFastSet(battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
+						BattleAnimationPaletteGroupBufferLeftSide,4);
+	
     if ( characterBattlePaletteID != -1 )
     {
-      FE7JLZ77UnCompWram(
-        characterBattlePalTable[characterBattlePaletteID].pal,
-        BattleAnimationPaletteGroupBufferLeftSide);
+	//	无压缩人物调色板支持
+		if( *(u8 *)characterBattlePalTable[characterBattlePaletteID].pal == 0x10)
+		  FE7JLZ77UnCompWram(
+	        characterBattlePalTable[characterBattlePaletteID].pal,
+    	    BattleAnimationPaletteGroupBufferLeftSide);
+		else
+			FE7JCPUFastSet(characterBattlePalTable[characterBattlePaletteID].pal,BattleAnimationPaletteGroupBufferLeftSide,1);
+		
       sub(8054798)(BattleAnimationPaletteGroupBufferLeftSide, 0);
     }
     BattleAnimationPaletteLeftSide = BattleAnimationPaletteGroupBufferLeftSide + 16 * palSlotIDInPalGroup;
@@ -252,16 +264,28 @@ void battleAnimationInit()
 	
     BattleAnimationSectionInfoRightSide = animation->sectionOffset;
     animationID_PalGroup = getAnimationIDForPaletteGroup(animationID, 1);
-    FE7JLZ77UnCompWram(
-//      FE7BattleAnimationBank[animationID_PalGroup].palGroup,
-	  battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
-      BattleAnimationPaletteGroupBufferRightSide);
+	
+//	无压缩data5支持
+	if(*(u8 *)battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup == 0x10)
+    	FE7JLZ77UnCompWram(
+	//      FE7BattleAnimationBank[animationID_PalGroup].palGroup,
+		  battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
+	      BattleAnimationPaletteGroupBufferRightSide);
+	else
+		FE7JCPUFastSet(battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
+						BattleAnimationPaletteGroupBufferRightSide,4);
+	
     if ( characterBattlePaletteID != -1 )
     {
-      FE7JLZ77UnCompWram(
-        characterBattlePalTable[characterBattlePaletteID].pal,
-        BattleAnimationPaletteGroupBufferRightSide);
-      sub(8054798)(BattleAnimationPaletteGroupBufferRightSide, 1);
+	//	无压缩人物调色板支持
+		if(*(u8 *)characterBattlePalTable[characterBattlePaletteID].pal == 0x10)
+      		FE7JLZ77UnCompWram(
+		        characterBattlePalTable[characterBattlePaletteID].pal,
+        		BattleAnimationPaletteGroupBufferRightSide);
+		else
+			FE7JCPUFastSet(characterBattlePalTable[characterBattlePaletteID].pal,BattleAnimationPaletteGroupBufferRightSide,1);
+		
+	      sub(8054798)(BattleAnimationPaletteGroupBufferRightSide, 1);
     }
     BattleAnimationPaletteRightSide = BattleAnimationPaletteGroupBufferRightSide + 16 * palSlotIDInPalGroup;
     FE7JCPUFastSet(BattleAnimationPaletteGroupBufferRightSide + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[144], 8u);
