@@ -232,10 +232,24 @@ void battleAnimationInit()
 	if(*(u8 *)(animation->oamL2R) == 0x10)
 		FE7JLZ77UnCompWram(animation->oamL2R, BattleAnimationOAML2RBuffer);
 	else
-	{
-		((u32 *)BattleAnimationOAML2RBuffer)[0] = 'l' + ('a' << 8) + ('q' << 16);
-		((void **)BattleAnimationOAML2RBuffer)[1] = animation->oamL2R;
-	}
+		//	不要拷贝到RAM里的无压缩格式(头部4字节:字符串'laq',大小固定,以01000000 00000000 00000000 00000000结尾)
+		if(*(u32 *)(animation->oamL2R) == 'l' + ('a' << 8) + ('q' << 16))
+		{
+			((u32 *)BattleAnimationOAML2RBuffer)[0] = 'l' + ('a' << 8) + ('q' << 16);
+			((void **)BattleAnimationOAML2RBuffer)[1] = animation->oamL2R;
+		}
+		//	需要拷贝到RAM里的无压缩格式(无头部,大小不定,以连续12个0xFF结尾,节约空间)
+		else
+		{
+			int *p = animation->oamL2R;
+			int *q = BattleAnimationOAML2RBuffer;
+			for(int i=0;;i++)
+			{
+				if(p[i] == -1 && p[i+1] == -1 && p[i+2] == -1)
+					break;
+				q[i] = p[i];
+			}
+		}
 
     *(u32 *)0x20099B8 = 1;
   }
@@ -293,6 +307,7 @@ void battleAnimationInit()
     EnablePaletteSync();
 //    FE7JLZ77UnCompWram(animation->oamR2L, BattleAnimationOAMR2LBuffer);
 
+/*
 //	 无压缩data3支持
 	if(*(u8 *)(animation->oamR2L) == 0x10)
 		FE7JLZ77UnCompWram(animation->oamR2L, BattleAnimationOAMR2LBuffer);
@@ -301,6 +316,29 @@ void battleAnimationInit()
 		((u32 *)BattleAnimationOAMR2LBuffer)[0] = 'l' + ('a' << 8) + ('q' << 16);
 		((void **)BattleAnimationOAMR2LBuffer)[1] = animation->oamR2L;
 	}
+*/
+	//	 无压缩data3支持
+		if(*(u8 *)(animation->oamR2L) == 0x10)
+			FE7JLZ77UnCompWram(animation->oamR2L, BattleAnimationOAMR2LBuffer);
+		else
+			//	不要拷贝到RAM里的无压缩格式(头部4字节:字符串'laq',大小固定,以01000000 00000000 00000000 00000000结尾)
+			if(*(u32 *)(animation->oamR2L) == 'l' + ('a' << 8) + ('q' << 16))
+			{
+				((u32 *)BattleAnimationOAMR2LBuffer)[0] = 'l' + ('a' << 8) + ('q' << 16);
+				((void **)BattleAnimationOAMR2LBuffer)[1] = animation->oamR2L;
+			}
+			//	需要拷贝到RAM里的无压缩格式(无头部,大小不定,以连续12个0xFF结尾,节约空间)
+			else
+			{
+				int *p = animation->oamR2L;
+				int *q = BattleAnimationOAMR2LBuffer;
+				for(int i=0;;i++)
+				{
+					if(p[i] == -1 && p[i+1] == -1 && p[i+2] == -1)
+						break;
+					q[i] = p[i];
+				}
+			}
 	
     *(u32 *)0x200F1B8 = 1;
   }
