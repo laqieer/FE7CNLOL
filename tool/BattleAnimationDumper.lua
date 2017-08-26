@@ -106,12 +106,14 @@ dumpAll = false
 index = 1
 
 -- 输出路径(默认路径)
---[[
+---[[
 pathSrc = '../src'
 pathInc = '../include'
 --]]
+--[[
 pathSrc = '.'
 pathInc = '.'
+--]]
 
 -- 参数处理函数表
 handler = {}
@@ -229,6 +231,15 @@ function readByte(file)
 	return str2byte(file:read(1))
 end
 
+function str2signedChar(s)
+	value = str2byte(s)
+	if(value >= 0x80)
+	then
+		value = value - 0x100
+	end
+	return value
+end
+
 -- 双字节
 
 function str2short(s)
@@ -239,6 +250,15 @@ function readShort(file)
 	return str2short(file:read(2))
 end
 
+function str2signedShort(s)
+	value = str2short(s)
+	if(value >= 0x8000)
+	then
+		value = value - 0x10000
+	end
+	return value
+end
+
 -- 4字节
 
 function str2int(s)
@@ -247,6 +267,15 @@ end
 
 function readInt(file)
 	return str2int(file:read(4))
+end
+
+function str2signedInt(s)
+	value = str2int(s)
+	if(value >= 0x80000000)
+	then
+		value = value - 0x100000000
+	end
+	return value
 end
 
 -- 从文件当前位置读取一个整数
@@ -538,6 +567,7 @@ then
 	frame = 0
 	frameSection[0] = frame
 	oam:write(name..'_frame_R_'..frame..':\n')
+	-- 不加处理生输出数据
 	--[[
 	for i=0,data3size-1,2 do
 		if(i%12 == 0)
@@ -556,6 +586,8 @@ then
 		end
 	end
 	--]]
+	-- 不完善，故废弃
+	--[[
 	for i=1,data3size,12 do
 		if(string.byte(data3[i]) == 1)
 		then
@@ -567,12 +599,10 @@ then
 			oam:write('\tEndFrame\n')
 			oam:write('\n\n'..name..'_frame_R_'..frame..':\n')
 		else
-			--[[
-			shape = string.byte(data3[i+1])/0x40
-			size = string.byte(data3[i+3])/0x40
-			y0 = 8 * string.byte(data3[i+4])/0x20
-			x0 = 8 * string.byte(data3[i+4])%0x20
-			--]]
+			-- shape = string.byte(data3[i+1])/0x40
+			-- size = string.byte(data3[i+3])/0x40
+			-- y0 = 8 * string.byte(data3[i+4])/0x20
+			-- x0 = 8 * string.byte(data3[i+4])%0x20
 			shape = string.byte(data3[i+1])%0x40
 			shape = (string.byte(data3[i+1]) - shape)/0x40
 			size = (string.byte(data3[i+3]) - string.byte(data3[i+3])%0x40)/0x40
@@ -597,6 +627,36 @@ then
 			oam:write(string.format('\tOBJR\t%s, %d, %d, %d, %d\n',OBJDimension[shape+1][size+1],x0,y0,deltaX,deltaY))
 		end
 	end
+	--]]
+	-- 格式化输出
+	i = 1
+	repeat
+		if(string.byte(data3[i+2]) == 0xFF and string.byte(data3[i+3]) == 0xFF)
+		then	-- 仿射参数
+			num = string.byte(data3[i]) + string.byte(data3[i+1]) * 0x100
+			oam:write(string.format('\tAffineNum\t%d\n',num))
+			oam:write(string.format('\tAffine0\t%d, %d, %d, %d\n',str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])))
+			i = i + 12
+			num = num - 1
+			while(num > 0)
+			do
+				oam:write(string.format('\tAffine\t%d, %d, %d, %d\n',str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])))
+				i = i + 12
+				num = num - 1
+			end
+		else	-- OBJ Attributes
+			if(string.byte(data3[i]) == 1)
+			then
+				frame = frame + 1
+				frameSection[i-1+12] = frame
+				oam:write('\tEndFrame\n')
+				oam:write('\n\n'..name..'_frame_R_'..frame..':\n')
+			else
+				oam:write(string.format('\tOBJ\t0x%04x, 0x%04x, 0x%04x, %d, %d\n',str2short(data3[i]..data3[i+1]),str2short(data3[i+2]..data3[i+3]),str2short(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9])))
+			end
+			i = i + 12
+		end
+	until(i > data3size)
 	-- oam:write('\n\t.word\t-1,-1,-1\n\n')
 	oam:write('\n\tEndOAMInfo\n\n')
 	--[[
@@ -628,6 +688,7 @@ then
 		end
 	end
 	--]]
+	--[[
 	for i=1,data4size,12 do
 		if(string.byte(data4[i]) == 1)
 		then
@@ -637,12 +698,10 @@ then
 			oam:write('\tEndFrame\n')
 			oam:write('\n\n'..name..'_frame_L_'..frame..':\n')
 		else
-			--[[
-			shape = string.byte(data4[i+1])/0x40
-			size = string.byte(data4[i+3])/0x40
-			y0 = 8 * string.byte(data4[i+4])/0x20
-			x0 = 8 * string.byte(data4[i+4])%0x20
-			--]]
+			-- shape = string.byte(data4[i+1])/0x40
+			-- size = string.byte(data4[i+3])/0x40
+			-- y0 = 8 * string.byte(data4[i+4])/0x20
+			-- x0 = 8 * string.byte(data4[i+4])%0x20
 			shape = (string.byte(data4[i+1]) - string.byte(data4[i+1])%0x40)/0x40
 			size = (string.byte(data4[i+3]) - string.byte(data4[i+3])%0x40)/0x40
 			x0 = string.byte(data4[i+4])%0x20
@@ -661,6 +720,35 @@ then
 			oam:write(string.format('\tOBJL\t%s, %d, %d, %d, %d\n',OBJDimension[shape+1][size+1],x0,y0,deltaX,deltaY))
 		end
 	end
+	--]]
+	i = 1
+	repeat
+		if(string.byte(data4[i+2]) == 0xFF and string.byte(data4[i+3]) == 0xFF)
+		then	-- 仿射参数
+			num = string.byte(data4[i]) + string.byte(data4[i+1]) * 0x100
+			oam:write(string.format('\tAffineNum\t%d\n',num))
+			oam:write(string.format('\tAffine0\t%d, %d, %d, %d\n',str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])))
+			i = i + 12
+			num = num - 1
+			while(num > 0)
+			do
+				oam:write(string.format('\tAffine\t%d, %d, %d, %d\n',str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])))
+				i = i + 12
+				num = num - 1
+			end
+		else	-- OBJ Attributes
+			if(string.byte(data4[i]) == 1)
+			then
+				frame = frame + 1
+				frameSection[i-1+12] = frame
+				oam:write('\tEndFrame\n')
+				oam:write('\n\n'..name..'_frame_L_'..frame..':\n')
+			else
+				oam:write(string.format('\tOBJ\t0x%04x, 0x%04x, 0x%04x, %d, %d\n',str2short(data4[i]..data4[i+1]),str2short(data4[i+2]..data4[i+3]),str2short(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9])))
+			end
+			i = i + 12
+		end
+	until(i > data4size)
 	-- oam:write('\n\t.word\t-1,-1,-1\n\n')
 	oam:write('\n\tEndOAMInfo\n\n')
 	--[[
@@ -750,6 +838,7 @@ end
 script:write([[@ Generated by BattleAnimationDumper
 @ ]]..os.date("%Y/%m/%d %H:%M:%S")..'\n\n')
 -- script:write('\t.include\tBattleAnimationEventDef.inc\n\n')
+script:write('\t.include\t\"BattleAnimationEventDef.inc\"\n\n')
 -- script:write("\t.include\t\""..pathInc..'/'..name..'_event.inc\"\n\n')
 script:write("\t.include\t\""..pathInc..'/'..name..'_sheet.inc\"\n\n')
 -- script:write('#pragma once\n')

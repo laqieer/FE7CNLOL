@@ -33,8 +33,15 @@ ShowFrame \frames, \No, \sheet, \frameSection
 @ shape是OBJAttribute0的bit14-15,size是OBJAttribute1的bit14-15,HFlip是OBJAttribute1的bit12
 @ startX,startY是OBJ的左上角在sheet中的位置(单位:tile)
 @ XOffset,YOffset是OBJ的左上角在游戏中相对于人物原点的位置偏移(在人物参考系中的坐标)(单位:像素)
+
+/*
 .macro	OAMInfo shape=0, size=0, HFlip=0, startX=0, startY=0, XOffset=0, YOffset=0
 .hword	0x4000 * \shape, 0x4000 * \size + 0x1000 * \HFlip, \startX + 0x20 * \startY, \XOffset, \YOffset, 0
+.endm
+*/
+
+.macro	OBJ Attribute0, Attribute1, Attribute2, XOffset, YOffset
+.hword	\Attribute0, \Attribute1, \Attribute2, \XOffset, \YOffset, 0
 .endm
 
 @ 简化版
@@ -67,6 +74,23 @@ ShowFrame \frames, \No, \sheet, \frameSection
 .set	_8x32,		0x40008000
 .set	_16x32,	0x80008000
 .set	_32x64,	0xC0008000
+
+@ 仿射参数(旋转缩放)
+
+@ num表示连续的参数组数(每组4个:PA,PB,PC,PD)
+.macro	AffineNum num
+.hword	\num, -1
+.endm
+
+@ 第一组
+.macro	Affine0 PA, PB, PCC ,PD
+.hword	\PA, \PB, \PCC, \PD
+.endm
+
+@ 后面的
+.macro	Affine PA, PB, PCC ,PD
+.hword	0, 0, \PA, \PB, \PCC, \PD
+.endm
 
 @ 结束一帧
 .macro	EndFrame
