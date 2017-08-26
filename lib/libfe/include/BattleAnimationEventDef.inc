@@ -30,17 +30,26 @@ ShowFrame \frames, \No, \sheet, \frameSection
 @ data3&4
 
 @ 描述一个OBJ
-@ shape是OBJAttribute0的bit14-15,size是OBJAttribute的bit14-15
+@ shape是OBJAttribute0的bit14-15,size是OBJAttribute1的bit14-15,HFlip是OBJAttribute1的bit12
 @ startX,startY是OBJ的左上角在sheet中的位置(单位:tile)
 @ XOffset,YOffset是OBJ的左上角在游戏中相对于人物原点的位置偏移(在人物参考系中的坐标)(单位:像素)
-.macro	OAMInfo shape=0, size=0, startX=0, startY=0, XOffset=0, YOffset=0
-.hword	0x4000 * \shape, 0x4000 * \size, \startX + 0x20 * \startY, \XOffset, \YOffset, 0
+.macro	OAMInfo shape=0, size=0, HFlip=0, startX=0, startY=0, XOffset=0, YOffset=0
+.hword	0x4000 * \shape, 0x4000 * \size + 0x1000 * \HFlip, \startX + 0x20 * \startY, \XOffset, \YOffset, 0
 .endm
 
 @ 简化版
 @ 单位:像素
-.macro	OBJ dimension=0, x0=0, y0=0, deltaX=0, deltaY=0
+
+@ 右侧
+.macro	OBJR dimension=0, x0=0, y0=0, deltaX=0, deltaY=0
 .word	\dimension
+.byte	\x0 / 8 + 0x20 * \y0 / 8, 0
+.hword	\deltaX, \deltaY, 0
+.endm
+
+@ 左侧
+.macro	OBJL dimension=0, x0=0, y0=0, deltaX=0, deltaY=0
+.word	\dimension + 0x10000000
 .byte	\x0 / 8 + 0x20 * \y0 / 8, 0
 .hword	\deltaX, \deltaY, 0
 .endm
@@ -58,3 +67,13 @@ ShowFrame \frames, \No, \sheet, \frameSection
 .set	_8x32,		0x40008000
 .set	_16x32,	0x80008000
 .set	_32x64,	0xC0008000
+
+@ 结束一帧
+.macro	EndFrame
+.word	1,0,0
+.endm
+
+@ 结束整个data3/4
+.macro	EndOAMInfo
+.word	-1,-1,-1
+.endm

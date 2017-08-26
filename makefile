@@ -24,6 +24,7 @@ GFXLIBS     ?= libgfx.a
 LIBRARIES	:=	lib/libfe lib/libmy lib/libagb lib/libtonc
 # 链接的函数库
 LIBS        := -nostdlib -lgfx -ltonc
+# LIBS        := -lgfx -ltonc
 
 # 若在顶层目录
 ifeq (0,$(MAKELEVEL))

@@ -6,6 +6,10 @@
 
 #include	"spellIceWorld.h"
 
+#define __DEBUG
+
+#include "agbDebug.h"
+
 // 扩展后的战斗动画协程
 __attribute__((section(".ekrUnitKakudaiEx")))
 const struct coroutine ekrUnitKakudaiEx[] =
@@ -208,7 +212,7 @@ void battleAnimationInit()
 	      BattleAnimationPaletteGroupBufferLeftSide);
 	else
 		FE7JCPUFastSet(battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
-						BattleAnimationPaletteGroupBufferLeftSide,4);
+						BattleAnimationPaletteGroupBufferLeftSide,0x80/4);
 	
     if ( characterBattlePaletteID != -1 )
     {
@@ -218,7 +222,7 @@ void battleAnimationInit()
 	        characterBattlePalTable[characterBattlePaletteID].pal,
     	    BattleAnimationPaletteGroupBufferLeftSide);
 		else
-			FE7JCPUFastSet(characterBattlePalTable[characterBattlePaletteID].pal,BattleAnimationPaletteGroupBufferLeftSide,1);
+			FE7JCPUFastSet(characterBattlePalTable[characterBattlePaletteID].pal,BattleAnimationPaletteGroupBufferLeftSide,0x20/4);
 		
       sub(8054798)(BattleAnimationPaletteGroupBufferLeftSide, 0);
     }
@@ -232,15 +236,16 @@ void battleAnimationInit()
 	if(*(u8 *)(animation->oamL2R) == 0x10)
 		FE7JLZ77UnCompWram(animation->oamL2R, BattleAnimationOAML2RBuffer);
 	else
-		//	不要拷贝到RAM里的无压缩格式(头部4字节:字符串'laq',大小固定,以01000000 00000000 00000000 00000000结尾)
+		//	不要拷贝到RAM里的无压缩格式(头部4字节:字符串'laq',大小固定,以01000000 00000000 00000000 00000000结尾,总计0x5800+4字节)
 		if(*(u32 *)(animation->oamL2R) == 'l' + ('a' << 8) + ('q' << 16))
 		{
 			((u32 *)BattleAnimationOAML2RBuffer)[0] = 'l' + ('a' << 8) + ('q' << 16);
-			((void **)BattleAnimationOAML2RBuffer)[1] = animation->oamL2R;
+			((void **)BattleAnimationOAML2RBuffer)[1] = (u32 *)animation->oamL2R+1;
 		}
 		//	需要拷贝到RAM里的无压缩格式(无头部,大小不定,以连续12个0xFF结尾,节约空间)
 		else
 		{
+			/*
 			int *p = animation->oamL2R;
 			int *q = BattleAnimationOAML2RBuffer;
 			for(int i=0;;i++)
@@ -249,9 +254,33 @@ void battleAnimationInit()
 					break;
 				q[i] = p[i];
 			}
+			*/
+			// 先清零这片内存区域
+			int zero = 0;
+			FE7JCPUFastSet(&zero,BattleAnimationOAML2RBuffer,0x5800/4+(1<<24));
+			
+			for(int i=0;i<0x5800/4;i++)
+			{
+				if(((int *)animation->oamL2R)[i] == -1 && ((int *)animation->oamL2R)[i+1] == -1 && ((int *)animation->oamL2R)[i+2] == -1)
+					break;
+				((int *)BattleAnimationOAML2RBuffer)[i] = ((int *)animation->oamL2R)[i];
+			}
+			
+//			FE7JCPUFastSet(animation->oamL2R, BattleAnimationOAML2RBuffer, 0x57f0/4);
 		}
 
-    *(u32 *)0x20099B8 = 1;
+//	_pause();
+//	_print("void battleAnimationInit()\n");
+/*
+	char szBuffer[BufferMaxLength];
+//	sprintf(szBuffer,"The sum of %i and %i is %i", 5, 3, 5+3);
+	sprintf(szBuffer,"The sum of %d and %d is %d", 5, 3, 5+3);
+	_print(szBuffer);
+	*/
+	DEBUG("animation = 0x%x", animation)
+//	_pause();
+
+    *(u32 *)0x20099B8 = 1;	// 在OAM信息缓存(大小0x5800字节)的最后一行加01000000 00000000 00000000 00000000(标识一个Frame的结束?)
   }
   if ( IfBattleAnimationIsAtTheRightSide == 1 )
   {
@@ -287,7 +316,7 @@ void battleAnimationInit()
 	      BattleAnimationPaletteGroupBufferRightSide);
 	else
 		FE7JCPUFastSet(battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
-						BattleAnimationPaletteGroupBufferRightSide,4);
+						BattleAnimationPaletteGroupBufferRightSide,0x80/4);
 	
     if ( characterBattlePaletteID != -1 )
     {
@@ -297,7 +326,7 @@ void battleAnimationInit()
 		        characterBattlePalTable[characterBattlePaletteID].pal,
         		BattleAnimationPaletteGroupBufferRightSide);
 		else
-			FE7JCPUFastSet(characterBattlePalTable[characterBattlePaletteID].pal,BattleAnimationPaletteGroupBufferRightSide,1);
+			FE7JCPUFastSet(characterBattlePalTable[characterBattlePaletteID].pal,BattleAnimationPaletteGroupBufferRightSide,0x20/4);
 		
 	      sub(8054798)(BattleAnimationPaletteGroupBufferRightSide, 1);
     }
@@ -321,15 +350,16 @@ void battleAnimationInit()
 		if(*(u8 *)(animation->oamR2L) == 0x10)
 			FE7JLZ77UnCompWram(animation->oamR2L, BattleAnimationOAMR2LBuffer);
 		else
-			//	不要拷贝到RAM里的无压缩格式(头部4字节:字符串'laq',大小固定,以01000000 00000000 00000000 00000000结尾)
+			//	不要拷贝到RAM里的无压缩格式(头部4字节:字符串'laq',大小固定,以01000000 00000000 00000000 00000000结尾,总计0x5800+4字节)
 			if(*(u32 *)(animation->oamR2L) == 'l' + ('a' << 8) + ('q' << 16))
 			{
 				((u32 *)BattleAnimationOAMR2LBuffer)[0] = 'l' + ('a' << 8) + ('q' << 16);
-				((void **)BattleAnimationOAMR2LBuffer)[1] = animation->oamR2L;
+				((void **)BattleAnimationOAMR2LBuffer)[1] = (u32 *)animation->oamR2L+1;
 			}
 			//	需要拷贝到RAM里的无压缩格式(无头部,大小不定,以连续12个0xFF结尾,节约空间)
 			else
 			{
+				/*
 				int *p = animation->oamR2L;
 				int *q = BattleAnimationOAMR2LBuffer;
 				for(int i=0;;i++)
@@ -338,9 +368,19 @@ void battleAnimationInit()
 						break;
 					q[i] = p[i];
 				}
+				*/
+				
+				for(int i=0;i<0x5800/4;i++)
+				{
+					if(((int *)animation->oamR2L)[i] == -1 && ((int *)animation->oamR2L)[i+1] == -1 && ((int *)animation->oamR2L)[i+2] == -1)
+						break;
+					((int *)BattleAnimationOAMR2LBuffer)[i] = ((int *)animation->oamR2L)[i];
+				}	
+				
+//				FE7JCPUFastSet(animation->oamR2L, BattleAnimationOAMR2LBuffer, 0x57f0/4);
 			}
 	
-    *(u32 *)0x200F1B8 = 1;
+    *(u32 *)0x200F1B8 = 1;	// 在OAM信息缓存(大小0x5800字节)的最后一行加01000000 00000000 00000000 00000000(标识一个Frame的结束?)
   }
   if ( *(u32 *)0x203E078 )
   {
@@ -403,7 +443,13 @@ void UnitKakudai1Ex(struct context *ctx)
 	else
 		*(u32 *)&ctx->userSpace[43] = (char *)BattleAnimationOAML2RBuffer + *((u32 *)v3 + 2);
 	
-    FE7JLZ77UnCompWram(v4, 0x2000088);
+//    FE7JLZ77UnCompWram(v4, 0x2000088);	
+// 无压缩sheet支持
+	if(*(u32 *)v4 == 0x200010)
+    	FE7JLZ77UnCompWram(v4, 0x2000088);
+	else
+		FE7JCPUFastSet(v4, 0x2000088, 0x2000/4);
+	
   }
   if ( IfBattleAnimationIsAtTheRightSide == 1 )
   {
@@ -423,13 +469,37 @@ void UnitKakudai1Ex(struct context *ctx)
 		*(u32 *)&ctx->userSpace[47] = *((char **)BattleAnimationOAMR2LBuffer + 1) + *((u32 *)v5 + 2);
 	else
 		*(u32 *)&ctx->userSpace[47] = (char *)BattleAnimationOAMR2LBuffer + *((u32 *)v5 + 2);
-	
-    FE7JLZ77UnCompWram(v6, 0x2002088);
+
+//	FE7JLZ77UnCompWram(v6, 0x2002088);	
+// 无压缩sheet支持
+	if(*(u32 *)v6 == 0x200010)
+    	FE7JLZ77UnCompWram(v6, 0x2002088);
+	else
+		FE7JCPUFastSet(v6, 0x2002088, 0x2000/4);
+		
   }
   if ( *(u32 *)0x203E088 )
-    FE7JLZ77UnCompWram(*(void **)0x203E088, 0x2001088);
+  {
+//    FE7JLZ77UnCompWram(*(void **)0x203E088, 0x2001088);	
+
+// 无压缩sheet支持(?)
+	if(**(u32 **)0x203E088 == 0x200010)
+    	FE7JLZ77UnCompWram(*(void **)0x203E088, 0x2001088);
+	else
+		FE7JCPUFastSet(*(void **)0x203E088, 0x2001088, 0x2000/4);
+  }
+
   if ( *(u32 *)0x203E08C )
-    FE7JLZ77UnCompWram(*(void **)0x203E08C, 0x2003088);
+  {
+//    FE7JLZ77UnCompWram(*(void **)0x203E08C, 0x2003088);	
+
+// 无压缩sheet支持(?)
+	if(**(u32 **)0x203E08C == 0x200010)
+    	FE7JLZ77UnCompWram(*(void **)0x203E08C, 0x2003088);
+	else
+		FE7JCPUFastSet(*(void **)0x203E08C, 0x2003088, 0x2000/4);
+  }
+	
 //  TileTransferInfoAdd(*(void **)0x2000088, (void *)0x6014000, 0x4000);
 	TileTransferInfoAdd(0x2000088, (void *)0x6014000, 0x4000);
   *(u16 *)&ctx->userSpace[3] = 0;
@@ -1605,16 +1675,24 @@ void InitLeftAIS(int x)
 	int *v10; // r0@5
 
 	v1 = x;
+	/*
 	v2 = LOBYTE(((u32 *)0x81DE1E0)[x]);
 	v3 = BYTE1(((u32 *)0x81DE1E0)[x]);
 	v4 = BYTE2(((u32 *)0x81DE1E0)[x]);
 	v5 = BYTE3(((u32 *)0x81DE1E0)[x]);
+	*/
+	v2 = ((u8 *)0x81DE1E0)[4*x];
+	v3 = ((u8 *)0x81DE1E0)[4*x+1];
+	v4 = ((u8 *)0x81DE1E0)[4*x+2];
+	v5 = ((u8 *)0x81DE1E0)[4*x+3];
 //	v6 = (unsigned __int8)((u8 *)0x81DE20D)[(*(u16 *)0x203E004)];
 	v6 = ((u8 *)0x81DE20D)[(*(u16 *)0x203E004)];
 //	LOWORD((*(u32 *)0x2000030)) = -*((_WORD *)(*(u32 *)0x81DE218) + (*(u16 *)0x203E004));
-	LOWORD((*(u32 *)0x2000030)) = -*((_WORD *)0x81DE218 + *(u16 *)0x203E004);
+//	LOWORD((*(u32 *)0x2000030)) = -*((_WORD *)0x81DE218 + *(u16 *)0x203E004);
+	*(u16 *)0x2000030 = -*((_WORD *)0x81DE218 + *(u16 *)0x203E004);
 	(*(u16 *)0x2000034) = 0;
-	LOWORD((*(u32 *)0x2000028)) = (*(u32 *)0x2000030) + v6;
+//	LOWORD((*(u32 *)0x2000028)) = (*(u32 *)0x2000030) + v6;
+	*(u16 *)0x2000028 = (*(u32 *)0x2000030) + v6;
 	(*(u16 *)0x200002C) = 88;
 //	v7 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[v2];
 
@@ -1682,14 +1760,22 @@ void InitRightAIS(int x)
 	int *v10; // r0@5
 
 	v1 = x;
+	/*
 	v2 = LOBYTE(((u32 *)0x81DE1E0)[x]);
 	v3 = BYTE1(((u32 *)0x81DE1E0)[x]);
 	v4 = BYTE2(((u32 *)0x81DE1E0)[x]);
 	v5 = BYTE3(((u32 *)0x81DE1E0)[x]);
+	*/
+	v2 = ((u8 *)0x81DE1E0)[4*x];
+	v3 = ((u8 *)0x81DE1E0)[4*x+1];
+	v4 = ((u8 *)0x81DE1E0)[4*x+2];
+	v5 = ((u8 *)0x81DE1E0)[4*x+3];
 	v6 = (unsigned __int8)((u8 *)0x81DE212)[(*(u16 *)0x203E004)];
-	HIWORD((*(u32 *)0x2000030)) = 0;
+//	HIWORD((*(u32 *)0x2000030)) = 0;
+	*(u16 *)0x2000032 = 0;
 	(*(u16 *)0x2000036) = 0;
-	HIWORD((*(u32 *)0x2000028)) = v6;
+//	HIWORD((*(u32 *)0x2000028)) = v6;
+	*(u16 *)0x200002A = v6;
 	(*(u16 *)0x200002E) = 88;
 //	v7 = (char *)BattleAnimationEventBufferRightSide + BattleAnimationSectionInfoRightSide[v2];
 
@@ -1865,5 +1951,271 @@ void battleExtraAnimation(void *AIS, bool ifCritical)
 	index = *(position - 1) << 16 >> 24;
 	// 要取的是当前执行的指令(即position指向的位置的上一条指令)
 	(*ExtraAnimation[index])(AIS,ifCritical);
+}
+
+// 更新战斗动画sheet
+void sub_8054764(void *AIS)
+{
+//	LZ77UnCompWram(*((void **)AIS + 10), *((void **)AIS + 11));
+	// 添加压缩data3&4支持
+	if(**((u32 **)AIS + 10) == 0x200010)
+		FE7JLZ77UnCompWram(*((void **)AIS + 10), *((void **)AIS + 11));
+	else
+		FE7JCPUFastSet(*((void **)AIS + 10), *((void **)AIS + 11),0x2000/4);
+	
+	TileTransferInfoAdd(*((void **)AIS + 11), (void *)(32 * (*((_WORD *)AIS + 4) & 0x3FF) + 0x6010000), 0x2000);
+}
+
+__attribute__((section(".call_sub_8054764")))
+void call_sub_8054764(void *AIS)
+{
+	sub_8054764(AIS);
+}
+
+// 职业介绍的DEMO战斗动画初始化
+// 因为只有一个动画，所以AIS就在0x02000000
+void DemoBattleAnimationInit(void *AIS)
+{
+	int v2; // r3@1
+	int v3; // r4@1
+	__int16 v4; // r8@1
+	int v5; // r6@1
+	BattleAnimation *animation; // r1@1
+	int *sectionOffset; // r2@1
+	int v8; // r3@1
+	int *v9; // r7@1
+	int *v10; // r10@3
+	int v11; // r4@6
+	_DWORD *v12; // r1@6
+	int v13; // r4@7
+	int *v14; // r0@8
+	int *v15; // r0@8
+	int v16; // r1@8
+	__int16 v17; // [sp+0h] [bp-24h]@1
+	u16 animationID;
+
+	v2 = *((_WORD *)AIS + 5);
+	// IDA的BYTEn系列宏请勿使用
+	/*
+	v3 = LOBYTE(((u32 *)0x81DE1E0)[v2]);
+	v4 = BYTE1(((u32 *)0x81DE1E0)[v2]);
+	v5 = BYTE2(((u32 *)0x81DE1E0)[v2]);
+	v17 = BYTE3(((u32 *)0x81DE1E0)[v2]);
+	*/
+	v3 = ((u32 *)0x81DE1E0)[v2] & 0xFF;
+	v4 = ((u32 *)0x81DE1E0)[v2] & 0xFF00 >> 8;
+	v5 = ((u32 *)0x81DE1E0)[v2] & 0xFF0000 >> 16;
+	v17 = ((u32 *)0x81DE1E0)[v2] & 0xFF000000 >> 24;
+	// 双字节动画ID
+	animationID = *((_WORD *)AIS + 3);
+	// 高字节选择动画库，低字节选择动画
+	animation = &battleAnimationBank[animationID>>8][animationID & 0xFF];
+//	FE7JLZ77UnCompWram(*(&FE7BattleAnimationBank.event + 8 * *((_WORD *)AIS + 3)), *((void **)AIS + 10));
+//	animation = &FE7BattleAnimationBank + *((_WORD *)AIS + 3);
+	// data2
+	if(*(u8 *)(animation->event) == 0x10)
+		FE7JLZ77UnCompWram(animation->event, *((void **)AIS + 10));
+	else
+	{
+		**((u32 **)AIS + 10) = 'l' + ('a'<<8) +('q'<<16);
+		*(*((u32 **)AIS + 10) +1) = animation->event;
+	}	
+	sectionOffset = animation->sectionOffset;
+	v8 = *((_DWORD *)AIS + 10);
+	v9 = (*(u32 *)0x8C0A5D8);
+	if ( v3 != 255 )
+		v9 = (int *)(v8 + sectionOffset[v3]);
+	v10 = (*(u32 *)0x8C0A5D8);
+	if ( v5 != 255 )
+		v10 = (int *)(v8 + sectionOffset[v5]);
+	if ( *((_WORD *)AIS + 6) )
+	{
+		v13 = *((_DWORD *)AIS + 9);
+//		FE7JLZ77UnCompWram(animation->oamR2L, *((void **)AIS + 9));
+		// data3
+		if(*(u8 *)(animation->oamR2L) == 0x10)
+			FE7JLZ77UnCompWram(animation->oamR2L, *((void **)AIS + 9));
+		else
+			//	不要拷贝到RAM里的无压缩格式(头部4字节:字符串'laq',大小固定,以01000000 00000000 00000000 00000000结尾,总计0x5800+4字节)
+			if(*(u32 *)(animation->oamR2L) == 'l' + ('a' << 8) + ('q' << 16))
+			{
+				**((u32 **)AIS + 9) = 'l' + ('a' << 8) + ('q' << 16);
+				*(*((u32 ***)AIS + 9) + 1) = (u32 *)animation->oamR2L+1;
+			}
+			//	需要拷贝到RAM里的无压缩格式(无头部,大小不定,以连续12个0xFF结尾,节约空间)
+			else
+			{
+				for(int i=0;i<0x5800/4;i++)
+				{
+					if(((int *)animation->oamR2L)[i] == -1 && ((int *)animation->oamR2L)[i+1] == -1 && ((int *)animation->oamR2L)[i+2] == -1)
+						break;
+					(*((int **)AIS + 9))[i] = ((int *)animation->oamR2L)[i];
+				}
+			}
+
+		v12 = (_DWORD *)(v13 + 0x57F0);
+	}
+	else
+	{
+		v11 = *((_DWORD *)AIS + 9);
+//		FE7JLZ77UnCompWram(animation->oamL2R, *((void **)AIS + 9));
+		// data4
+		if(*(u8 *)(animation->oamL2R) == 0x10)
+			FE7JLZ77UnCompWram(animation->oamL2R, *((void **)AIS + 9));
+		else
+			//	不要拷贝到RAM里的无压缩格式(头部4字节:字符串'laq',大小固定,以01000000 00000000 00000000 00000000结尾,总计0x5800+4字节)
+			if(*(u32 *)(animation->oamL2R) == 'l' + ('a' << 8) + ('q' << 16))
+			{
+				**((u32 **)AIS + 9) = 'l' + ('a' << 8) + ('q' << 16);
+				*(*((u32 ***)AIS + 9) + 1) = (u32 *)animation->oamL2R+1;
+			}
+			//	需要拷贝到RAM里的无压缩格式(无头部,大小不定,以连续12个0xFF结尾,节约空间)
+			else
+			{
+				for(int i=0;i<0x5800/4;i++)
+				{
+					if(((int *)animation->oamL2R)[i] == -1 && ((int *)animation->oamL2R)[i+1] == -1 && ((int *)animation->oamL2R)[i+2] == -1)
+						break;
+					(*((int **)AIS + 9))[i] = ((int *)animation->oamL2R)[i];
+				}
+			}
+
+		v12 = (_DWORD *)(v11 + 0x57F0);
+	}
+	*v12 = 1;
+	v14 = sub(8006424)((int)v9, v4);
+	v14[12] = *((_DWORD *)AIS + 9);
+	*((_WORD *)v14 + 1) = *((_WORD *)AIS + 1);
+	*((_WORD *)v14 + 2) = *((_WORD *)AIS + 2);
+	*((_WORD *)v14 + 4) = (*((_WORD *)AIS + 8) << 12) | 0x800 | *((_WORD *)AIS + 7);
+	*((_WORD *)v14 + 6) |= (unsigned __int16)(*((_WORD *)AIS + 6) << 9) | 0x400;
+	*((_WORD *)v14 + 7) = 0;
+	*((_BYTE *)v14 + 18) = *((_WORD *)AIS + 5);
+	v14[11] = *((_DWORD *)AIS + 7);
+	*((_DWORD *)AIS + 5) = v14;
+	v14[17] = (int)AIS;
+	v15 = sub(8006424)((int)v10, v17);
+	v15[12] = *((_DWORD *)AIS + 9);
+	*((_WORD *)v15 + 1) = *((_WORD *)AIS + 1);
+	*((_WORD *)v15 + 2) = *((_WORD *)AIS + 2);
+	*((_WORD *)v15 + 4) = (*((_WORD *)AIS + 8) << 12) | 0x800 | *((_WORD *)AIS + 7);
+	*((_WORD *)v15 + 6) |= (unsigned __int16)(*((_WORD *)AIS + 6) << 9) | 0x500;
+	*((_WORD *)v15 + 7) = 0;
+	*((_BYTE *)v15 + 18) = *((_WORD *)AIS + 5);
+	v15[11] = *((_DWORD *)AIS + 7);
+	*((_DWORD *)AIS + 6) = v15;
+	v15[17] = (int)AIS;
+	// data5
+//	FE7JLZ77UnCompWram(*(&FE7BattleAnimationBank.palGroup + 8 * *((_WORD *)AIS + 3)), *((void **)AIS + 8));
+	if(*(u8 *)animation->palGroup == 0x10)
+		FE7JLZ77UnCompWram(animation->palGroup, *((void **)AIS + 8));
+	else
+		FE7JCPUFastSet(animation->palGroup, *((void **)AIS + 8), 0x80/4);
+	v16 = *((_WORD *)AIS + 4);
+	if ( v16 != -1 )
+//		FE7JLZ77UnCompWram(*(&characterBattlePalTable.pal + 4 * v16), *((void **)AIS + 8));
+		// 个人专用调色板
+	{
+		if(*(u8 *)characterBattlePalTable[v16].pal == 0x10)
+			FE7JLZ77UnCompWram(characterBattlePalTable[v16].pal, *((void **)AIS + 8));
+		else
+			FE7JCPUFastSet(characterBattlePalTable[v16].pal, *((void **)AIS + 8), 0x20/4);
+	}
+	FE7JCPUFastSet(
+		(void *)(*((_DWORD *)AIS + 8) + 32 * *((_BYTE *)AIS + 1)),
+		(u16 *)OBJPaletteBuffer+16 * *((_WORD *)AIS + 8),
+		8u);
+	EnablePaletteSync();
+	*((_DWORD *)AIS + 11) = 0;
+}
+
+/*
+//	原版
+void DemoBattleAnimationInit(void *AIS)
+{
+	int v2; // r3@1
+	int v3; // r4@1
+	__int16 v4; // r8@1
+	int v5; // r6@1
+	BattleAnimation *animation; // r1@1
+	int *sectionOffset; // r2@1
+	int v8; // r3@1
+	int *v9; // r7@1
+	int *v10; // r10@3
+	int v11; // r4@6
+	_DWORD *v12; // r1@6
+	int v13; // r4@7
+	int *v14; // r0@8
+	int *v15; // r0@8
+	int v16; // r1@8
+	__int16 v17; // [sp+0h] [bp-24h]@1
+
+	v2 = *((_WORD *)AIS + 5);
+	v3 = LOBYTE(((u32 *)0x81DE1E0)[v2]);
+	v4 = BYTE1(((u32 *)0x81DE1E0)[v2]);
+	v5 = BYTE2(((u32 *)0x81DE1E0)[v2]);
+	v17 = BYTE3(((u32 *)0x81DE1E0)[v2]);
+	FE7JLZ77UnCompWram(*(&FE7BattleAnimationBank[0].event + 8 * *((_WORD *)AIS + 3)), *((void **)AIS + 10));
+	animation = &FE7BattleAnimationBank[0] + *((_WORD *)AIS + 3);
+	sectionOffset = animation->sectionOffset;
+	v8 = *((_DWORD *)AIS + 10);
+	v9 = (*(u32 *)0x8C0A5D8);
+	if ( v3 != 255 )
+		v9 = (int *)(v8 + sectionOffset[v3]);
+	v10 = (*(u32 *)0x8C0A5D8);
+	if ( v5 != 255 )
+		v10 = (int *)(v8 + sectionOffset[v5]);
+	if ( *((_WORD *)AIS + 6) )
+	{
+		v13 = *((_DWORD *)AIS + 9);
+		FE7JLZ77UnCompWram(animation->oamR2L, *((void **)AIS + 9));
+		v12 = (_DWORD *)(v13 + 0x57F0);
+	}
+	else
+	{
+		v11 = *((_DWORD *)AIS + 9);
+		FE7JLZ77UnCompWram(animation->oamL2R, *((void **)AIS + 9));
+		v12 = (_DWORD *)(v11 + 0x57F0);
+	}
+	*v12 = 1;
+	v14 = sub(8006424)((int)v9, v4);
+	v14[12] = *((_DWORD *)AIS + 9);
+	*((_WORD *)v14 + 1) = *((_WORD *)AIS + 1);
+	*((_WORD *)v14 + 2) = *((_WORD *)AIS + 2);
+	*((_WORD *)v14 + 4) = (*((_WORD *)AIS + 8) << 12) | 0x800 | *((_WORD *)AIS + 7);
+	*((_WORD *)v14 + 6) |= (unsigned __int16)(*((_WORD *)AIS + 6) << 9) | 0x400;
+	*((_WORD *)v14 + 7) = 0;
+	*((_BYTE *)v14 + 18) = *((_WORD *)AIS + 5);
+	v14[11] = *((_DWORD *)AIS + 7);
+	*((_DWORD *)AIS + 5) = v14;
+	v14[17] = (int)AIS;
+	v15 = sub(8006424)((int)v10, v17);
+	v15[12] = *((_DWORD *)AIS + 9);
+	*((_WORD *)v15 + 1) = *((_WORD *)AIS + 1);
+	*((_WORD *)v15 + 2) = *((_WORD *)AIS + 2);
+	*((_WORD *)v15 + 4) = (*((_WORD *)AIS + 8) << 12) | 0x800 | *((_WORD *)AIS + 7);
+	*((_WORD *)v15 + 6) |= (unsigned __int16)(*((_WORD *)AIS + 6) << 9) | 0x500;
+	*((_WORD *)v15 + 7) = 0;
+	*((_BYTE *)v15 + 18) = *((_WORD *)AIS + 5);
+	v15[11] = *((_DWORD *)AIS + 7);
+	*((_DWORD *)AIS + 6) = v15;
+	v15[17] = (int)AIS;
+	FE7JLZ77UnCompWram(*(&FE7BattleAnimationBank[0].palGroup + 8 * *((_WORD *)AIS + 3)), *((void **)AIS + 8));
+	v16 = *((_WORD *)AIS + 4);
+	if ( v16 != -1 )
+		FE7JLZ77UnCompWram(*(&characterBattlePalTable[0].pal + 4 * v16), *((void **)AIS + 8));
+	FE7JCPUFastSet(
+		(void *)(*((_DWORD *)AIS + 8) + 32 * *((_BYTE *)AIS + 1)),
+		&OBJPaletteBuffer[16 * *((_WORD *)AIS + 8)],
+		8u);
+	EnablePaletteSync();
+	*((_DWORD *)AIS + 11) = 0;
+}
+*/
+
+__attribute__((section(".callDemoBattleAnimationInit")))
+void callDemoBattleAnimationInit(void *AIS)
+{
+	DemoBattleAnimationInit(AIS);
 }
 

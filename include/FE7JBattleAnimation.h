@@ -146,6 +146,23 @@ void sub_8054D7C(int a1, int a2);
 
 void call_sub_8054D7C(int a1, int a2);
 
+#pragma long_calls
+void sub_8054764(void *AIS);
+#pragma long_calls_off
+
+// 更新战斗动画sheet
+void call_sub_8054764(void *AIS);
+
+#define	updateBattleAnimationSheet	call_sub_8054764
+
+#pragma long_calls
+void DemoBattleAnimationInit(void *AIS);
+#pragma long_calls_off
+
+// 职业介绍的DEMO战斗动画初始化
+// 因为只有一个动画，所以AIS就在0x02000000
+void callDemoBattleAnimationInit(void *AIS);
+
 // 判断动画是在左边还是右边
 // bool isUnitAtRightOrLeft(int AIS);
 #define isUnitAtRightOrLeft		sub(8054E60)
@@ -179,3 +196,4 @@ extern const int loc_80065EC_EX;
 
 // 声音播放扩展
 extern const int loc_806829C_EX;
+

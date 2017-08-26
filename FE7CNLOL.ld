@@ -62,14 +62,18 @@ SECTIONS
 	.callBattleAnimationAISInit : {*.o(.callBattleAnimationAISInit)}	
 	. = 0x8054D7C;
 	.call_sub_8054D7C : {*.o(.call_sub_8054D7C)}	
+	. = 0x8054764;
+	.call_sub_8054764 : {*.o(.call_sub_8054764)}
 	. = 0x8053D6C;
 	.C2E_EX : {*.o(.C2E_EX)}
 	. = 0x8053D70;
-	.C2F_EX : {*.o(.C2F_EX)}
+	.C2F_EX : {*.o(.C2F_EX)}	
 	. = 0x8006594;
 	.capeFlowingAnimationEx : {*.o(.capeFlowingAnimationEx)}	
 	. = 0x806810C;
 	.battleAnimationSoundEx : {*.o(.battleAnimationSoundEx)}
+	. = 0x80552D8;
+	.callDemoBattleAnimationInit : {*.o(.callDemoBattleAnimationInit)}	
 	. = 0x8E00008 + 0x20 * (0x5E - 1);
 	.NinoSageAnimation : {*.o(.NinoSageAnimation)}	
 	. = 0x8E00008 + 0x20 * (0x11 - 1);
@@ -78,6 +82,8 @@ SECTIONS
 	.FalconKnightSpearAnimationWithIceEffect : {*.o(.FalconKnightSpearAnimationWithIceEffect)}
 	. = 0x8E00008 + 0x20 * (4 - 1);
 	.LordKnightEliwoodDurandalAnimation : {*.o(.LordKnightEliwoodDurandalAnimation)}
+	. = 0x8E00008 + 0x20 * (0x29 - 1);
+	.BattleAnimation_FE7_0x29 : {*.o(.BattleAnimation_FE7_0x29)}	
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}
