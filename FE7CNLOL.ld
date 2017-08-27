@@ -84,6 +84,12 @@ SECTIONS
 	.LordKnightEliwoodDurandalAnimation : {*.o(.LordKnightEliwoodDurandalAnimation)}
 	. = 0x8E00008 + 0x20 * (0x29 - 1);
 	.BattleAnimation_FE7_0x29 : {*.o(.BattleAnimation_FE7_0x29)}	
+	. = 0x8E00008 + 0x20 * (0x71 - 1);
+	.PriscillaAnimationTest : {*.o(.PriscillaAnimationTest)}
+	. = 0x8FD8008 + 0x10 * (0x79 - 1);
+	.PriscillaTestPal : {*.o(.PriscillaTestPal)}
+	. = 0x8C4C158 + 52 * (0x1B - 1) + 0x24;
+	.PriscillaTestPalNo : {*.o(.PriscillaTestPalNo)}
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}

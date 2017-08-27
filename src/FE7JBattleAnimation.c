@@ -169,6 +169,12 @@ const PTRFUN ExtraAnimation[] = {
 	showFireHitEffect
 };
 
+// 普莉希拉上层色板
+const u16 PriscillaAnimationTest_PalA[] = {
+	0x5355, 0x4106, 0x7733, 0x51C3, 0x7FFA, 0x2F01, 0x1140, 0x474D,
+	0x0DE2, 0x5FDF, 0x3ADD, 0x1D50, 0x00B4, 0x14FC, 0x7FFF, 0x14A5
+};
+
 // 读取战斗动画相关数据到内存
 void battleAnimationInit()
 {
@@ -229,6 +235,11 @@ void battleAnimationInit()
     BattleAnimationPaletteLeftSide = BattleAnimationPaletteGroupBufferLeftSide + 16 * palSlotIDInPalGroup;
     FE7JCPUFastSet(BattleAnimationPaletteGroupBufferLeftSide + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[112], 8u);
     FE7JCPUFastSet(*(void **)0x203E080, &OBJPaletteBuffer[128], 8u);
+	
+	// 第二调色板扩展
+	if(characterBattlePaletteID == 0x79-1)
+		FE7JCPUFastSet(&PriscillaAnimationTest_PalA, &OBJPaletteBuffer[128], 8u);
+	
     EnablePaletteSync();
 //    FE7JLZ77UnCompWram(animation->oamL2R, BattleAnimationOAML2RBuffer);
 		
@@ -333,6 +344,11 @@ void battleAnimationInit()
     BattleAnimationPaletteRightSide = BattleAnimationPaletteGroupBufferRightSide + 16 * palSlotIDInPalGroup;
     FE7JCPUFastSet(BattleAnimationPaletteGroupBufferRightSide + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[144], 8u);
     FE7JCPUFastSet(*(void **)0x203E084, &OBJPaletteBuffer[160], 8u);
+	
+	// 第二调色板扩展
+	if(characterBattlePaletteID == 0x79-1)
+		FE7JCPUFastSet(&PriscillaAnimationTest_PalA, &OBJPaletteBuffer[160], 8u);
+	
     EnablePaletteSync();
 //    FE7JLZ77UnCompWram(animation->oamR2L, BattleAnimationOAMR2LBuffer);
 
@@ -399,6 +415,14 @@ void battleAnimationInit()
     if ( v11 != -1 )
       *(u16 **)0x203E084 = characterBattlePalTable[v11].pal;
   }
+
+  // 第二调色板扩展
+  /*
+  if(CharaterBattleAnimationPaletteIDRightSide == 0x79-1)
+  	*(u16 **)0x203E084 = &PriscillaAnimationTest_PalA;  
+  if(CharaterBattleAnimationPaletteIDLeftSide == 0x79-1)
+  	*(u16 **)0x203E080 = &PriscillaAnimationTest_PalA;
+  */
 }
 
 
