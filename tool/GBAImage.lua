@@ -45,9 +45,15 @@ function GBAImage:pal2gba(pal)
 end
 
 -- gba图片转索引图
-function GBAImage:gba2Image(img,width,height,pal,depth)
+function GBAImage:gba2image(img,width,height,pal,depth)
+	if(depth ~= 4 and depth ~=8)
+	then
+		print('Error: Unsupported image depth\n')
+		return
+	end
 	image = im.ImageCreate(width,height,im.MAP,im.BYTE)
 	image:SetPalette(GBAImage:gba2pal(pal))
+	--[[
 	if(depth == 8)
 	then		
 		-- image:SetPixels(img)
@@ -67,6 +73,35 @@ function GBAImage:gba2Image(img,width,height,pal,depth)
 			end
 		end		
 	end
+	--]]
+	-- 以tile为单位绘图
+	if(width % 8 ~= 0 or height % 8 ~= 0)
+	then
+		print('Error: Invalid width or height\n')
+		return
+	end
+	local i = 1
+	for lin = 0, height/8 - 1 do
+		for col = 0, width/8 - 1 do
+			for tileY = 0,8-1 do
+				if(depth == 8)
+				then
+					for tileX = 0,8-1 do
+						image[0][height - 1 - 8 * lin - tileY][8 * col + tileX] = img[i]
+						i = i + 1
+					end
+				end
+				if(depth == 4)
+				then
+					for tileX = 0,8/2-1 do
+						image[0][height - 1 - 8 * lin - tileY][8 * col + 2 * tileX + 1] = bit.rshift(img[i],4)
+						image[0][height - 1 - 8 * lin - tileY][8 * col + 2 * tileX] = bit.band(img[i],15)
+						i = i + 1
+					end
+				end
+			end
+		end
+	end
 	return image
 end
 
@@ -74,7 +109,7 @@ end
 -- 16色测试
 pal = {0x5355, 0x2CF1, 0x599B, 0x72BD, 0x7FBD, 0x66D5, 0x3CE2, 0x30C2, 0x5585, 0x6E4C, 0x4E0E, 0x3146, 0x27FF, 0x2EBD, 0x35DD, 0x14A5}
 img = {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF}
-image = GBAImage:gba2Image(img,8,2,pal,4)
+image = GBAImage:gba2image(img,8,2,pal,4)
 image:Save("test16.png","PNG")
 --]]
 
@@ -82,6 +117,6 @@ image:Save("test16.png","PNG")
 -- 256色测试
 pal = {0x5355, 0x2CF1, 0x599B, 0x72BD, 0x7FBD, 0x66D5, 0x3CE2, 0x30C2, 0x5585, 0x6E4C, 0x4E0E, 0x3146, 0x27FF, 0x2EBD, 0x35DD, 0x14A5, 0x5355, 0x4106, 0x7733, 0x51C3, 0x7FFA, 0x2F01, 0x1140, 0x474D, 0x0DE2, 0x5FDF, 0x3ADD, 0x1D50, 0x00B4, 0x14FC, 0x7FFF, 0x14A5}
 img = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31}
-image = GBAImage:gba2Image(img,16,2,pal,8)
+image = GBAImage:gba2image(img,16,2,pal,8)
 image:Save("test256.png","PNG")
 --]]

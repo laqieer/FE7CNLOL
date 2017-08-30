@@ -5,6 +5,7 @@
 
 require "lz77"
 -- require "math"
+require "GBAImage"
 
 -- 关闭文件句柄并退出程序
 --[[
@@ -72,8 +73,12 @@ Main options:
 -n			Set the name for the animation
 -os			Set the output path for source files
 -oi			Set the output path for included files
+-og			Set the output path for dumped sheets
 -s			Enable the section name output (for linker script)
 -d			Preserve temporary files for debugging
+-p			Set the palette for dumped sheets
+-sh			Output the sheets
+-shf		Set the image format for dumped sheets
 	]])
 	closeAllAndExit(0);
 end
@@ -102,6 +107,9 @@ ver = '7'
 -- 是否dump脚本以外的数据(默认否，其他数据直接转指针，适用于dump本ROM里原本就存在的动画)
 dumpAll = false
 
+-- 输出sheet图片格式，默认PNG
+imageFormat = 'PNG'
+
 -- 要dump的动画的ID(默认第一个)
 index = 1
 
@@ -109,6 +117,7 @@ index = 1
 ---[[
 pathSrc = '../src'
 pathInc = '../include'
+pathImg = '.'
 --]]
 --[[
 pathSrc = '.'
@@ -143,6 +152,11 @@ handler['-a'] = function(para)
 					p = p - 1
 				end
 
+handler['-sh'] = function(para)
+					dumpSheets = true
+					p = p - 1
+				end
+				
 handler['-i'] = function(para)
 					-- Fix: attempt to compare number with string
 					para = tonumber(para)
@@ -159,12 +173,20 @@ handler['-n'] = function(para)
 					name = para
 				end
 				
+handler['-shf'] = function(para)
+					imageFormat = para
+				end
+				
 handler['-os'] = function(para)
 					pathSrc = para
 				end
 
 handler['-oi'] = function(para)
 					pathInc = para
+				end
+				
+handler['-og'] = function(para)
+					pathImg = para
 				end
 				
 handler['-s'] = function(para)
@@ -175,6 +197,41 @@ handler['-s'] = function(para)
 handler['-d'] = function(para)
 					preserveTempFiles = true
 					p = p - 1;
+				end
+				
+handler['-p'] = function(para)
+					pal = {}
+					-- 从指定文件中读取(自定义调色板)
+					palette = io.open(para,"rb")
+					if(palette ~= nil)
+					then
+						for i=1,16 do
+							pal[i] = readShort(palette)
+						end
+						palette:close()
+						return pal
+					end
+					-- 从指定偏移地址处读取(支持压缩和非压缩)
+					para = tonumber(para)
+					if(para ~= 1 and para ~= 2 and para ~= 3 and para ~= 4)
+					then
+						rom:seek("set",para)
+						if(readByte(rom) == 0x10)
+						then
+							palette = lz77:decode(rom,para)
+							for i=1,16 do
+								pal[i] = string.byte(palette[2*i-1]) + string.byte(palette[2*i]) * 0x100
+							end
+						else
+							rom:seek("cur",-1)
+							for i=1,16 do
+								pal[i] = readShort(rom)
+							end
+						end
+						return pal
+					end
+					-- 从动画自带调色板组中选一个
+					palID = para
 				end
 				
 -- 不认识的参数直接忽略掉
@@ -475,6 +532,17 @@ then
 		rom:seek("cur",-1)
 		for i=1,data5size do
 			data5[i] = rom:read(1)
+		end
+	end
+	if(pal == nil)
+	then
+		palID = 1
+	end
+	if(palID ~= nil)
+	then
+		pal = {}
+		for i=1,16 do
+			pal[i] = string.byte(data5[0x20 * (palID - 1) + 2 * i - 1]) + string.byte(data5[0x20 * (palID - 1) + 2 * i]) * 0x100
 		end
 	end
 	paletteComment = {'Player','Enemy','NPC','4th(arena)'}
@@ -948,7 +1016,20 @@ function C86H()
 		sheets[sheet] = sheetAddr
 		scriptInc:write('\n\t.section\t.rodata\n\t.align\n'..name..'_sheet_'..sheet..':')
 		-- print(string.format('0x%X',sheetAddr))
-		decompressedSheet,sheetSize = lz77:decode(rom,sheetAddr)
+		rom:seek("set",sheetAddr)
+		-- decompressedSheet,sheetSize = lz77:decode(rom,sheetAddr)
+		---[[
+		if(readByte(rom) == 0x10)
+		then
+			decompressedSheet,sheetSize = lz77:decode(rom,sheetAddr)
+		else
+			rom:seek("set",sheetAddr)
+			decompressedSheet = {}
+			for i=1,0x2000 do
+				decompressedSheet[i] = readByte(rom,sheetAddr)
+			end
+		end
+		--]]
 		for i=1,sheetSize do
 			if((i-1)%16 == 0)
 			then
@@ -962,6 +1043,15 @@ function C86H()
 		end
 		scriptInc:write('\n\n')
 		script:write(name..'_sheet_'..sheet)
+		if(dumpSheets)
+		then
+			uncompressedSheet = {}
+			for k,v in pairs(decompressedSheet) do
+				uncompressedSheet[k] = string.byte(v)
+			end
+			image = GBAImage:gba2image(uncompressedSheet,256,64,pal,4)
+			image:Save(pathImg.."/"..name.."_sheet_"..sheet.."."..imageFormat,imageFormat)
+		end
 		sheet = sheet + 1
 	end
 	-- print(string.byte(decompressedData2[i+8])+string.byte(decompressedData2[i+9])*0x100)
