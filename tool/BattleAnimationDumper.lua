@@ -698,17 +698,24 @@ then
 	--]]
 	-- 格式化输出
 	i = 1
+	counter = 1
+	OAM = {}
+	OAM.OBJAttr = {}
+	OAM.affinePara = {}
 	repeat
 		if(string.byte(data3[i+2]) == 0xFF and string.byte(data3[i+3]) == 0xFF)
 		then	-- 仿射参数
 			num = string.byte(data3[i]) + string.byte(data3[i+1]) * 0x100
 			oam:write(string.format('\tAffineNum\t%d\n',num))
 			oam:write(string.format('\tAffine0\t%d, %d, %d, %d\n',str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])))
+			OAM.affinePara = {}
+			table.insert(OAM.affinePara,{str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])})
 			i = i + 12
 			num = num - 1
 			while(num > 0)
 			do
 				oam:write(string.format('\tAffine\t%d, %d, %d, %d\n',str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])))
+				table.insert(OAM.affinePara,{str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])})
 				i = i + 12
 				num = num - 1
 			end
@@ -719,8 +726,26 @@ then
 				frameSection[i-1+12] = frame
 				oam:write('\tEndFrame\n')
 				oam:write('\n\n'..name..'_frame_R_'..frame..':\n')
+				GBAImage:drawSprite(,pal,4,OAM):Save(pathImg.."/"..name.."_frame_R_"..frame-1.."."..imageFormat,imageFormat)
+				counter = 1
+				OAM = {}
+				OAM.OBJAttr = {}
+				OAM.affinePara = {}
 			else
 				oam:write(string.format('\tOBJ\t0x%04x, 0x%04x, 0x%04x, %d, %d\n',str2short(data3[i]..data3[i+1]),str2short(data3[i+2]..data3[i+3]),str2short(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9])))
+				OBJAttr0 = str2short(data3[i]..data3[i+1])
+				OBJAttr1 = str2short(data3[i+2]..data3[i+3])
+				OBJAttr2 = str2short(data3[i+4]..data3[i+5])
+				OAM.OBJAttr[counter].XCoordinate = str2signedShort(data3[i+6]..data3[i+7]) + 148
+				OAM.OBJAttr[counter].YCoordinate = str2signedShort(data3[i+8]..data3[i+9]) + 88
+				OAM.OBJAttr[counter].affineFlag = bit.rshift(bit.band(OBJAttr0,bit.lshift(1,8)),8)
+				OAM.OBJAttr[counter].shape = bit.rshift(bit.band(OBJAttr0,bit.lshift(1,8)),8)
+				OAM.OBJAttr[counter].HFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,12)),12)
+				OAM.OBJAttr[counter].VFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,13)),13)
+				OAM.OBJAttr[counter].RSPara = bit.rshift(bit.band(OBJAttr1,bit.lshift(31,9)),9)
+				OAM.OBJAttr[counter].tileNo = bit.band(OBJAttr2,1023)
+				OAM.OBJAttr[counter].paletteNo = bit.band(bit.rshift(OBJAttr2,12),15)
+				counter = counter + 1
 			end
 			i = i + 12
 		end
@@ -993,6 +1018,8 @@ end
 
 -- 压缩sheet图片
 sheets = {}
+-- sheet图片集
+images = {}
 -- 当前sheet编号
 sheet = 1
 
@@ -1049,8 +1076,8 @@ function C86H()
 			for k,v in pairs(decompressedSheet) do
 				uncompressedSheet[k] = string.byte(v)
 			end
-			image = GBAImage:gba2image(uncompressedSheet,256,64,pal,4)
-			image:Save(pathImg.."/"..name.."_sheet_"..sheet.."."..imageFormat,imageFormat)
+			images[sheet] = GBAImage:gba2image(uncompressedSheet,256,64,pal,4)
+			images[sheet]:Save(pathImg.."/"..name.."_sheet_"..sheet.."."..imageFormat,imageFormat)
 		end
 		sheet = sheet + 1
 	end

@@ -3,9 +3,19 @@
 -- 2017/8/29
 
 require "bit"
+require "math"
 require "imlua"
 
 GBAImage = {}
+
+GBAImage.wh = {}
+GBAImage.shape = {}
+GBAImage.shape[0] = 'square'
+GBAImage.shape[1] = 'horizontal'
+GBAImage.shape[2] = 'vertical'
+GBAImage.wh.square = {{8,8},{16,16},{32,32},{64,64}}
+GBAImage.wh.horizontal = {{16,8},(32,8),{32,16},(64,32)}
+GBAImage.wh.vertical = {{8,16},{8,32},{16,32},{32,64}}
 
 -- gba颜色转换为imColor
 function GBAImage:gba2color(color)
@@ -120,3 +130,89 @@ img = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27
 image = GBAImage:gba2image(img,16,2,pal,8)
 image:Save("test256.png","PNG")
 --]]
+
+-- 绘制精灵
+function GBAImage:drawSprite(img,pal,depth,OAM)
+	if(OAM == nil)
+	then
+		return
+	end
+	if(depth ~= 8 and depth ~= 4)
+	then
+		print('Error: Unsupported image depth\n')
+		return
+	end
+	palette = GBAImage:pal2gba(pal)
+	tiles = {}
+	objects = {}
+	screen = im.ImageCreate(240,160,im.MAP,im.BYTE)
+	screen:SetPalette(palette)
+	local p = 1
+	local tile = 0
+	repeat
+		tiles[tile] = {}
+		if(depth == 8)
+		then
+			for local i=0,8-1 do
+				tiles[tile][i] = {}
+				for local j=0,8-1 do
+					tiles[tile][i][j] = img[p]
+					p = p + 1
+				end
+			end
+		else
+			for local i=0,8-1 do
+				tiles[tile][i] = {}
+				for local j=0,8/2-1 do
+					tiles[tile][i][2*j] = bit.band(img[p],15)
+					tiles[tile][i][2*j+1] = bit.rshift(img[p],4)
+					p = p + 1
+				end
+			end
+		end
+		tile = tile + 1
+	until(p >= #(img))
+	for local i=#(OAM.OBJAttr),1,-1 do
+		w,h = GBAImage.wh[OAM.OBJAttr[i].shape][OAM.OBJAttr[i].size]
+		objects[i] =  im.ImageCreate(w,h,im.MAP,im.BYTE)
+		objects[i]:SetPalette(palette)
+		tile = OAM.OBJAttr[i].tileNo
+		for local y=0,h/8-1 do
+			for local x=0,w/8-1 do
+				for local y0=0,8-1 do
+					for local x0=0,8-1 do
+						objects[i][0][h-1-(8*y+y0)][8*x+x0] = tiles[tile][y0][x0] + 16 * OAM.OBJAttr[i].paletteNo
+					end
+				end
+				tile = tile+1
+			end
+			tile = tile + 256/8 - w/8
+		end
+		if(OAM.OBJAttr[i].affineFlag == 1)
+		then
+			PA,PB,PC,PD = OAM.affinePara[OAM.OBJAttr[i].RSPara+1]
+			-- alpha = math.atan(PC/PD)
+			sy = PC * PD * math.sqrt(PC^2 + PD^2)
+			sx = -PA * PB * math.sqrt(PA^2 + PB^2)
+			sin0 = PC * sy
+			cos0 = PD * sy
+			objects[i] = im.ProcessResizeNew(objects[i], w*sx/256, h*sy/256)
+			objects[i] = im.ProcessRotateNew(objects[i], cos0, sin0)
+		else
+			if(OAM.OBJAttr[i].HFlip == 1)
+			then
+				objects[i] = im.ProcessMirrorNew(objects[i])
+			end
+			if(OAM.OBJAttr[i].VFlip == 1)
+			then
+				objects[i] = im.ProcessFlipNew(objects[i])
+			end
+		end
+		for local lin=0,objects[i]:Height()-1 do
+			for local col=0,objects[i]:Width()-1 do
+				screen[0][160-1-(OAM.OBJAttr[i].YCoordinate+lin)][OAM.OBJAttr[i].XCoordinate+col] = objects[i][0][lin][col]
+			end
+		end
+	end
+	return screen
+end
