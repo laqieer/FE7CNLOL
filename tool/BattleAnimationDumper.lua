@@ -4,7 +4,7 @@
 -- 2017/8/13
 
 require "lz77"
--- require "math"
+require "math"
 require "GBAImage"
 
 -- 关闭文件句柄并退出程序
@@ -519,6 +519,93 @@ OBJDimension[1] = {'_8x8','_16x16','_32x32','_64x64'}	-- Square
 OBJDimension[2] = {'_16x8','_32x8','_32x16','_64x32'}	-- Horizontal
 OBJDimension[3] = {'_8x16','_8x32','_16x32','_32x64'}	-- Vertical
 
+-- dump data2
+
+-- 虽然tonc不建议把数据放在头文件中...
+-- script = io.open(path..'/'..name..'_event.h',"w")
+-- script = openAndRegister(path..'/'..name..'_event.h',"w")
+-- 改用汇编写脚本
+script = openAndRegister(pathSrc..'/'..name..'_event.s',"w")
+rom:seek("set",pdata2 - 0x8000000)
+-- 若data2压缩过
+if(readByte(rom) == 0x10)
+-- 读取data2的大小
+then
+	--[[
+	-- 这里假设压缩后数据大小不超过压缩前的
+	data2size = readShort(rom)
+	rom:seek("set",pdata2 - 0x8000000)
+	compressedScript = rom:read(data2size)
+	-- data2lz = io.open(path..'/'..name..'_data2.lz',"wb")
+	data2lz = openAndRegister(path..'/'..name..'_data2.lz',"wb")
+	data2lz:write(compressedScript)
+	-- 不及时关闭这个文件会影响gbalzss对它的访问
+	data2lz:close()
+	-- 关闭文件后不及时从访问文件列表里删除对应的表项会导致关闭所有文件并退出程序的时候仍然尝试去关闭这个已经被关闭的文件
+	-- data2lz = nil
+	-- table.remove(files,data2lz)
+	files[data2lz] = nil
+	-- 要求: 把gbalzss所在路径添加到环境变量
+	os.execute("gbalzss d "..path..'/'..name..'_data2.lz'..' '..path..'/'..name..'_data2.bin')
+	-- 隐患: 如果因为种种原因无法得到无压缩的data2二进制文件，会陷入无限循环等待
+	repeat
+		data2bin = io.open(path..'/'..name..'_data2.bin','rb')
+	until(data2bin ~= nil)
+	files[data2bin] = path..'/'..name..'_data2.bin'
+	--]]
+	-- data2bin = io.open(path..'/'..name..'_data2.bin','wb')
+	data2bin = io.open(name..'_data2.bin','wb')
+	decompressedData2,data2size = lz77:decode(rom,pdata2 - 0x8000000)
+	for k,v in ipairs(decompressedData2) do
+		data2bin:write(v)
+	end
+	data2bin:close()
+	-- data2bin = io.open(path..'/'..name..'_data2.bin','rb')
+	data2bin = io.open(name..'_data2.bin','rb')
+else
+	-- 若rom内的data2本身就没有压缩
+	--[[
+	print('Error: Uncompressed data2 has not been supported yet\n')
+	closeAllAndExit(-5)
+	--]]
+	-- data2bin = io.open(path..'/'..name..'_data2.bin','wb')
+	data2bin = io.open(name..'_data2.bin','wb')
+	rom:seek("cur",-1)
+	mode = 0
+	repeat
+		p = rom:read(4)
+		data2bin:write(p)
+		if(str2int(p) == 0x80000000)
+		then
+			mode = mode + 1
+		end
+	until(mode == 12)
+	data2size = data2bin:seek()
+	data2bin:close()
+	-- data2bin = openAndRegister(path..'/'..name..'_data2.bin','rb')
+	data2bin = openAndRegister(name..'_data2.bin','rb')
+	decompressedData2 = {}
+	for i=1,data2size do
+		decompressedData2[i] = data2bin:read(1)
+	end
+	data2bin:seek("set")
+end
+
+-- 建立frame到sheet的映射表，以便后面导出frame
+if(dumpAll == true)
+then
+	frame2tileset = {}
+	i = 1
+	repeat
+		if(string.byte(decompressedData2[i+3]) == 0x86)
+		then
+			frame2tileset[string.byte(decompressedData2[i+2])] = string.byte(decompressedData2[i+4]) + string.byte(decompressedData2[i+5]) * 0x100 + string.byte(decompressedData2[i+6]) * 0x10000 + string.byte(decompressedData2[i+7]) * 0x1000000 - 0x8000000
+			i = i + 8
+		end
+		i = i + 4
+	until(i>=data2size)
+end
+
 if(dumpAll == true)
 then
 	-- dump data5
@@ -726,7 +813,36 @@ then
 				frameSection[i-1+12] = frame
 				oam:write('\tEndFrame\n')
 				oam:write('\n\n'..name..'_frame_R_'..frame..':\n')
-				GBAImage:drawSprite(,pal,4,OAM):Save(pathImg.."/"..name.."_frame_R_"..frame-1.."."..imageFormat,imageFormat)
+				tileset = {}
+				rom:seek("set",frame2tileset[frame-1])
+				-- print(string.format("0x%X",frame2tileset[frame-1]))
+				if(readInt(rom) == 0x200010)
+				then
+					-- tileset,tilesetSize = lz77:decode(rom,frame2tileset[frame-1])
+					tileset = lz77:decode(rom,frame2tileset[frame-1])
+					for k,v in pairs(tileset) do
+						tileset[k] = string.byte(v)
+						if(k > 0x2000)
+						then
+							tileset[k] = nil
+						end
+					end
+				else
+					rom:seek("set",frame2tileset[frame-1])
+					-- for local q = 1,0x2000 do
+					-- '<name>' expected near 'local'
+					for q = 1,0x2000 do
+						tileset[q] = readByte(rom)
+					end
+					-- q = nil
+				end
+				rom:seek("set")
+				if(OAM.OBJAttr[1] ~= nil)
+				then
+					-- print(#(tileset),tilesetSize)
+					-- print(#(tileset))
+					GBAImage:drawSprite(tileset,pal,4,OAM):Save(pathImg.."/"..name.."_frame_R_"..tostring(frame-1).."."..imageFormat,imageFormat)
+				end
 				counter = 1
 				OAM = {}
 				OAM.OBJAttr = {}
@@ -736,10 +852,12 @@ then
 				OBJAttr0 = str2short(data3[i]..data3[i+1])
 				OBJAttr1 = str2short(data3[i+2]..data3[i+3])
 				OBJAttr2 = str2short(data3[i+4]..data3[i+5])
+				OAM.OBJAttr[counter] = {}
 				OAM.OBJAttr[counter].XCoordinate = str2signedShort(data3[i+6]..data3[i+7]) + 148
 				OAM.OBJAttr[counter].YCoordinate = str2signedShort(data3[i+8]..data3[i+9]) + 88
 				OAM.OBJAttr[counter].affineFlag = bit.rshift(bit.band(OBJAttr0,bit.lshift(1,8)),8)
-				OAM.OBJAttr[counter].shape = bit.rshift(bit.band(OBJAttr0,bit.lshift(1,8)),8)
+				OAM.OBJAttr[counter].shape = bit.rshift(bit.band(OBJAttr0,bit.lshift(3,14)),14)
+				OAM.OBJAttr[counter].size = bit.rshift(bit.band(OBJAttr1,bit.lshift(3,14)),14)
 				OAM.OBJAttr[counter].HFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,12)),12)
 				OAM.OBJAttr[counter].VFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,13)),13)
 				OAM.OBJAttr[counter].RSPara = bit.rshift(bit.band(OBJAttr1,bit.lshift(31,9)),9)
@@ -815,17 +933,24 @@ then
 	end
 	--]]
 	i = 1
+	counter = 1
+	OAM = {}
+	OAM.OBJAttr = {}
+	OAM.affinePara = {}
 	repeat
 		if(string.byte(data4[i+2]) == 0xFF and string.byte(data4[i+3]) == 0xFF)
 		then	-- 仿射参数
 			num = string.byte(data4[i]) + string.byte(data4[i+1]) * 0x100
 			oam:write(string.format('\tAffineNum\t%d\n',num))
 			oam:write(string.format('\tAffine0\t%d, %d, %d, %d\n',str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])))
+			OAM.affinePara = {}
+			table.insert(OAM.affinePara,{str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])})
 			i = i + 12
 			num = num - 1
 			while(num > 0)
 			do
 				oam:write(string.format('\tAffine\t%d, %d, %d, %d\n',str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])))
+				table.insert(OAM.affinePara,{str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])})
 				i = i + 12
 				num = num - 1
 			end
@@ -836,8 +961,57 @@ then
 				frameSection[i-1+12] = frame
 				oam:write('\tEndFrame\n')
 				oam:write('\n\n'..name..'_frame_L_'..frame..':\n')
+				tileset = {}
+				rom:seek("set",frame2tileset[frame-1])
+				-- print(string.format("0x%X",frame2tileset[frame-1]))
+				if(readInt(rom) == 0x200010)
+				then
+					-- tileset,tilesetSize = lz77:decode(rom,frame2tileset[frame-1])
+					tileset = lz77:decode(rom,frame2tileset[frame-1])
+					for k,v in pairs(tileset) do
+						tileset[k] = string.byte(v)
+						if(k > 0x2000)
+						then
+							tileset[k] = nil
+						end
+					end
+				else
+					rom:seek("set",frame2tileset[frame-1])
+					-- for local q = 1,0x2000 do
+					-- '<name>' expected near 'local'
+					for q = 1,0x2000 do
+						tileset[q] = readByte(rom)
+					end
+					-- q = nil
+				end
+				rom:seek("set")
+				if(OAM.OBJAttr[1] ~= nil)
+				then
+					-- print(#(tileset),tilesetSize)
+					-- print(#(tileset))
+					GBAImage:drawSprite(tileset,pal,4,OAM):Save(pathImg.."/"..name.."_frame_L_"..tostring(frame-1).."."..imageFormat,imageFormat)
+				end
+				counter = 1
+				OAM = {}
+				OAM.OBJAttr = {}
+				OAM.affinePara = {}
 			else
 				oam:write(string.format('\tOBJ\t0x%04x, 0x%04x, 0x%04x, %d, %d\n',str2short(data4[i]..data4[i+1]),str2short(data4[i+2]..data4[i+3]),str2short(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9])))
+				OBJAttr0 = str2short(data4[i]..data4[i+1])
+				OBJAttr1 = str2short(data4[i+2]..data4[i+3])
+				OBJAttr2 = str2short(data4[i+4]..data4[i+5])
+				OAM.OBJAttr[counter] = {}
+				OAM.OBJAttr[counter].XCoordinate = str2signedShort(data4[i+6]..data4[i+7]) + 92
+				OAM.OBJAttr[counter].YCoordinate = str2signedShort(data4[i+8]..data4[i+9]) + 88
+				OAM.OBJAttr[counter].affineFlag = bit.rshift(bit.band(OBJAttr0,bit.lshift(1,8)),8)
+				OAM.OBJAttr[counter].shape = bit.rshift(bit.band(OBJAttr0,bit.lshift(3,14)),14)
+				OAM.OBJAttr[counter].size = bit.rshift(bit.band(OBJAttr1,bit.lshift(3,14)),14)
+				OAM.OBJAttr[counter].HFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,12)),12)
+				OAM.OBJAttr[counter].VFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,13)),13)
+				OAM.OBJAttr[counter].RSPara = bit.rshift(bit.band(OBJAttr1,bit.lshift(31,9)),9)
+				OAM.OBJAttr[counter].tileNo = bit.band(OBJAttr2,1023)
+				OAM.OBJAttr[counter].paletteNo = bit.band(bit.rshift(OBJAttr2,12),15)
+				counter = counter + 1
 			end
 			i = i + 12
 		end
@@ -850,78 +1024,6 @@ then
 		scriptInc:write('\t.extern\t'..name..'_frame_L_'..i..'\n')
 	end
 	--]]
-end
-
--- dump data2
-
--- 虽然tonc不建议把数据放在头文件中...
--- script = io.open(path..'/'..name..'_event.h',"w")
--- script = openAndRegister(path..'/'..name..'_event.h',"w")
--- 改用汇编写脚本
-script = openAndRegister(pathSrc..'/'..name..'_event.s',"w")
-rom:seek("set",pdata2 - 0x8000000)
--- 若data2压缩过
-if(readByte(rom) == 0x10)
--- 读取data2的大小
-then
-	--[[
-	-- 这里假设压缩后数据大小不超过压缩前的
-	data2size = readShort(rom)
-	rom:seek("set",pdata2 - 0x8000000)
-	compressedScript = rom:read(data2size)
-	-- data2lz = io.open(path..'/'..name..'_data2.lz',"wb")
-	data2lz = openAndRegister(path..'/'..name..'_data2.lz',"wb")
-	data2lz:write(compressedScript)
-	-- 不及时关闭这个文件会影响gbalzss对它的访问
-	data2lz:close()
-	-- 关闭文件后不及时从访问文件列表里删除对应的表项会导致关闭所有文件并退出程序的时候仍然尝试去关闭这个已经被关闭的文件
-	-- data2lz = nil
-	-- table.remove(files,data2lz)
-	files[data2lz] = nil
-	-- 要求: 把gbalzss所在路径添加到环境变量
-	os.execute("gbalzss d "..path..'/'..name..'_data2.lz'..' '..path..'/'..name..'_data2.bin')
-	-- 隐患: 如果因为种种原因无法得到无压缩的data2二进制文件，会陷入无限循环等待
-	repeat
-		data2bin = io.open(path..'/'..name..'_data2.bin','rb')
-	until(data2bin ~= nil)
-	files[data2bin] = path..'/'..name..'_data2.bin'
-	--]]
-	-- data2bin = io.open(path..'/'..name..'_data2.bin','wb')
-	data2bin = io.open(name..'_data2.bin','wb')
-	decompressedData2,data2size = lz77:decode(rom,pdata2 - 0x8000000)
-	for k,v in ipairs(decompressedData2) do
-		data2bin:write(v)
-	end
-	data2bin:close()
-	-- data2bin = io.open(path..'/'..name..'_data2.bin','rb')
-	data2bin = io.open(name..'_data2.bin','rb')
-else
-	-- 若rom内的data2本身就没有压缩
-	--[[
-	print('Error: Uncompressed data2 has not been supported yet\n')
-	closeAllAndExit(-5)
-	--]]
-	-- data2bin = io.open(path..'/'..name..'_data2.bin','wb')
-	data2bin = io.open(name..'_data2.bin','wb')
-	rom:seek("cur",-1)
-	mode = 0
-	repeat
-		p = rom:read(4)
-		data2bin:write(p)
-		if(str2int(p) == 0x80000000)
-		then
-			mode = mode + 1
-		end
-	until(mode == 12)
-	data2size = data2bin:seek()
-	data2bin:close()
-	-- data2bin = openAndRegister(path..'/'..name..'_data2.bin','rb')
-	data2bin = openAndRegister(name..'_data2.bin','rb')
-	decompressedData2 = {}
-	for i=1,data2size do
-		decompressedData2[i] = data2bin:read(1)
-	end
-	data2bin:seek("set")
 end
 
 -- 输出注释
