@@ -186,8 +186,8 @@ function GBAImage:drawSprite(img,pal,depth,OAM)
 				for y0=0,8-1 do
 					for x0=0,8-1 do
 						-- objects[i1][0][h-1-(8*y+y0)][8*x+x0] = tiles[tile][y0][x0] + 16 * OAM.OBJAttr[i1].paletteNo
-						-- objects[i1][0][8*y+y0][8*x+x0] = tiles[tile][y0][x0] + 16 * OAM.OBJAttr[i1].paletteNo
-						objects[i1][0][8*y+y0][8*x+x0] = tiles[tile][y0][x0]
+						objects[i1][0][8*y+y0][8*x+x0] = tiles[tile][y0][x0] + 16 * OAM.OBJAttr[i1].paletteNo
+						-- objects[i1][0][8*y+y0][8*x+x0] = tiles[tile][y0][x0]
 					end
 				end
 				tile = tile+1
@@ -236,7 +236,7 @@ function GBAImage:drawSprite(img,pal,depth,OAM)
 		end
 		for lin=0,objects[i1]:Height()-1 do
 			for col=0,objects[i1]:Width()-1 do
-				if(objects[i1][0][lin][col] ~= 0)
+				if(objects[i1][0][lin][col]%16 ~= 0)
 				then
 					screen[0][160-1-(OAM.OBJAttr[i1].YCoordinate+lin)][OAM.OBJAttr[i1].XCoordinate+col] = objects[i1][0][lin][col]
 				end

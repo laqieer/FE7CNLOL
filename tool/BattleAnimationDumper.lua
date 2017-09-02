@@ -83,6 +83,63 @@ Main options:
 	closeAllAndExit(0);
 end
 
+-- 单字节
+
+function str2byte(s)
+	return string.byte(s,1)
+end
+
+function readByte(file)
+	return str2byte(file:read(1))
+end
+
+function str2signedChar(s)
+	value = str2byte(s)
+	if(value >= 0x80)
+	then
+		value = value - 0x100
+	end
+	return value
+end
+
+-- 双字节
+
+function str2short(s)
+	return string.byte(s,1) + string.byte(s,2) * 0x100
+end
+
+function readShort(file)
+	return str2short(file:read(2))
+end
+
+function str2signedShort(s)
+	value = str2short(s)
+	if(value >= 0x8000)
+	then
+		value = value - 0x10000
+	end
+	return value
+end
+
+-- 4字节
+
+function str2int(s)
+	return string.byte(s,1) + string.byte(s,2) * 0x100 + string.byte(s,3) * 0x10000 + string.byte(s,4) * 0x1000000
+end
+
+function readInt(file)
+	return str2int(file:read(4))
+end
+
+function str2signedInt(s)
+	value = str2int(s)
+	if(value >= 0x80000000)
+	then
+		value = value - 0x100000000
+	end
+	return value
+end
+
 -- 读取dump源ROM
 -- rom = io.open(arg[1],"rb")
 rom = openAndRegister(arg[1],"rb")
@@ -205,7 +262,9 @@ handler['-p'] = function(para)
 					palette = io.open(para,"rb")
 					if(palette ~= nil)
 					then
-						for i=1,16 do
+						palLength = palette:seek("end")/2
+						palette:seek("set")
+						for i=1,palLength do
 							pal[i] = readShort(palette)
 						end
 						palette:close()
@@ -277,63 +336,6 @@ identifier = rom:read(12)
 		-- -- return tonumber(string.byte(s))
 	-- end
 -- end
-
--- 单字节
-
-function str2byte(s)
-	return string.byte(s,1)
-end
-
-function readByte(file)
-	return str2byte(file:read(1))
-end
-
-function str2signedChar(s)
-	value = str2byte(s)
-	if(value >= 0x80)
-	then
-		value = value - 0x100
-	end
-	return value
-end
-
--- 双字节
-
-function str2short(s)
-	return string.byte(s,1) + string.byte(s,2) * 0x100
-end
-
-function readShort(file)
-	return str2short(file:read(2))
-end
-
-function str2signedShort(s)
-	value = str2short(s)
-	if(value >= 0x8000)
-	then
-		value = value - 0x10000
-	end
-	return value
-end
-
--- 4字节
-
-function str2int(s)
-	return string.byte(s,1) + string.byte(s,2) * 0x100 + string.byte(s,3) * 0x10000 + string.byte(s,4) * 0x1000000
-end
-
-function readInt(file)
-	return str2int(file:read(4))
-end
-
-function str2signedInt(s)
-	value = str2int(s)
-	if(value >= 0x80000000)
-	then
-		value = value - 0x100000000
-	end
-	return value
-end
 
 -- 从文件当前位置读取一个整数
 -- function readInt(file)
@@ -583,7 +585,8 @@ else
 	data2size = data2bin:seek()
 	data2bin:close()
 	-- data2bin = openAndRegister(path..'/'..name..'_data2.bin','rb')
-	data2bin = openAndRegister(name..'_data2.bin','rb')
+	-- data2bin = openAndRegister(name..'_data2.bin','rb')
+	data2bin = io.open(name..'_data2.bin','rb')
 	decompressedData2 = {}
 	for i=1,data2size do
 		decompressedData2[i] = data2bin:read(1)
@@ -663,11 +666,13 @@ then
 		else
 			i = 1													-- 需要拷贝到RAM里的无压缩格式(无头部,大小不定,以连续12个0xFF结尾,节约空间)
 			rom:seek("cur",-4)
-			while(i < 13 or data3[i-1] ~= 0xFF or  data3[i-2] ~= 0xFF or data3[i-3] ~= 0xFF or data3[i-4] ~= 0xFF or data3[i-5] ~= 0xFF or data3[i-6] ~= 0xFF or data3[i-7] ~= 0xFF or data3[i-8] ~= 0xFF or data3[i-9] ~= 0xFF or data3[i-10] ~= 0xFF or data3[i-11] ~= 0xFF or data3[i-12] ~= 0xFF)
+			while(i < 13 or string.byte(data3[i-1]) ~= 0xFF or  string.byte(data3[i-2]) ~= 0xFF or string.byte(data3[i-3]) ~= 0xFF or string.byte(data3[i-4]) ~= 0xFF or string.byte(data3[i-5]) ~= 0xFF or string.byte(data3[i-6]) ~= 0xFF or string.byte(data3[i-7]) ~= 0xFF or string.byte(data3[i-8]) ~= 0xFF or string.byte(data3[i-9]) ~= 0xFF or string.byte(data3[i-10]) ~= 0xFF or string.byte(data3[i-11]) ~= 0xFF or string.byte(data3[i-12]) ~= 0xFF)
 			do
-				data3[i] = readByte(rom)
+				data3[i] = rom:read(1)
+				i = i + 1
 			end
-			data3size = i - 1
+			-- data3size = i - 1
+			data3size = i - 1 - 12
 		end
 	end
 	-- data4,data4size = lz77:decode(rom,pdata4 - 0x8000000)
@@ -687,11 +692,13 @@ then
 		else
 			i = 1													-- 需要拷贝到RAM里的无压缩格式(无头部,大小不定,以连续12个0xFF结尾,节约空间)
 			rom:seek("cur",-4)
-			while(i < 13 or data4[i-1] ~= 0xFF or  data4[i-2] ~= 0xFF or data4[i-3] ~= 0xFF or data4[i-4] ~= 0xFF or data4[i-5] ~= 0xFF or data4[i-6] ~= 0xFF or data4[i-7] ~= 0xFF or data4[i-8] ~= 0xFF or data4[i-9] ~= 0xFF or data4[i-10] ~= 0xFF or data4[i-11] ~= 0xFF or data4[i-12] ~= 0xFF)
+			while(i < 13 or string.byte(data4[i-1]) ~= 0xFF or  string.byte(data4[i-2]) ~= 0xFF or string.byte(data4[i-3]) ~= 0xFF or string.byte(data4[i-4]) ~= 0xFF or string.byte(data4[i-5]) ~= 0xFF or string.byte(data4[i-6]) ~= 0xFF or string.byte(data4[i-7]) ~= 0xFF or string.byte(data4[i-8]) ~= 0xFF or string.byte(data4[i-9]) ~= 0xFF or string.byte(data4[i-10]) ~= 0xFF or string.byte(data4[i-11]) ~= 0xFF or string.byte(data4[i-12]) ~= 0xFF)
 			do
-				data4[i] = readByte(rom)
+				data4[i] = rom:read(1)
+				i = i + 1
 			end
-			data4size = i - 1
+			-- data4size = i - 1
+			data4size = i - 1 - 12
 		end
 	end
 	-- oam = openAndRegister(pathSrc..'/'..name..'_OAMInfo.s','w')
@@ -1148,24 +1155,26 @@ function C86H()
 		rom:seek("set",sheetAddr)
 		-- decompressedSheet,sheetSize = lz77:decode(rom,sheetAddr)
 		---[[
-		if(readByte(rom) == 0x10)
+		-- if(readByte(rom) == 0x10)
+		if(readInt(rom) == 0x200010)
 		then
 			decompressedSheet,sheetSize = lz77:decode(rom,sheetAddr)
 		else
 			rom:seek("set",sheetAddr)
 			decompressedSheet = {}
-			for i=1,0x2000 do
-				decompressedSheet[i] = readByte(rom,sheetAddr)
+			for j=1,0x2000 do
+				decompressedSheet[j] = rom:read(1)
 			end
+			sheetSize = 0x2000
 		end
 		--]]
-		for i=1,sheetSize do
-			if((i-1)%16 == 0)
+		for j=1,sheetSize do
+			if((j-1)%16 == 0)
 			then
 				scriptInc:write('\n\t.byte\t')
 			end
-			scriptInc:write(string.format(' 0x%02X',string.byte(decompressedSheet[i])))
-			if(i%16 ~= 0)
+			scriptInc:write(string.format(' 0x%02X',string.byte(decompressedSheet[j])))
+			if(j%16 ~= 0)
 			then
 				scriptInc:write(',')
 			end
