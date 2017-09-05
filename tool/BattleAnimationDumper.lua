@@ -78,7 +78,9 @@ Main options:
 -d			Preserve temporary files for debugging
 -p			Set the palette for dumped sheets
 -sh			Output the sheets
--shf		Set the image format for dumped sheets
+-frR		Output the rightside frames
+-frL		Output the leftside frames
+-f			Set the image format for dumped images
 	]])
 	closeAllAndExit(0);
 end
@@ -214,6 +216,16 @@ handler['-sh'] = function(para)
 					p = p - 1
 				end
 				
+handler['-frR'] = function(para)
+					dumpFramesRight = true
+					p = p - 1
+				end
+				
+handler['-frL'] = function(para)
+					dumpFramesLeft = true
+					p = p - 1
+				end
+				
 handler['-i'] = function(para)
 					-- Fix: attempt to compare number with string
 					para = tonumber(para)
@@ -230,7 +242,7 @@ handler['-n'] = function(para)
 					name = para
 				end
 				
-handler['-shf'] = function(para)
+handler['-f'] = function(para)
 					imageFormat = para
 				end
 				
@@ -792,24 +804,33 @@ then
 	--]]
 	-- 格式化输出
 	i = 1
-	counter = 1
-	OAM = {}
-	OAM.OBJAttr = {}
-	OAM.affinePara = {}
+	if(dumpFramesRight)
+	then
+		counter = 1
+		OAM = {}
+		OAM.OBJAttr = {}
+		OAM.affinePara = {}
+	end
 	repeat
 		if(string.byte(data3[i+2]) == 0xFF and string.byte(data3[i+3]) == 0xFF)
 		then	-- 仿射参数
 			num = string.byte(data3[i]) + string.byte(data3[i+1]) * 0x100
 			oam:write(string.format('\tAffineNum\t%d\n',num))
 			oam:write(string.format('\tAffine0\t%d, %d, %d, %d\n',str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])))
-			OAM.affinePara = {}
-			table.insert(OAM.affinePara,{str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])})
+			if(dumpFramesRight)
+			then
+				OAM.affinePara = {}
+				table.insert(OAM.affinePara,{str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])})
+			end
 			i = i + 12
 			num = num - 1
 			while(num > 0)
 			do
 				oam:write(string.format('\tAffine\t%d, %d, %d, %d\n',str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])))
-				table.insert(OAM.affinePara,{str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])})
+				if(dumpFramesRight)
+				then
+					table.insert(OAM.affinePara,{str2signedShort(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9]),str2signedShort(data3[i+10]..data3[i+11])})
+				end
 				i = i + 12
 				num = num - 1
 			end
@@ -820,57 +841,63 @@ then
 				frameSection[i-1+12] = frame
 				oam:write('\tEndFrame\n')
 				oam:write('\n\n'..name..'_frame_R_'..frame..':\n')
-				tileset = {}
-				rom:seek("set",frame2tileset[frame-1])
-				-- print(string.format("0x%X",frame2tileset[frame-1]))
-				if(readInt(rom) == 0x200010)
+				if(dumpFramesRight)
 				then
-					-- tileset,tilesetSize = lz77:decode(rom,frame2tileset[frame-1])
-					tileset = lz77:decode(rom,frame2tileset[frame-1])
-					for k,v in pairs(tileset) do
-						tileset[k] = string.byte(v)
-						if(k > 0x2000)
-						then
-							tileset[k] = nil
-						end
-					end
-				else
+					tileset = {}
 					rom:seek("set",frame2tileset[frame-1])
-					-- for local q = 1,0x2000 do
-					-- '<name>' expected near 'local'
-					for q = 1,0x2000 do
-						tileset[q] = readByte(rom)
+					-- print(string.format("0x%X",frame2tileset[frame-1]))
+					if(readInt(rom) == 0x200010)
+					then
+						-- tileset,tilesetSize = lz77:decode(rom,frame2tileset[frame-1])
+						tileset = lz77:decode(rom,frame2tileset[frame-1])
+						for k,v in pairs(tileset) do
+							tileset[k] = string.byte(v)
+							if(k > 0x2000)
+							then
+								tileset[k] = nil
+							end
+						end
+					else
+						rom:seek("set",frame2tileset[frame-1])
+						-- for local q = 1,0x2000 do
+						-- '<name>' expected near 'local'
+						for q = 1,0x2000 do
+							tileset[q] = readByte(rom)
+						end
+						-- q = nil
 					end
-					-- q = nil
+					rom:seek("set")
+					if(OAM.OBJAttr[1] ~= nil)
+					then
+						-- print(#(tileset),tilesetSize)
+						-- print(#(tileset))
+						GBAImage:drawSprite(tileset,pal,4,OAM):Save(pathImg.."/"..name.."_frame_R_"..tostring(frame-1).."."..imageFormat,imageFormat)
+					end
+					counter = 1
+					OAM = {}
+					OAM.OBJAttr = {}
+					OAM.affinePara = {}
 				end
-				rom:seek("set")
-				if(OAM.OBJAttr[1] ~= nil)
-				then
-					-- print(#(tileset),tilesetSize)
-					-- print(#(tileset))
-					GBAImage:drawSprite(tileset,pal,4,OAM):Save(pathImg.."/"..name.."_frame_R_"..tostring(frame-1).."."..imageFormat,imageFormat)
-				end
-				counter = 1
-				OAM = {}
-				OAM.OBJAttr = {}
-				OAM.affinePara = {}
 			else
 				oam:write(string.format('\tOBJ\t0x%04x, 0x%04x, 0x%04x, %d, %d\n',str2short(data3[i]..data3[i+1]),str2short(data3[i+2]..data3[i+3]),str2short(data3[i+4]..data3[i+5]),str2signedShort(data3[i+6]..data3[i+7]),str2signedShort(data3[i+8]..data3[i+9])))
-				OBJAttr0 = str2short(data3[i]..data3[i+1])
-				OBJAttr1 = str2short(data3[i+2]..data3[i+3])
-				OBJAttr2 = str2short(data3[i+4]..data3[i+5])
-				OAM.OBJAttr[counter] = {}
-				OAM.OBJAttr[counter].XCoordinate = str2signedShort(data3[i+6]..data3[i+7]) + 148
-				OAM.OBJAttr[counter].YCoordinate = str2signedShort(data3[i+8]..data3[i+9]) + 88
-				OAM.OBJAttr[counter].affineFlag = bit.rshift(bit.band(OBJAttr0,bit.lshift(1,8)),8)
-				OAM.OBJAttr[counter].shape = bit.rshift(bit.band(OBJAttr0,bit.lshift(3,14)),14)
-				OAM.OBJAttr[counter].size = bit.rshift(bit.band(OBJAttr1,bit.lshift(3,14)),14)
-				OAM.OBJAttr[counter].HFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,12)),12)
-				OAM.OBJAttr[counter].VFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,13)),13)
-				OAM.OBJAttr[counter].RSPara = bit.rshift(bit.band(OBJAttr1,bit.lshift(31,9)),9)
-				OAM.OBJAttr[counter].tileNo = bit.band(OBJAttr2,1023)
-				OAM.OBJAttr[counter].paletteNo = bit.band(bit.rshift(OBJAttr2,12),15)
-				counter = counter + 1
+				if(dumpFramesRight)
+				then
+					OBJAttr0 = str2short(data3[i]..data3[i+1])
+					OBJAttr1 = str2short(data3[i+2]..data3[i+3])
+					OBJAttr2 = str2short(data3[i+4]..data3[i+5])
+					OAM.OBJAttr[counter] = {}
+					OAM.OBJAttr[counter].XCoordinate = str2signedShort(data3[i+6]..data3[i+7]) + 148
+					OAM.OBJAttr[counter].YCoordinate = str2signedShort(data3[i+8]..data3[i+9]) + 88
+					OAM.OBJAttr[counter].affineFlag = bit.rshift(bit.band(OBJAttr0,bit.lshift(1,8)),8)
+					OAM.OBJAttr[counter].shape = bit.rshift(bit.band(OBJAttr0,bit.lshift(3,14)),14)
+					OAM.OBJAttr[counter].size = bit.rshift(bit.band(OBJAttr1,bit.lshift(3,14)),14)
+					OAM.OBJAttr[counter].HFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,12)),12)
+					OAM.OBJAttr[counter].VFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,13)),13)
+					OAM.OBJAttr[counter].RSPara = bit.rshift(bit.band(OBJAttr1,bit.lshift(31,9)),9)
+					OAM.OBJAttr[counter].tileNo = bit.band(OBJAttr2,1023)
+					OAM.OBJAttr[counter].paletteNo = bit.band(bit.rshift(OBJAttr2,12),15)
+					counter = counter + 1
+				end
 			end
 			i = i + 12
 		end
@@ -940,24 +967,33 @@ then
 	end
 	--]]
 	i = 1
-	counter = 1
-	OAM = {}
-	OAM.OBJAttr = {}
-	OAM.affinePara = {}
+	if(dumpFramesLeft)
+	then
+		counter = 1
+		OAM = {}
+		OAM.OBJAttr = {}
+		OAM.affinePara = {}
+	end
 	repeat
 		if(string.byte(data4[i+2]) == 0xFF and string.byte(data4[i+3]) == 0xFF)
 		then	-- 仿射参数
 			num = string.byte(data4[i]) + string.byte(data4[i+1]) * 0x100
 			oam:write(string.format('\tAffineNum\t%d\n',num))
 			oam:write(string.format('\tAffine0\t%d, %d, %d, %d\n',str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])))
-			OAM.affinePara = {}
-			table.insert(OAM.affinePara,{str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])})
+			if(dumpFramesLeft)
+			then
+				OAM.affinePara = {}
+				table.insert(OAM.affinePara,{str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])})
+			end
 			i = i + 12
 			num = num - 1
 			while(num > 0)
 			do
 				oam:write(string.format('\tAffine\t%d, %d, %d, %d\n',str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])))
-				table.insert(OAM.affinePara,{str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])})
+				if(dumpFramesLeft)
+				then
+					table.insert(OAM.affinePara,{str2signedShort(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9]),str2signedShort(data4[i+10]..data4[i+11])})
+				end
 				i = i + 12
 				num = num - 1
 			end
@@ -968,57 +1004,63 @@ then
 				frameSection[i-1+12] = frame
 				oam:write('\tEndFrame\n')
 				oam:write('\n\n'..name..'_frame_L_'..frame..':\n')
-				tileset = {}
-				rom:seek("set",frame2tileset[frame-1])
-				-- print(string.format("0x%X",frame2tileset[frame-1]))
-				if(readInt(rom) == 0x200010)
+				if(dumpFramesLeft)
 				then
-					-- tileset,tilesetSize = lz77:decode(rom,frame2tileset[frame-1])
-					tileset = lz77:decode(rom,frame2tileset[frame-1])
-					for k,v in pairs(tileset) do
-						tileset[k] = string.byte(v)
-						if(k > 0x2000)
-						then
-							tileset[k] = nil
-						end
-					end
-				else
+					tileset = {}
 					rom:seek("set",frame2tileset[frame-1])
-					-- for local q = 1,0x2000 do
-					-- '<name>' expected near 'local'
-					for q = 1,0x2000 do
-						tileset[q] = readByte(rom)
+					-- print(string.format("0x%X",frame2tileset[frame-1]))
+					if(readInt(rom) == 0x200010)
+					then
+						-- tileset,tilesetSize = lz77:decode(rom,frame2tileset[frame-1])
+						tileset = lz77:decode(rom,frame2tileset[frame-1])
+						for k,v in pairs(tileset) do
+							tileset[k] = string.byte(v)
+							if(k > 0x2000)
+							then
+								tileset[k] = nil
+							end
+						end
+					else
+						rom:seek("set",frame2tileset[frame-1])
+						-- for local q = 1,0x2000 do
+						-- '<name>' expected near 'local'
+						for q = 1,0x2000 do
+							tileset[q] = readByte(rom)
+						end
+						-- q = nil
 					end
-					-- q = nil
+					rom:seek("set")
+					if(OAM.OBJAttr[1] ~= nil)
+					then
+						-- print(#(tileset),tilesetSize)
+						-- print(#(tileset))
+						GBAImage:drawSprite(tileset,pal,4,OAM):Save(pathImg.."/"..name.."_frame_L_"..tostring(frame-1).."."..imageFormat,imageFormat)
+					end
+					counter = 1
+					OAM = {}
+					OAM.OBJAttr = {}
+					OAM.affinePara = {}
 				end
-				rom:seek("set")
-				if(OAM.OBJAttr[1] ~= nil)
-				then
-					-- print(#(tileset),tilesetSize)
-					-- print(#(tileset))
-					GBAImage:drawSprite(tileset,pal,4,OAM):Save(pathImg.."/"..name.."_frame_L_"..tostring(frame-1).."."..imageFormat,imageFormat)
-				end
-				counter = 1
-				OAM = {}
-				OAM.OBJAttr = {}
-				OAM.affinePara = {}
 			else
 				oam:write(string.format('\tOBJ\t0x%04x, 0x%04x, 0x%04x, %d, %d\n',str2short(data4[i]..data4[i+1]),str2short(data4[i+2]..data4[i+3]),str2short(data4[i+4]..data4[i+5]),str2signedShort(data4[i+6]..data4[i+7]),str2signedShort(data4[i+8]..data4[i+9])))
-				OBJAttr0 = str2short(data4[i]..data4[i+1])
-				OBJAttr1 = str2short(data4[i+2]..data4[i+3])
-				OBJAttr2 = str2short(data4[i+4]..data4[i+5])
-				OAM.OBJAttr[counter] = {}
-				OAM.OBJAttr[counter].XCoordinate = str2signedShort(data4[i+6]..data4[i+7]) + 92
-				OAM.OBJAttr[counter].YCoordinate = str2signedShort(data4[i+8]..data4[i+9]) + 88
-				OAM.OBJAttr[counter].affineFlag = bit.rshift(bit.band(OBJAttr0,bit.lshift(1,8)),8)
-				OAM.OBJAttr[counter].shape = bit.rshift(bit.band(OBJAttr0,bit.lshift(3,14)),14)
-				OAM.OBJAttr[counter].size = bit.rshift(bit.band(OBJAttr1,bit.lshift(3,14)),14)
-				OAM.OBJAttr[counter].HFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,12)),12)
-				OAM.OBJAttr[counter].VFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,13)),13)
-				OAM.OBJAttr[counter].RSPara = bit.rshift(bit.band(OBJAttr1,bit.lshift(31,9)),9)
-				OAM.OBJAttr[counter].tileNo = bit.band(OBJAttr2,1023)
-				OAM.OBJAttr[counter].paletteNo = bit.band(bit.rshift(OBJAttr2,12),15)
-				counter = counter + 1
+				if(dumpFramesLeft)
+				then
+					OBJAttr0 = str2short(data4[i]..data4[i+1])
+					OBJAttr1 = str2short(data4[i+2]..data4[i+3])
+					OBJAttr2 = str2short(data4[i+4]..data4[i+5])
+					OAM.OBJAttr[counter] = {}
+					OAM.OBJAttr[counter].XCoordinate = str2signedShort(data4[i+6]..data4[i+7]) + 92
+					OAM.OBJAttr[counter].YCoordinate = str2signedShort(data4[i+8]..data4[i+9]) + 88
+					OAM.OBJAttr[counter].affineFlag = bit.rshift(bit.band(OBJAttr0,bit.lshift(1,8)),8)
+					OAM.OBJAttr[counter].shape = bit.rshift(bit.band(OBJAttr0,bit.lshift(3,14)),14)
+					OAM.OBJAttr[counter].size = bit.rshift(bit.band(OBJAttr1,bit.lshift(3,14)),14)
+					OAM.OBJAttr[counter].HFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,12)),12)
+					OAM.OBJAttr[counter].VFlip = bit.rshift(bit.band(OBJAttr1,bit.lshift(1,13)),13)
+					OAM.OBJAttr[counter].RSPara = bit.rshift(bit.band(OBJAttr1,bit.lshift(31,9)),9)
+					OAM.OBJAttr[counter].tileNo = bit.band(OBJAttr2,1023)
+					OAM.OBJAttr[counter].paletteNo = bit.band(bit.rshift(OBJAttr2,12),15)
+					counter = counter + 1
+				end
 			end
 			i = i + 12
 		end
@@ -1120,9 +1162,120 @@ function C80H()
 	EndMode()
 end
 
+-- C85注释
+C85Comments = {}
+C85Comments[0x00] = [[NOP]]
+C85Comments[0x01] = [[Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)]]
+C85Comments[0x02] = [[Start of dodge]]
+C85Comments[0x03] = [[Start attack animation; should be followed by 0x07; should head "dodged attack"]]
+C85Comments[0x04] = [[Prepare HP depletion routine; needed to animate return to standing frame after hit]]
+C85Comments[0x05] = [[Call spell associated with equipped weapon]]
+C85Comments[0x06] = [[Begin opponent's turn after hit]]
+C85Comments[0x07] = [[Start attack animation; should be preceeded by 0x03]]
+C85Comments[0x08] = [[Critical hit]]
+C85Comments[0x09] = [[Critical hit]]
+C85Comments[0x0A] = [[Critical hit]]
+C85Comments[0x0B] = [[Critical hit]]
+C85Comments[0x0C] = [[Critical hit]]
+C85Comments[0x0D] = [[End of dodge animation (should have an 0x01 command before it and after a preceding 0x0E)]]
+C85Comments[0x0E] = [[Start of dodging frames (should go after standing frame and before dodging animation)]]
+C85Comments[0x0F] = [[Unused; does nothing]]
+C85Comments[0x10] = [[Unused; does nothing]]
+C85Comments[0x11] = [[Unused; does nothing]]
+C85Comments[0x12] = [[Unused; does nothing]]
+C85Comments[0x13] = [[? (ranged attack - hand axe for Hector)]]
+C85Comments[0x14] = [[Heavy vibration of screen]]
+C85Comments[0x15] = [[Slight vibration of screen]]
+C85Comments[0x16] = [[Unused; does nothing]]
+C85Comments[0x17] = [[Unused; does nothing]]
+C85Comments[0x18] = [[Use this instead of 0x02 to dodge toward the foreground instead of toward the background]]
+C85Comments[0x19] = [[Play bow pulling SFE]]
+C85Comments[0x1A] = [[Normal hit]]
+C85Comments[0x1B] = [[Play quick "heavy step" SFE]]
+C85Comments[0x1C] = [[Play light horse stepping SFE; pitch decreases]]
+C85Comments[0x1D] = [[Play light horse stepping SFE; pitch increases]]
+C85Comments[0x1E] = [[Similar to 0x1D; a bit louder]]
+C85Comments[0x1F] = [[Play hit SFE (sounds like Eliwood with sword's hit)]]
+C85Comments[0x20] = [[Play hit SFE (sounds like Knight Lord with Durandal's hit)]]
+C85Comments[0x21] = [[Play hit SFE (sounds like Knight Lord with sword's hit)]]
+C85Comments[0x22] = [[Play short sword swinging SFE]]
+C85Comments[0x23] = [[Play shorter sword swinging SFE]]
+C85Comments[0x24] = [[Play sword slashing air SFE]]
+C85Comments[0x25] = [[Play wing flap SFE]]
+C85Comments[0x26] = [[Sword toss; VERY hardcoded (uses 32x32 at linear sheet index 0x1C from current sheet)]]
+C85Comments[0x27] = [[Shield toss; while this command is used for shield tossing, it is actually just a copy of command 0x26]]
+C85Comments[0x28] = [[Play electrical charging SFE (Used by Shamans)]]
+C85Comments[0x29] = [[Kills BGM]]
+C85Comments[0x2A] = [[Kills BGM]]
+C85Comments[0x2B] = [[Play armored unit "leaping" SFE]]
+C85Comments[0x2C] = [[Show fire (that envelopes Sealed Sword; contains all Sealed Sword fire frames) animation]]
+C85Comments[0x2D] = [[? (Assassin critical) (Lethality activator that is dependent on other commands?)]]
+C85Comments[0x2E] = [[Show sage's normal magic rune drawing animation]]
+C85Comments[0x2F] = [[Show sage's critical magic rune drawing animation]]
+C85Comments[0x30] = [[Show dirt kicking (as from dashing forward) animation]]
+C85Comments[0x31] = [[Show small dirt wave moving forward animation (starts about mid screen)]]
+C85Comments[0x32] = [[Show medium sized dirt wave moving backward animation (starts from feet of attacker)]]
+C85Comments[0x33] = [[Play battle cry SFE (REALLY stupid)]]
+C85Comments[0x34] = [[Play heavy stepping SFE]]
+C85Comments[0x35] = [[Play longer wing flapping SFE]]
+C85Comments[0x36] = [[Play sword unsheathing SFE]]
+C85Comments[0x37] = [[Play sword clicking SFE]]
+C85Comments[0x38] = [[Play heavy spear spinning SFE]]
+C85Comments[0x39] = [[Pauses the attacker, makes them flash white and makes the screen flash white]]
+C85Comments[0x3A] = [[Play dancer magic release SFE]]
+C85Comments[0x3B] = [[Play bard song SFE]]
+C85Comments[0x3C] = [[Play sword "whooshing" SFE (done by Nomads; sounds like wing flap)]]
+C85Comments[0x3D] = [[Show Nergal's dark aura animation - FE 7 only!]]
+C85Comments[0x3E] = [[Play burning SFE]]
+C85Comments[0x3F] = [[Play alternate arrow firing SFE?]]
+C85Comments[0x40] = [[Kills BGM]]
+C85Comments[0x41] = [[Play short axe swinging SFE]]
+C85Comments[0x42] = [[Play long axe swinging SFE]]
+C85Comments[0x43] = [[Play weapon stance SFE (Clicking noise)]]
+C85Comments[0x44] = [[Play short "light emission" SFE (I seriously don't know a better way to describe this)]]
+C85Comments[0x45] = [[Play horse neighing SFE]]
+C85Comments[0x46] = [[Play dropped axe crashing onto ground SFE]]
+C85Comments[0x47] = [[Show cape flowing animation; VERY hardcoded]]
+C85Comments[0x48] = [[Kills BGM]]
+C85Comments[0x49] = [[Play sage's magic firing SFE]]
+C85Comments[0x4A] = [[Play valkyrie's magic charging SFE (Pretty much the same as the shaman's)]]
+C85Comments[0x4B] = [[Play monk's magic casting SFE]]
+C85Comments[0x4C] = [[Play Athos' magic casting SFE]]
+C85Comments[0x4D] = [[Play Athos' critical glint SFE]]
+C85Comments[0x4E] = [[Show dirt wave (as from horse kicking forward from ground) animation]]
+C85Comments[0x4F] = [[Play druid critical charging SFE]]
+C85Comments[0x50] = [[? (Nergal's critical uses this)]]
+C85Comments[0x51] = [[Show brief white flash animation]]
+C85Comments[0x52] = [[See command 0x2D (Assassin critical)]]
+
 -- C85 
 function C85H()
-	script:write(string.format('Cmd 0x%X',string.byte(decompressedData2[i])))
+	-- 整体循环指令
+	if(string.byte(decompressedData2[i]) == 1 and string.byte(decompressedData2[i+1]) ~= 0)
+	then
+		script:write('Loop '..string.byte(decompressedData2[i+1]))
+		return
+	end
+	-- 音效播放指令
+	if(string.byte(decompressedData2[i]) == 0x48 and string.byte(decompressedData2[i+1])+string.byte(decompressedData2[i+2])*0x100 ~= 0)
+	then
+		script:write(string.format('SFX 0x%X',string.byte(decompressedData2[i+1])+string.byte(decompressedData2[i+2])*0x100))
+		return
+	end
+	-- 外挂动画指令(普通)
+	if(string.byte(decompressedData2[i]) == 0x2E and string.byte(decompressedData2[i+1]) ~= 0)
+	then
+		script:write('EFX '..string.byte(decompressedData2[i+1]))
+		return
+	end
+	-- 外挂动画指令(必杀)
+	if(string.byte(decompressedData2[i]) == 0x2F and string.byte(decompressedData2[i+1]) ~= 0)
+	then
+		script:write('EFXCRT '..string.byte(decompressedData2[i+1]))
+		return
+	end
+	-- 原来的指令
+	script:write(string.format('Cmd 0x%X @ %s',string.byte(decompressedData2[i]),C85Comments[string.byte(decompressedData2[i])]))
 end
 
 -- 压缩sheet图片

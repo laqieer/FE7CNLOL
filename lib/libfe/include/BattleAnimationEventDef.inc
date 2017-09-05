@@ -27,6 +27,28 @@ ShowFrame \frames, \No, \sheet, \frameSection
 .byte	\subCmd, 0, 0, 0x85
 .endm
 
+@ 整体循环指令
+.macro	Loop count=1
+.byte	1, \count, 0, 0x85
+.endm
+
+@ 音效播放指令
+.macro	SFX soundID
+.byte	0x48
+.hword	\soundID
+.byte	0x85
+.endm
+
+@ 外挂动画指令(普通)
+.macro	EFX effectID
+.byte 	0x2E, \effectID, 0, 0x85
+.endm
+
+@ 外挂动画指令(必杀)
+.macro	EFXCRT effectID
+.byte 	0x2F, \effectID, 0, 0x85
+.endm
+
 @ data3&4
 
 @ 描述一个OBJ
