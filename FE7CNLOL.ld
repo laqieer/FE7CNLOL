@@ -74,16 +74,16 @@ SECTIONS
 	.battleAnimationSoundEx : {*.o(.battleAnimationSoundEx)}
 	. = 0x80552D8;
 	.callDemoBattleAnimationInit : {*.o(.callDemoBattleAnimationInit)}	
-	. = 0x8E00008 + 0x20 * (0x5E - 1);
-	.NinoSageAnimation : {*.o(.NinoSageAnimation)}	
+/*	. = 0x8E00008 + 0x20 * (0x5E - 1);
+	.NinoSageAnimation : {*.o(.NinoSageAnimation)}	*/
 	. = 0x8E00008 + 0x20 * (0x11 - 1);
 	.LynBladeLordSwordAnimation : {*.o(.LynBladeLordSwordAnimation)}
 	. = 0x8E00008 + 0x20 * (0x84 - 1);
 	.FalconKnightSpearAnimationWithIceEffect : {*.o(.FalconKnightSpearAnimationWithIceEffect)}
 	. = 0x8E00008 + 0x20 * (4 - 1);
 	.LordKnightEliwoodDurandalAnimation : {*.o(.LordKnightEliwoodDurandalAnimation)}
-	. = 0x8E00008 + 0x20 * (0x29 - 1);
-	.BattleAnimation_FE7_0x29 : {*.o(.BattleAnimation_FE7_0x29)}	
+/*	. = 0x8E00008 + 0x20 * (0x29 - 1);
+	.BattleAnimation_FE7_0x29 : {*.o(.BattleAnimation_FE7_0x29)}	*/
 	. = 0x8E00008 + 0x20 * (0x71 - 1);
 	.PriscillaAnimationTest : {*.o(.PriscillaAnimationTest)}
 	. = 0x8FD8008 + 0x10 * (0x79 - 1);
