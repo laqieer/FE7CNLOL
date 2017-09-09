@@ -7,6 +7,52 @@ require "imlua_process"
 require "math"
 require "bit"
 
+-- lua 除了简单类型分配内存外，table只是传递引用，所以不能用简单的"="来copy两个表，并试图修改一个表中的值
+--lua table 拷贝
+function table_copy_table(ori_tab)
+    if (type(ori_tab) ~= "table") then
+        return nil
+    end
+    local new_tab = {}
+    for i,v in pairs(ori_tab) do
+        local vtyp = type(v)
+        if (vtyp == "table") then
+            new_tab[i] = table_copy_table(v)
+        elseif (vtyp == "thread") then
+            new_tab[i] = v
+        elseif (vtyp == "userdata") then
+            new_tab[i] = v
+        else
+            new_tab[i] = v
+        end
+    end
+    return new_tab
+end
+
+-- 从全路径中获取文件名(linux、windows通用)
+function getFileName(filename)
+	--[[
+	fn_flag = string.find(filename, "\\")
+ 
+	if fn_flag then
+	 
+	dest_filename = string.match(filename, ".+\\([^\\]*%.%w+)$")
+	end
+	 
+	 
+	 
+	fn_flag = string.find(filename, "/")
+	 
+	if fn_flag then
+	 
+	dest_filename = string.match(filename, ".+/([^/]*%.%w+)$")
+	end
+	
+	return dest_filename
+	--]]
+	return string.gsub(filename,".+[/\\]","")
+end
+
 if(not arg[1])
 then
 	print([[Cut the battle animation frames and combine them into sheets.
@@ -192,12 +238,12 @@ end
 -- 参数:源图片,源位置（左下角坐标）,目标图片,目标位置（左下角坐标）,要拷贝区域的宽和高
 -- xSrc, ySrc, xDst, yDst, w, h 单位: pixel
 function areaCopy(imgSrc, xSrc, ySrc, imgDst, xDst, yDst, w, h)
-	if(xSrc < 0 or ySrc < 0 or xSrc + w > imgSrc:Width()-1 or ySrc + h > imgSrc:Height()-1)
+	if(xSrc < 0 or ySrc < 0 or xSrc + w > imgSrc:Width() or ySrc + h > imgSrc:Height())
 	then
 		print('Error: Invalid source area to copy')
 		os.exit(-1)
 	end
-	if(xDst < 0 or yDst < 0 or xDst + w > imgDst:Width()-1 or yDst + h > imgDst:Height()-1)
+	if(xDst < 0 or yDst < 0 or xDst + w > imgDst:Width() or yDst + h > imgDst:Height())
 	then
 		print('Error: Invalid destination area to copy')
 		os.exit(-1)
@@ -277,6 +323,16 @@ function markOccupiedArea(map,x,y,w,h)
 			map[y + lin][x + col] = 1
 		end
 	end
+	map.Tiles = map.Tiles + w * h	-- 为了提高效率，增加这个成员(已经被占用的tile数)
+	if(map.Tiles > map.Width * map.Height)
+	then
+		print('Error: too many tiles are allocated to the this sheet')
+		os.exit(-1)
+	end
+	if(map.Tiles == map.Width * map.Height)
+	then
+		map.isFull = true	-- 标记该sheet是否已满
+	end
 end
 
 -- 寻找空闲块
@@ -287,6 +343,14 @@ function seekIdleArea(map,w,h)
 	then
 		print('Error: area to seek is over the size of sheet')
 		os.exit(-1)
+	end
+	if(map.isFull)
+	then
+		return
+	end
+	if(map.Tiles + w * h > map.Width * map.Height)
+	then
+		return
 	end
 	-- for y = 0, map.Height-1, 8 do
 	for y = 0, map.Height - h do	-- 按像素标记不如按tile标记
@@ -328,6 +392,7 @@ function createNewSheet(w,h)
 	sheetMap[sheet] = {}
 	sheetMap[sheet].Width = w/8
 	sheetMap[sheet].Height = h/8
+	sheetMap[sheet].Tiles = 0
 	for lin = 0, h/8-1 do
 		sheetMap[sheet][lin] = {}
 		for col = 0, w/8-1 do
@@ -365,6 +430,8 @@ shape_size[1][4] = {2,1}	-- 8x32
 shape_size[2][4] = {2,2}	-- 16x32
 shape_size[4][8] = {2,3}	-- 32x64
 -- 各尺寸拼图的历史记录(为了重复利用)
+-- 这种方式可能导致同一帧的不同部分来自于不同的sheet,故不可行
+--[[
 history = {}
 history[1] = {}
 history[2] = {}
@@ -382,10 +449,14 @@ history[1][2] = {}	-- 8x16
 history[1][4] = {}	-- 8x32
 history[2][4] = {}	-- 16x32
 history[4][8] = {}	-- 32x64
+-]]
 
+-- 建第一张sheet
 createNewSheet(256,64)
+
 -- 主体
 -- print(#frames)
+--[[
 for frame = 0, #frames do
 	OAM[frame] = {}
 	OBJ = 1
@@ -393,12 +464,12 @@ for frame = 0, #frames do
 	do
 		x1,y1,x2,y2 = getOpaqueArea(frames[frame])
 		-- print(x1,y1,x2,y2)
-		--[[
+		--[
 			x1		x2
 		y2	
 			
 		y1	
-		--]]
+		--]
 		-- dx = x2 - x1
 		-- dy = y2 - y1
 		-- 比如只有一个像素点的情形
@@ -455,6 +526,7 @@ for frame = 0, #frames do
 		end
 		OAM[frame][OBJ].XOffsetMirror = OAM[frame][OBJ].XOffsetMirror - OAM[frame][OBJ].XOffset
 		-- print('L418')
+		--[
 		-- 查询历史记录
 		objImg = createImageFromArea(frames[frame], x1, y1, 8 * w, 8 * h)
 		-- print('L420')
@@ -506,7 +578,9 @@ for frame = 0, #frames do
 		end
 		if(OAM[frame][OBJ] ~= nil)
 		then
+		--]
 			-- 在现有的sheet里找空位塞
+			-- 这种方式可能会导致同一帧里的各个部分去了不同的sheet
 			for sheetID = 1, sheet do
 				-- print(sheetID,sheet,sheetMap,sheetMap[sheetID])
 				x,y = seekIdleArea(sheetMap[sheetID],w,h)
@@ -515,12 +589,12 @@ for frame = 0, #frames do
 					OAM[frame][OBJ].sheetID = sheetID
 					break
 				end
-				--[[
+				--[
 				if(sheetID == sheet)
 				then
 					createNewSheet(256,64)
 				end
-				--]]
+				--]
 				-- for的三个表达式在循环开始前一次性求值，以后不再进行求值
 			end
 			-- 找不到就新建一张sheet
@@ -543,11 +617,257 @@ for frame = 0, #frames do
 			-- print(x,y,w,h)
 			areaCut(frames[frame], x1, y1, sheets[sheet], 8 * x, 8 * y, 8 * w, 8 * h)
 			-- print('L513')
+		--[
 		else
 			setOpaqueArea(frames[frame], x1, y1, x1 + 8 * w - 1, y1 + 8 * h - 1)
 		end
+		--]
 	end
 	-- print('L504')
+end
+--]]
+
+-- 在母图上找子图
+-- 单位: tile
+-- 返回x,y,HFlip,VFlip
+function seekSamePart(image,subImage)
+	-- 要搜索的子图比大图还大
+	if(subImage:Width() > image:Width() or subImage:Height() > image:Height())
+	then
+		return
+	end
+	
+	for lin = 0, image:Height() - subImage:Height(), 8 do
+		for col = 0, image:Width() - subImage:Width(), 8 do
+			-- print(col,lin,subImage:Width(),subImage:Height())
+			local img = createImageFromArea(image,col,lin,subImage:Width(),subImage:Height())
+			if(compareImage(subImage,img))
+			then
+				return col,lin
+			end
+			local img = im.ProcessMirrorNew(img)
+			if(compareImage(subImage,img))
+			then
+				return col,lin, true
+			end
+			local img = im.ProcessFlipNew(img)
+			if(compareImage(subImage,img))
+			then
+				return col,lin, true, true
+			end
+			local img = im.ProcessFlipNew(createImageFromArea(image,col,lin,subImage:Width(),subImage:Height()))
+			if(compareImage(subImage,img))
+			then
+				return col,lin, false, true
+			end
+		end
+	end
+end
+
+-- 返回指定sheet已经被标记占用的tile数
+function getOccupiedTilesNum(map)
+	local tiles = 0
+	for lin = 0, map.Height - 1 do
+		for col = 0, map.Width - 1 do
+			if(map[lin][col] == 1)
+			then
+				tiles = tiles + 1
+			end
+		end
+	end
+	return tiles
+end
+
+-- 改进切割算法
+for frame = 0, #frames do
+	print('Handling the frame '..frame..'/'..#frames)
+	-- thisFrame = frames[frame]
+	-- print(thisFrame,frames[frame])
+	-- 复杂数据类型赋值都只是在传地址
+	thisFrame = im.ImageCreate(frames[frame]:Width(),frames[frame]:Height(),frames[frame]:ColorSpace(),frames[frame]:DataType())
+	frames[frame]:Copy(thisFrame)
+	OAM[frame] = {}
+	OBJ = 1
+	-- 1, 分块
+	while(not checkIfBlankImage(thisFrame))
+	do
+		x1,y1,x2,y2 = getOpaqueArea(thisFrame)
+		dx = x2 - x1 + 1
+		dy = y2 - y1 + 1
+		w = math.ceil(dx/8)
+		if(w > 8)
+		then
+			w = 8
+		else
+			w = OBJSize.width[w]
+		end
+		h = math.ceil(dy/8)
+		if(h > 8)
+		then
+			h = OBJSize[w][8]
+		else
+			h = OBJSize[w][h]
+		end
+		if(x1 + 8 * w > thisFrame:Width())
+		then
+			x1 = thisFrame:Width() - 8 * w
+		end
+		if(y1 + 8 * h > thisFrame:Height())
+		then
+			y1 = thisFrame:Height() - 8 * h
+		end
+		OAM[frame][OBJ] = {}
+		OAM[frame][OBJ].w = w
+		OAM[frame][OBJ].h = h
+		OAM[frame][OBJ].x1 = x1
+		OAM[frame][OBJ].y1 = y1
+		OAM[frame][OBJ].shape = shape_size[w][h][1]
+		OAM[frame][OBJ].size = shape_size[w][h][2]
+		if(OAM[frame][OBJ].shape == nil or OAM[frame][OBJ].size == nil)
+		then
+			print{'Error: Invalid dimension of OBJ'}
+			os.exit(-1)
+		end
+		OAM[frame][OBJ].XOffset = x1 - xCenter
+		OAM[frame][OBJ].YOffset = y1 + 8 * h -1 - yCenter
+		OAM[frame][OBJ].XOffsetMirror = - 8 * w
+		if(isLeft)
+		then
+			OAM[frame][OBJ].XOffsetMirror = - OAM[frame][OBJ].XOffsetMirror
+		end
+		-- print(x1,y1,w,h)
+		OAM[frame][OBJ].image = createImageFromArea(thisFrame,x1,y1,8 * w,8 * h)
+		OAM[frame][OBJ].XOffsetMirror = OAM[frame][OBJ].XOffsetMirror - OAM[frame][OBJ].XOffset
+		setOpaqueArea(thisFrame, x1, y1, x1 + 8 * w - 1, y1 + 8 * h - 1)
+		OBJ = OBJ + 1
+	end
+	-- 2, 寻找合适的sheet
+	
+	candidate = {}	-- 候选sheet编号(按优先级排序)
+	priority = {}	-- 每个sheet的优先级,与candidate的关系:键值互换(值越小优先级越高)
+	
+	-- (1) 优先找重复(有重复的可利用就不必在sheet中为这个部分分配剩余空间)
+	for objID, object in ipairs(OAM[frame]) do
+		for sheetID, sheetImg in ipairs(sheets) do
+			x,y,HFlip,VFlip = seekSamePart(sheetImg,object.image)
+			if(x ~= nil and priority[sheetID] == nil)
+			then
+				table.insert(candidate,sheetID)
+				priority[sheetID] = #candidate
+			end
+		end
+	end
+	-- (2) 次优先找剩余空间小的(为了尽量充分利用每一张sheet的空间)
+	occupiedTilesNum = {}	-- 记录sheet的id和已经标记占用的tile数
+	for sheetID, map in ipairs(sheetMap) do
+		if(priority[sheetID] == nil)
+		then
+			-- table.insert(occupiedTilesNum, {['id'] = sheetID, ['OccupiedTiles'] = getOccupiedTilesNum(map)})
+			table.insert(occupiedTilesNum, {['id'] = sheetID, ['OccupiedTiles'] = map.Tiles})
+		end
+	end
+	table.sort(occupiedTilesNum, function(a,b)
+		-- return	a.OccupiedTiles < b.OccupiedTiles or
+				-- a.OccupiedTiles == b.OccupiedTiles and a.id > b.id
+			return	a.OccupiedTiles > b.OccupiedTiles or
+		a.OccupiedTiles == b.OccupiedTiles and a.id < b.id
+	end)
+	for pri, v in ipairs(occupiedTilesNum) do
+		table.insert(candidate,v.id)
+		priority[v.id] = #candidate
+	end
+	
+	-- print(sheet)
+	-- for k,v in ipairs(candidate) do
+		-- print(k,v, sheetMap[v].Tiles)
+	-- end
+	
+	-- for k,v in pairs(priority) do
+		-- print(k,v)
+	-- end
+	
+	-- (3) 依次检查找到的sheet的剩余空间能否容纳所有的部分(考虑重复)
+	for pri, sheetID in ipairs(candidate) do
+		-- local thisMap = sheetMap[sheetID]
+		-- print(thisMap,sheetMap[sheetID])
+		-- 给表赋值只是在赋值引用
+		thisMap = table_copy_table(sheetMap[sheetID])
+		for objID, object in ipairs(OAM[frame]) do
+			-- x,y,HFlip,VFlip = seekSamePart(sheets[sheetID],object.image)
+			object.x,object.y,object.HFlip,object.VFlip = seekSamePart(sheets[sheetID],object.image)
+			-- 避免重复计算，提高效率
+			-- if(x == nil)
+			if(object.x == nil)
+			then
+				-- x, y = seekIdleArea(thisMap, object.w, object.h)
+				object.x, object.y = seekIdleArea(thisMap, object.w, object.h)
+				-- print(x,y)
+				if(object.x == nil)
+				then
+					break
+				end
+				-- markOccupiedArea(thisMap, x, y, object.w, object.h)
+				object.ifNew = true
+				markOccupiedArea(thisMap, object.x, object.y, object.w, object.h)
+			end
+		end
+		--[[
+		if(x ~= nil)
+		then
+			OAM[frame].sheetID = sheetID
+			break
+		end
+		--]]
+		OAM[frame].sheetID = sheetID
+		for objID, object in ipairs(OAM[frame]) do
+			if(object.x == nil)
+			then
+				OAM[frame].sheetID = nil
+				break
+			end
+		end
+	end
+	-- (4) 找到了合适的sheet
+	if(OAM[frame].sheetID ~= nil)
+	then
+		for objID, object in ipairs(OAM[frame]) do
+			object.tileID = object.x + 0x20 * object.y
+			if(object.ifNew)
+			then
+				markOccupiedArea(sheetMap[OAM[frame].sheetID], object.x, object.y, object.w, object.h)
+				areaCopy(frames[frame], object.x1, object.y1, sheets[OAM[frame].sheetID], 8 * object.x, 8 * object.y, 8 * object.w, 8 * object.h)
+			end
+			--[[
+			x,y,HFlip,VFlip = seekSamePart(sheets[OAM[frame].sheetID],object.image)
+			if(x ~= nil)
+			then
+				object.tileID = x + 0x20 * y
+				object.HFlip = HFlip
+				object.VFlip = VFlip
+			else
+				x, y = seekIdleArea(sheetMap[OAM[frame].sheetID], object.w, object.h)
+				print(x,y)
+				object.tileID = x + 0x20 * y
+				markOccupiedArea(sheetMap[OAM[frame].sheetID], x, y, object.w, object.h)
+				areaCopy(frames[frame], object.x1, object.y1, sheets[OAM[frame].sheetID], 8 * x, 8 * y, 8 * object.w, 8 * object.h)	-- 也可以把object.image作为图片源
+			end
+			-]]
+			-- 避免重复计算,提高效率
+		end
+	-- end
+	-- (5) 现有的sheet都不符合要求就新建一张sheet
+	-- if(OAM[frame].sheetID == nil)
+	-- then
+	else
+		createNewSheet(256,64)
+		OAM[frame].sheetID = sheet
+		for objID, object in ipairs(OAM[frame]) do
+			x, y = seekIdleArea(sheetMap[sheet], object.w, object.h)
+			object.tileID = x + 0x20 * y
+			markOccupiedArea(sheetMap[sheet], x, y, object.w, object.h)
+			areaCopy(frames[frame], object.x1, object.y1, sheets[sheet], 8 * x, 8 * y, 8 * object.w, 8 * object.h)	-- 也可以把object.image作为图片源
+		end
+	end
 end
 
 -- 输出
@@ -569,12 +889,16 @@ OAMInfo:write([[@ Generated by BattleAnimationSheetMaker
 -- 自身
 if(isLeft)
 then
-	OAMInfo:write(string.match(name,".+/([^/]*%w+)$")..'_data4:\n\n')
+	-- OAMInfo:write(string.match(name,".+/([^/]*%w+)$")..'_data4:\n\n')
+	OAMInfo:write(getFileName(name)..'_data4:\n\n')
 else
-	OAMInfo:write(string.match(name,".+/([^/]*%w+)$")..'_data3:\n\n')
+	-- OAMInfo:write(string.match(name,".+/([^/]*%w+)$")..'_data3:\n\n')
+	OAMInfo:write(getFileName(name)..'_data3:\n\n')
 end
 for k,v in pairs(OAM) do
-	OAMInfo:write(string.match(name,".+/([^/]*%w+)$").._frame_L_R_..k..':\n')
+	-- OAMInfo:write(string.match(name,".+/([^/]*%w+)$").._frame_L_R_..k..':\n')
+	-- OAMInfo:write(string.match(name,".+/([^/]*%w+)$").._frame_L_R_..k..':\t@ '..string.match(name,".+/([^/]*%w+)$")..'_sheet_'..v.sheetID..'\n')
+	OAMInfo:write(getFileName(name).._frame_L_R_..k..':\t@ '..getFileName(name)..'_sheet_'..v.sheetID..'\n')
 	for key,value in ipairs(v) do
 		OAMAttr0 = bit.lshift(value.shape,14)
 		OAMAttr1 = bit.lshift(value.size,14)
@@ -587,7 +911,8 @@ for k,v in pairs(OAM) do
 			OAMAttr1 = OAMAttr1 + bit.lshift(1,13)
 		end
 		OAMAttr2 = bit.band(value.tileID,1023)
-		OAMInfo:write(string.format('\tOBJ\t0x%X, 0x%X, 0x%X, %d, %d\t@ %s_sheet_%d\n',OAMAttr0,OAMAttr1,OAMAttr2,value.XOffset,value.YOffset,string.match(name,".+/([^/]*%w+)$"),value.sheetID))
+		-- OAMInfo:write(string.format('\tOBJ\t0x%X, 0x%X, 0x%X, %d, %d\t@ %s_sheet_%d\n',OAMAttr0,OAMAttr1,OAMAttr2,value.XOffset,value.YOffset,string.match(name,".+/([^/]*%w+)$"),value.sheetID))
+		OAMInfo:write(string.format('\tOBJ\t0x%X, 0x%X, 0x%X, %d, %d\n',OAMAttr0,OAMAttr1,OAMAttr2,value.XOffset,value.YOffset))
 	end
 	OAMInfo:write('\tEndFrame\n\n')
 end
@@ -595,14 +920,18 @@ OAMInfo:write('\tEndOAMInfo\n\n')
 -- 对面
 if(isLeft)
 then
-	OAMInfo:write(string.match(name,".+/([^/]*%w+)$")..'_data3:\n\n')
+	-- OAMInfo:write(string.match(name,".+/([^/]*%w+)$")..'_data3:\n\n')
+	OAMInfo:write(getFileName(name)..'_data3:\n\n')
 	_frame_L_R_ = '_frame_R_'
 else
-	OAMInfo:write(string.match(name,".+/([^/]*%w+)$")..'_data4:\n\n')
+	-- OAMInfo:write(string.match(name,".+/([^/]*%w+)$")..'_data4:\n\n')
+	OAMInfo:write(getFileName(name)..'_data4:\n\n')
 	_frame_L_R_ = '_frame_L_'
 end
 for k,v in pairs(OAM) do
-	OAMInfo:write(string.match(name,".+/([^/]*%w+)$").._frame_L_R_..k..':\n')
+	-- OAMInfo:write(string.match(name,".+/([^/]*%w+)$").._frame_L_R_..k..':\n')
+	-- OAMInfo:write(string.match(name,".+/([^/]*%w+)$").._frame_L_R_..k..':\t@ '..string.match(name,".+/([^/]*%w+)$")..'_sheet_'..v.sheetID..'\n')
+	OAMInfo:write(getFileName(name).._frame_L_R_..k..':\t@ '..getFileName(name)..'_sheet_'..v.sheetID..'\n')
 	for key,value in ipairs(v) do
 		OAMAttr0 = bit.lshift(value.shape,14)
 		OAMAttr1 = bit.lshift(value.size,14)
@@ -615,7 +944,8 @@ for k,v in pairs(OAM) do
 			OAMAttr1 = OAMAttr1 + bit.lshift(1,13)
 		end
 		OAMAttr2 = bit.band(value.tileID,1023)
-		OAMInfo:write(string.format('\tOBJ\t0x%X, 0x%X, 0x%X, %d, %d\t@ %s_sheet_%d\n',OAMAttr0,OAMAttr1,OAMAttr2,value.XOffsetMirror,value.YOffset,string.match(name,".+/([^/]*%w+)$"),value.sheetID))
+		-- OAMInfo:write(string.format('\tOBJ\t0x%X, 0x%X, 0x%X, %d, %d\t@ %s_sheet_%d\n',OAMAttr0,OAMAttr1,OAMAttr2,value.XOffsetMirror,value.YOffset,string.match(name,".+/([^/]*%w+)$"),value.sheetID))
+		OAMInfo:write(string.format('\tOBJ\t0x%X, 0x%X, 0x%X, %d, %d\n',OAMAttr0,OAMAttr1,OAMAttr2,value.XOffsetMirror,value.YOffset))
 	end
 	OAMInfo:write('\tEndFrame\n\n')
 end
@@ -632,7 +962,8 @@ end
 sheetData:write([[@ Generated by BattleAnimationSheetMaker
 @ ]]..os.date("%Y/%m/%d %H:%M:%S")..'\n\n\t.align\t4\n\n')
 for k,v in ipairs(sheets) do
-	sheetData:write(string.match(name,".+/([^/]*%w+)$")..'_sheet_'..k..':\n')
+	-- sheetData:write(string.match(name,".+/([^/]*%w+)$")..'_sheet_'..k..':\n')
+	sheetData:write(getFileName(name)..'_sheet_'..k..':\n')
 	-- 注意:Y轴方向的不同
 	-- 注意:以tile为单位输出(而不是像素)
 	-- 注意:1字节=2像素,低半字节对应左边像素,高半字节对应右边像素
