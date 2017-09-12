@@ -78,8 +78,8 @@ Main options:
 -d			Preserve temporary files for debugging
 -p			Set the palette for dumped sheets
 -sh			Output the sheets
--frR		Output the rightside frames
--frL		Output the leftside frames
+-frR			Output the rightside frames
+-frL			Output the leftside frames
 -f			Set the image format for dumped images
 	]])
 	closeAllAndExit(0);

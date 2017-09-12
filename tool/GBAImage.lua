@@ -212,8 +212,16 @@ function GBAImage:drawSprite(img,pal,depth,OAM)
 			-- sx = -PA * PB / math.sqrt(PA^2 + PB^2)
 			sy = 1 / math.sqrt(PC^2 + PD^2)
 			sx = 1 / math.sqrt(PA^2 + PB^2)
+			-- 如何确定开出来的平方根的正负号?
 			sin0 = PC * sy
 			cos0 = PD * sy
+			-- 旋转角180度偏差？
+			-- sin0 = - PC * sy
+			-- cos0 = - PD * sy
+			-- alpha = math.atan(PC / PD)
+			-- sy = math.sin(alpha) / PC
+			-- sx = math.cos(alpha) / PA
+			-- print(sx, sy, alpha, math.sin(alpha), math.cos(alpha))
 			-- sin0 = PC * sy / (256^2)
 			-- cos0 = PD * sy / (256^2)
 			-- print(w,h,sx,sy)
@@ -223,6 +231,8 @@ function GBAImage:drawSprite(img,pal,depth,OAM)
 			-- print(objects[i1])
 			-- print(PA,PB,PC,PD,sx,sy,cos0,sin0)
 			c,objects[i1] = im.ProcessRotateNew(objects[i1], cos0, sin0, 0)
+			-- c,objects[i1] = im.ProcessRotateNew(objects[i1], math.cos(alpha), math.sin(alpha), 0)
+			-- c,objects[i1] = im.ProcessRotateNew(objects[i1], - math.cos(alpha), - math.sin(alpha), 0)
 		else
 			if(OAM.OBJAttr[i1].HFlip == 1)
 			then
