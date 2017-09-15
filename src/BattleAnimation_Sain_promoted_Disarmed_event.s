@@ -18,126 +18,126 @@ BattleAnimation_Sain_promoted_Disarmed_data2:
 BattleAnimation_Sain_promoted_Disarmed_Mode1:	@ Normal attack (Layered in front of the enemy)
 
 	Cmd 0x2 @ Start of dodge
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 375, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xE @ Start of dodging frames (should go after standing frame and before dodging animation)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
-	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_2 - BattleAnimation_Sain_promoted_data3, 3
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
+	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_377 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xD @ End of dodge animation (should have an 0x01 command before it and after a preceding 0x0E)
 	EndMode
 
 BattleAnimation_Sain_promoted_Disarmed_Mode2:	@ Normal attack (Layered behind the enemy)
 
 	Cmd 0x2 @ Start of dodge
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xE @ Start of dodging frames (should go after standing frame and before dodging animation)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
-	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_2 - BattleAnimation_Sain_promoted_data3, 3
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
+	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_377 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xD @ End of dodge animation (should have an 0x01 command before it and after a preceding 0x0E)
 	EndMode
 
 BattleAnimation_Sain_promoted_Disarmed_Mode3:	@ Critical attack (Layered in front of the enemy)
 
 	Cmd 0x2 @ Start of dodge
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xE @ Start of dodging frames (should go after standing frame and before dodging animation)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
-	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_2 - BattleAnimation_Sain_promoted_data3, 3
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
+	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_377 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xD @ End of dodge animation (should have an 0x01 command before it and after a preceding 0x0E)
 	EndMode
 
 BattleAnimation_Sain_promoted_Disarmed_Mode4:	@ Critical attack (Layered behind the enemy)
 
 	Cmd 0x2 @ Start of dodge
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xE @ Start of dodging frames (should go after standing frame and before dodging animation)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
-	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_2 - BattleAnimation_Sain_promoted_data3, 3
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
+	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_377 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xD @ End of dodge animation (should have an 0x01 command before it and after a preceding 0x0E)
 	EndMode
 
 BattleAnimation_Sain_promoted_Disarmed_Mode5:	@ Magic attack
 
 	Cmd 0x2 @ Start of dodge
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xE @ Start of dodging frames (should go after standing frame and before dodging animation)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
-	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_2 - BattleAnimation_Sain_promoted_data3, 3
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
+	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_377 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xD @ End of dodge animation (should have an 0x01 command before it and after a preceding 0x0E)
 	EndMode
 
 BattleAnimation_Sain_promoted_Disarmed_Mode6:	@ Critical magic attack
 
 	Cmd 0x2 @ Start of dodge
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xE @ Start of dodging frames (should go after standing frame and before dodging animation)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
-	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_2 - BattleAnimation_Sain_promoted_data3, 3
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
+	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_377 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xD @ End of dodge animation (should have an 0x01 command before it and after a preceding 0x0E)
 	EndMode
 
 BattleAnimation_Sain_promoted_Disarmed_Mode7:	@ Close range dodge
 
 	Cmd 0x2 @ Start of dodge
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xE @ Start of dodging frames (should go after standing frame and before dodging animation)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
-	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_2 - BattleAnimation_Sain_promoted_data3, 3
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
+	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_377 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xD @ End of dodge animation (should have an 0x01 command before it and after a preceding 0x0E)
 	EndMode
 
 BattleAnimation_Sain_promoted_Disarmed_Mode8:	@ Ranged dodge
 
 	Cmd 0x2 @ Start of dodge
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xE @ Start of dodging frames (should go after standing frame and before dodging animation)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
-	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_2 - BattleAnimation_Sain_promoted_data3, 3
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
+	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_377 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xD @ End of dodge animation (should have an 0x01 command before it and after a preceding 0x0E)
 	EndMode
 
 BattleAnimation_Sain_promoted_Disarmed_Mode9:	@ Standing animation
 
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
 	EndMode
 
 BattleAnimation_Sain_promoted_Disarmed_Mode10:	@ Standing animation 2
 
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
 	EndMode
 
 BattleAnimation_Sain_promoted_Disarmed_Mode11:	@ Ranged standing "animation"
 
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
 	EndMode
 
 BattleAnimation_Sain_promoted_Disarmed_Mode12:	@ Dodged attack
 
 	Cmd 0x2 @ Start of dodge
-	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_1, BattleAnimation_Sain_promoted_Disarmed_frame_R_0 - BattleAnimation_Sain_promoted_data3, 1
+	Show 0, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_375 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xE @ Start of dodging frames (should go after standing frame and before dodging animation)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
-	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_2 - BattleAnimation_Sain_promoted_data3, 3
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
+	Show 2, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_377 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
-	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_2, BattleAnimation_Sain_promoted_Disarmed_frame_R_1 - BattleAnimation_Sain_promoted_data3, 1
+	Show 1, BattleAnimation_Sain_promoted_Disarmed_sheet_125, BattleAnimation_Sain_promoted_Disarmed_frame_R_376 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0xD @ End of dodge animation (should have an 0x01 command before it and after a preceding 0x0E)
 	EndMode
 

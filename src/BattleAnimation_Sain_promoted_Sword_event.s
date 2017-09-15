@@ -23,12 +23,12 @@ BattleAnimation_Sain_promoted_Sword_Mode1:	@ Normal attack (Layered in front of 
 	Show 1, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_1 - BattleAnimation_Sain_promoted_data3, 10
 	Show 2, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_2 - BattleAnimation_Sain_promoted_data3, 6
 	Cmd 0x1D @ Play light horse stepping SFE; pitch increases
-	Show 3, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_3 - BattleAnimation_Sain_promoted_data3, 6
-	Cmd 0x22 @ Play short sword swinging SFE
-	Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 16
-	Show 5, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_5 - BattleAnimation_Sain_promoted_data3, 4
+	Show 3, BattleAnimation_Sain_promoted_Sword_sheet_2, BattleAnimation_Sain_promoted_Sword_frame_R_3 - BattleAnimation_Sain_promoted_data3, 6
+	@ Cmd 0x22 @ Play short sword swinging SFE
+	@ Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 16
+	@ Show 5, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_5 - BattleAnimation_Sain_promoted_data3, 4
 	Cmd 0x23 @ Play shorter sword swinging SFE
-	Show 6, BattleAnimation_Sain_promoted_Sword_sheet_2, BattleAnimation_Sain_promoted_Sword_frame_R_6 - BattleAnimation_Sain_promoted_data3, 3
+	Show 6, BattleAnimation_Sain_promoted_Sword_sheet_2, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x4 @ Prepare HP depletion routine; needed to animate return to standing frame after hit
 	Cmd 0x15 @ Slight vibration of screen
 	Cmd 0x21 @ Play hit SFE (sounds like Knight Lord with sword's hit)
@@ -123,9 +123,9 @@ BattleAnimation_Sain_promoted_Sword_Mode3:	@ Critical attack (Layered in front o
 	Show 1, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_1 - BattleAnimation_Sain_promoted_data3, 10
 	Show 2, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_2 - BattleAnimation_Sain_promoted_data3, 6
 	Cmd 0x1D @ Play light horse stepping SFE; pitch increases
-	Show 3, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_3 - BattleAnimation_Sain_promoted_data3, 6
+	Show 3, BattleAnimation_Sain_promoted_Sword_sheet_2, BattleAnimation_Sain_promoted_Sword_frame_R_3 - BattleAnimation_Sain_promoted_data3, 6
 	Cmd 0x22 @ Play short sword swinging SFE
-	Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 6
+	@ Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 6
 	Show 43, BattleAnimation_Sain_promoted_Sword_sheet_5, BattleAnimation_Sain_promoted_Sword_frame_R_43 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x38 @ Play heavy spear spinning SFE
 	Show 44, BattleAnimation_Sain_promoted_Sword_sheet_5, BattleAnimation_Sain_promoted_Sword_frame_R_44 - BattleAnimation_Sain_promoted_data3, 3
@@ -369,10 +369,10 @@ BattleAnimation_Sain_promoted_Sword_Mode5:	@ Magic attack
 	Show 1, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_1 - BattleAnimation_Sain_promoted_data3, 7
 	Show 2, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_2 - BattleAnimation_Sain_promoted_data3, 5
 	Cmd 0x1D @ Play light horse stepping SFE; pitch increases
-	Show 3, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_3 - BattleAnimation_Sain_promoted_data3, 5
+	Show 3, BattleAnimation_Sain_promoted_Sword_sheet_2, BattleAnimation_Sain_promoted_Sword_frame_R_3 - BattleAnimation_Sain_promoted_data3, 5
 	Cmd 0x5 @ Call spell associated with equipped weapon
 	Cmd 0x22 @ Play short sword swinging SFE
-	Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 1
+	@ Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
 	Show 28, BattleAnimation_Sain_promoted_Sword_sheet_4, BattleAnimation_Sain_promoted_Sword_frame_R_28 - BattleAnimation_Sain_promoted_data3, 6
 	Cmd 0x1C @ Play light horse stepping SFE; pitch decreases
@@ -390,17 +390,17 @@ BattleAnimation_Sain_promoted_Sword_Mode6:	@ Critical magic attack
 	Show 1, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_1 - BattleAnimation_Sain_promoted_data3, 7
 	Show 2, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_2 - BattleAnimation_Sain_promoted_data3, 5
 	Cmd 0x1D @ Play light horse stepping SFE; pitch increases
-	Show 3, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_3 - BattleAnimation_Sain_promoted_data3, 5
+	Show 3, BattleAnimation_Sain_promoted_Sword_sheet_2, BattleAnimation_Sain_promoted_Sword_frame_R_3 - BattleAnimation_Sain_promoted_data3, 5
 	Cmd 0x22 @ Play short sword swinging SFE
 	Show 60, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_60 - BattleAnimation_Sain_promoted_data3, 2
-	Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 1
+	@ Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 1
 	Show 60, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_60 - BattleAnimation_Sain_promoted_data3, 3
-	Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 1
+	@ Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 1
 	Show 60, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_60 - BattleAnimation_Sain_promoted_data3, 3
-	Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 1
+	@ Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0x5 @ Call spell associated with equipped weapon
 	Show 60, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_60 - BattleAnimation_Sain_promoted_data3, 1
-	Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 1
+	@ Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 1
 	Cmd 0x1 @ Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
 	Show 28, BattleAnimation_Sain_promoted_Sword_sheet_4, BattleAnimation_Sain_promoted_Sword_frame_R_28 - BattleAnimation_Sain_promoted_data3, 6
 	Cmd 0x1C @ Play light horse stepping SFE; pitch decreases
@@ -464,12 +464,12 @@ BattleAnimation_Sain_promoted_Sword_Mode12:	@ Dodged attack
 	Show 1, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_1 - BattleAnimation_Sain_promoted_data3, 10
 	Show 2, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_2 - BattleAnimation_Sain_promoted_data3, 6
 	Cmd 0x1D @ Play light horse stepping SFE; pitch increases
-	Show 3, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_3 - BattleAnimation_Sain_promoted_data3, 6
+	Show 3, BattleAnimation_Sain_promoted_Sword_sheet_2, BattleAnimation_Sain_promoted_Sword_frame_R_3 - BattleAnimation_Sain_promoted_data3, 6
 	Cmd 0x22 @ Play short sword swinging SFE
-	Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 14
-	Show 5, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_5 - BattleAnimation_Sain_promoted_data3, 3
+	@ Show 4, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 14
+	@ Show 5, BattleAnimation_Sain_promoted_Sword_sheet_1, BattleAnimation_Sain_promoted_Sword_frame_R_5 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x23 @ Play shorter sword swinging SFE
-	Show 6, BattleAnimation_Sain_promoted_Sword_sheet_2, BattleAnimation_Sain_promoted_Sword_frame_R_6 - BattleAnimation_Sain_promoted_data3, 3
+	Show 6, BattleAnimation_Sain_promoted_Sword_sheet_2, BattleAnimation_Sain_promoted_Sword_frame_R_4 - BattleAnimation_Sain_promoted_data3, 3
 	Cmd 0x4 @ Prepare HP depletion routine; needed to animate return to standing frame after hit
 	Cmd 0x15 @ Slight vibration of screen
 	Show 41, BattleAnimation_Sain_promoted_Sword_sheet_3, BattleAnimation_Sain_promoted_Sword_frame_R_41 - BattleAnimation_Sain_promoted_data3, 1
