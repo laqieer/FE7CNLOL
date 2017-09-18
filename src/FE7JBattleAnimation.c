@@ -68,6 +68,59 @@ const BattleAnimation * const battleAnimationBank[] =
 	FE7BattleAnimationBank
 };
 
+// 交换2个双字节
+void swap_u16(u16 *a,u16 *b)
+{
+	u16 c;
+	
+	c = *a;
+	*a = *b;
+	*b = c;
+}
+
+// 调色板动画
+// 输入参数:是精灵还是背景,调色板所在的槽的序号,调色板组地址,调色板组中包含的调色板数,间隔,持续时间
+// bool IsSpriteOrBG,int palSlot,u16 *paletteGroup,int paletteNum,int interval,int duration
+// 分别存储在userSpace[0],[4],[8],[12],[20],[24]
+// 静态局部变量: 当前使用的调色板在调色板组中的序号,存在userSpace[16];计时,存在[28]
+// 但是考虑到4字节对齐可以提高效率,故作如下调整(+3):
+// 3,7,11,15,19,23,27,31
+void paletteAnimation(struct context *ctx)
+{
+	*(int *)&ctx->userSpace[31] = *(int *)&ctx->userSpace[31] + 1;
+	if(*(int *)&ctx->userSpace[31] > *(int *)&ctx->userSpace[27])
+		breakLoop(ctx);
+	else
+		if(!FE7JMod(*(int *)&ctx->userSpace[31],*(int *)&ctx->userSpace[23]))
+		{
+			*(int *)&ctx->userSpace[19] += 1;
+			if(*(int *)&ctx->userSpace[19] > *(int *)&ctx->userSpace[15] - 1)
+				*(int *)&ctx->userSpace[19] = 0;
+			// DEBUG("Current palette index = %d",*(int *)&ctx->userSpace[19])
+			FE7JCPUFastSet(*(u16 **)&ctx->userSpace[11] + 0x10 * *(int *)&ctx->userSpace[19],BGPaletteBuffer + 0x100 * *(bool *)&ctx->userSpace[3] + 0x10 * *(int *)&ctx->userSpace[7],8);
+			EnablePaletteSync();
+		}
+}
+
+const struct coroutine efxPaletteAnimation[] = {
+	setLoopFuncAndYield(paletteAnimation),
+	endofCoroutine
+};
+
+// 输入参数:是精灵还是背景,调色板所在的槽的序号,调色板组地址,调色板组中包含的调色板数,间隔,持续时间
+void loadPaletteAnimation(bool isSpriteOrBG,int palSlot,u16 *paletteGroup,int paletteNum,int interval,int duration)
+{
+	struct context *ctx = createContext(efxPaletteAnimation,4);
+	*(bool *)&ctx->userSpace[3] = isSpriteOrBG;
+	*(int *)&ctx->userSpace[7] = palSlot;
+	*(u16 **)&ctx->userSpace[11] = paletteGroup;
+	*(int *)&ctx->userSpace[15] = paletteNum;
+	*(int *)&ctx->userSpace[23] = interval;
+	*(int *)&ctx->userSpace[27] = duration;
+	*(int *)&ctx->userSpace[19] = 1;	// 初始色板ID
+	*(int *)&ctx->userSpace[31] = 1;	// 计时器初值
+}
+
 // 水平翻转再加一定位移的冰块背景
 void loadFimbulvetrBGFlipH(void *AIS)
 {
@@ -158,15 +211,195 @@ void showFireHitEffect(void *AIS,bool ifCritical)
 	}
 }
 
+// 显示古代火龙的身体
+void showFireDragonBody(void *AIS)
+{
+	// int a = 0x1F001F;
+	// int v2 = -16;
+	// int v2 = 192;
+	// int v2 = 248;
+	// int v3 = 0;
+
+	BG2CNTBuffer = BG2CNTBuffer | 3;
+	BG3CNTBuffer = (BG3CNTBuffer >> 2 << 2) | 2;
+	// Text Mode 下这个标识位无效
+	// BG3CNTBuffer &= ~(1<<13);
+	FE7JLZ77UnCompVram(FireDragonImg, 0x6008000);
+	FE7JCPUFastSet(FireDragonPalGroup, BGPaletteBuffer+96, 8u);
+	EnableBGPaletteSync();
+	// FE7JLZ77UnCompWram(FireDragonBodyTSA, 0x2019784);
+	// FE7JLZ77UnCompWram(FireDragonBodyTSA, BG3MapBuffer);
+	// EnableBGMapSync(1<<3);
+	// FE7JCPUSet(&a, 0x2019F04, 0x5000020);
+	// sub(8050F94)(0x1F001F);
+    // memClear2K(BG3MapBuffer, 31);
+    // sub(8065388)();
+	// sub(8065328)(*(u32 *)0x201FB00, 0);
+	// sub(80673C8)(0x2019784, -1, 0x201D41C + 132 * (v3 >> 3) + 2 * (v2 >> 3), 66, 0x20u, 0x20u, 6, 0);
+	// sub(8067318)(2 * (v2 >> 3) + 0x201D45E + 132 * (v3 >> 3),66,BG3MapBuffer,32,0x20u,0x20u,-1,-1);
+	/*
+	if(isUnitAtRightOrLeft(AIS))
+	{
+		FE7JLZ77UnCompWram(FireDragonBodyTSA, BG3MapBuffer);
+		for(int i = 0; i < 0x800/4; i++)
+			*((u32 *)BG3MapBuffer + i) |= (6<<12) * 0x10001;
+	}
+	else
+	{
+		FE7JLZ77UnCompWram(FireDragonBodyTSA, 0x2019784);
+		for(int i = 0; i < 32; i++)
+			for(int j = 0; j < 32; j++)
+				((u16 **)BG3MapBuffer)[i][j] = ((u16 **)0x2019784)[i][31 - j] + (6<<12);
+	}
+	*/
+	FE7JLZ77UnCompWram(FireDragonBodyTSA, BG3MapBuffer);
+	for(int i = 0; i < 0x800/4; i++)
+	{
+		*((u32 *)BG3MapBuffer + i) |= (6<<12) * 0x10001;
+		if(!isUnitAtRightOrLeft(AIS))
+			*((u32 *)BG3MapBuffer + i) |= (1<<10) * 0x10001;
+	}
+	if(!isUnitAtRightOrLeft(AIS))
+	{
+		for(int i = 0; i < 32; i++)
+			for(int j = 0; j < 15; j++)
+				// swap(((u16 **)BG3MapBuffer)[i][j],((u16 **)BG3MapBuffer)[i][31-j]);
+				// swap_u16(((u16 **)BG3MapBuffer+32*i)+j,((u16 **)BG3MapBuffer+32*i)+31-j);
+				swap_u16((u16 *)BG3MapBuffer+32*i+j,(u16 *)BG3MapBuffer+32*i+31-j);
+	}
+	SetBGMapSyncFlag(8u);
+	// setBGnPosition(3,16,0);
+}
+
+// 火龙抬头
+void FireDragonRaiseHead(void *AIS)
+{
+	FE7JLZ77UnCompWram(FireDragonBodyUPTSA, BG3MapBuffer);
+	for(int i = 0; i < 0x800/4; i++)
+	{
+		*((u32 *)BG3MapBuffer + i) |= (6<<12) * 0x10001;
+		if(!isUnitAtRightOrLeft(AIS))
+			*((u32 *)BG3MapBuffer + i) |= (1<<10) * 0x10001;
+	}
+	if(!isUnitAtRightOrLeft(AIS))
+	{
+		for(int i = 0; i < 32; i++)
+			for(int j = 0; j < 15; j++)
+				// swap(((u16 **)BG3MapBuffer)[i][j],((u16 **)BG3MapBuffer)[i][31-j]);
+				// swap_u16(((u16 **)BG3MapBuffer+32*i)+j,((u16 **)BG3MapBuffer+32*i)+31-j);
+				swap_u16((u16 *)BG3MapBuffer+32*i+j,(u16 *)BG3MapBuffer+32*i+31-j);
+	}
+	SetBGMapSyncFlag(8u);
+}
+
+// 火龙低头
+void FireDragonBowHead(void *AIS)
+{
+	FE7JLZ77UnCompWram(FireDragonBodyTSA, BG3MapBuffer);
+	for(int i = 0; i < 0x800/4; i++)
+	{
+		*((u32 *)BG3MapBuffer + i) |= (6<<12) * 0x10001;
+		if(!isUnitAtRightOrLeft(AIS))
+			*((u32 *)BG3MapBuffer + i) |= (1<<10) * 0x10001;
+	}
+	if(!isUnitAtRightOrLeft(AIS))
+	{
+		for(int i = 0; i < 32; i++)
+			for(int j = 0; j < 15; j++)
+				// swap(((u16 **)BG3MapBuffer)[i][j],((u16 **)BG3MapBuffer)[i][31-j]);
+				// swap_u16(((u16 **)BG3MapBuffer+32*i)+j,((u16 **)BG3MapBuffer+32*i)+31-j);
+				swap_u16((u16 *)BG3MapBuffer+32*i+j,(u16 *)BG3MapBuffer+32*i+31-j);
+	}
+	SetBGMapSyncFlag(8u);
+}
+
+// 超出范围会有bug,废弃
+/*
+// 对BG3移屏(配合魔法动画)
+void ScrollBG3(void *AIS)
+{
+	// Text Mode 下这个标识位无效
+	// BG3CNTBuffer &= ~(1<<13);
+	if(isUnitAtRightOrLeft(AIS))
+		// setBGnPosition(3,-16,0);
+		setBGnPosition(3,240,0);
+	else
+		setBGnPosition(3,0,0);
+}
+
+// 复位BG3(魔法结束)
+void ScrollBG3Back(void *AIS)
+{
+	// Text Mode 下这个标识位无效
+	// BG3CNTBuffer &= ~(1<<13);
+	if(isUnitAtRightOrLeft(AIS))
+		setBGnPosition(3,0,0);
+	else
+		setBGnPosition(3,-16,0);
+}
+*/
+
+void ScrollBG3(void *AIS)
+{
+	if(isUnitAtRightOrLeft(AIS))
+	{
+		for(int i = 0; i < 32; i++)
+			for(int j = 31; j > 1; j--)
+				((u16 *)BG3MapBuffer)[32*i+j] = ((u16 *)BG3MapBuffer)[32*i+j-2];
+	}
+	else
+	{
+		for(int i = 0; i < 32; i++)
+			for(int j = 0; j < 30; j++)
+				((u16 *)BG3MapBuffer)[32*i+j] = ((u16 *)BG3MapBuffer)[32*i+j+2];
+	}
+	SetBGMapSyncFlag(1<<3);
+}
+
+// 开始火龙背景调色板动画效果(翼变色)
+/*
+void startFireDragonBGPaletteAnimation()
+{
+	// loadFireDragonBGPaletteAnimation(AIS);
+	struct context *ctx = createContext(efxPaletteAnimation,4);
+	*(bool *)&ctx->userSpace[3] = 0; // IsSpriteOrBG
+	*(int *)&ctx->userSpace[7] = 6;	// palSlot
+	*(u16 **)&ctx->userSpace[11] = FireDragonPalGroup;	// paletteGroup
+	*(int *)&ctx->userSpace[15] = 7;	// paletteNum
+	*(int *)&ctx->userSpace[19] = 0;	// 初始色板ID
+	// DEBUG("0x%x,%d,%d,0x%x,%d,%d",ctx,*(bool *)&ctx->userSpace[3],*(int *)&ctx->userSpace[7],*(u16 **)&ctx->userSpace[11],*(int *)&ctx->userSpace[15],*(int *)&ctx->userSpace[19])
+}
+*/
+
+void startFireDragonBGPaletteAnimation()
+{
+	loadPaletteAnimation(0,6,FireDragonPalGroup,4,5,65535);
+}
+
+// 终止调色板动画效果
+void endBGPaletteAnimation()
+{
+	// isolateAndDeleteContext(findContext(efxFireDragonBGPaletteAnimation));
+	isolateAndDeleteContext(findContext(efxPaletteAnimation));
+	// DEBUG("endBGPaletteAnimation")
+}
+
 // 附加外挂动画函数指针表
 const PTRFUN ExtraAnimation[] = {
-	loadMagfcast,
+	loadMagfcast,						// EFX 0
 //	loadFimbulvetrBG
-	loadFimbulvetrBGFlipH,
-	showIcePiecesEffect,
-	showColdWind,
-	showIceCrystal,
-	showFireHitEffect
+	loadFimbulvetrBGFlipH,				// EFX 1
+	showIcePiecesEffect,				// EFX 2
+	showColdWind,						// EFX 3
+	showIceCrystal,						// EFX 4
+	showFireHitEffect,					// EFX 5
+	showFireDragonBody,					// EFX 6
+	FireDragonRaiseHead,				// EFX 7
+	FireDragonBowHead,					// EFX 8
+	ScrollBG3,							// EFX 9
+//	ScrollBG3Back
+	startFireDragonBGPaletteAnimation,	// EFX 10
+	endBGPaletteAnimation		// EFX 11
 };
 
 // 普莉希拉上层色板
@@ -288,7 +521,7 @@ void battleAnimationInit()
 	sprintf(szBuffer,"The sum of %d and %d is %d", 5, 3, 5+3);
 	_print(szBuffer);
 	*/
-	DEBUG("animation = 0x%x", animation)
+//	DEBUG("animation = 0x%x", animation)
 //	_pause();
 
     *(u32 *)0x20099B8 = 1;	// 在OAM信息缓存(大小0x5800字节)的最后一行加01000000 00000000 00000000 00000000(标识一个Frame的结束?)

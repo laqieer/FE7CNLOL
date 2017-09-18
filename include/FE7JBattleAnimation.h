@@ -197,3 +197,20 @@ extern const int loc_80065EC_EX;
 // 声音播放扩展
 extern const int loc_806829C_EX;
 
+// 古代火龙图片相关
+#define	FireDragonImg	0x82E445C	// 火龙背景图块
+#define FireDragonPalGroup	0x82E6C60	// 火龙图块调色板组(翼有变色的调色板动画)
+#define	FireDragonTailTSA	0x82E6D40	// 火龙尾部TSA
+#define	FireDragonBodyTSA	0x82E6E8C	// 火龙身体部分的TSA(低头)
+#define	FireDragonBodyUPTSA	0x82E7170	// 火龙身体部分的TSA(抬头)
+#define	FireDragonBodyUPNoWingTSA	0x82E7418	// 火龙身体部分的TSA(抬头)(无翼)
+#define	FireDragonBattleAnimationSheet1	0x82E76A4	// 火龙战斗动画sheet1
+#define FireDragonBattleAnimationSheet2	0x82E8584	// 火龙战斗动画sheet2
+#define	DyingDragonHeadImg	0x82E9240	// 火龙死时龙头下落的图块
+#define	FireDragonSpriteAnimationPalGroup	0x82E9CD8	// 火龙精灵动画调色板组
+// 火龙色板动画相关
+#define	loadFireDragonBGPaletteAnimation	sub(80657D4)
+// struct context *loadFireDragonBGPaletteAnimation(void *AIS);
+#define	efxFireDragonBGPaletteAnimation		((struct coroutine *)0x8C4879C)
+#define	FireDragonBGPaletteAnimation		sub(8066118)
+// void FireDragonBGPaletteAnimation(struct context *ctx)

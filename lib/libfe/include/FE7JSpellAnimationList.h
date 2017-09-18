@@ -73,5 +73,6 @@ enum {
 	NaglfarSpell,
 	ArouSpell,
 	IceWorldSpell,
-	BloodMoonSpell
+	BloodMoonSpell,
+	FireSeaSpell
 };
