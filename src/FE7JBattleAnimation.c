@@ -484,13 +484,15 @@ void battleAnimationInit()
 	//	FE7JCPUFastSet(&PriscillaAnimationTest_PalA, &OBJPaletteBuffer[128], 8u);
 	if(characterBattlePaletteID != -1)
 	{
-		if(characterBattleSecondPalTable[characterBattlePaletteID])
-			FE7JCPUFastSet(characterBattleSecondPalTable[characterBattlePaletteID], &OBJPaletteBuffer[128], 8);
+		if(characterBattlePaletteID < sizeof(characterBattleSecondPalTable)/sizeof(characterBattleSecondPalTable[0]))
+			if(characterBattleSecondPalTable[characterBattlePaletteID])
+				FE7JCPUFastSet(characterBattleSecondPalTable[characterBattlePaletteID], &OBJPaletteBuffer[128], 8);
 	}
 	else
 	{
-		if(battleAnimationSecondPalTable[animationID])
-			FE7JCPUFastSet(battleAnimationSecondPalTable[animationID] + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[128], 8);
+		if(animationID < sizeof(battleAnimationSecondPalTable)/sizeof(battleAnimationSecondPalTable[0]))
+			if(battleAnimationSecondPalTable[animationID])
+				FE7JCPUFastSet(battleAnimationSecondPalTable[animationID] + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[128], 8);
 	}
 	
     EnablePaletteSync();
@@ -603,13 +605,15 @@ void battleAnimationInit()
 	//	FE7JCPUFastSet(&PriscillaAnimationTest_PalA, &OBJPaletteBuffer[160], 8u);
 	if(characterBattlePaletteID != -1)
 	{
-		if(characterBattleSecondPalTable[characterBattlePaletteID])
-			FE7JCPUFastSet(characterBattleSecondPalTable[characterBattlePaletteID], &OBJPaletteBuffer[160], 8);
+		if(characterBattlePaletteID < sizeof(characterBattleSecondPalTable)/sizeof(characterBattleSecondPalTable[0]))
+			if(characterBattleSecondPalTable[characterBattlePaletteID])
+				FE7JCPUFastSet(characterBattleSecondPalTable[characterBattlePaletteID], &OBJPaletteBuffer[160], 8);
 	}
 	else
 	{
-		if(battleAnimationSecondPalTable[animationID])
-			FE7JCPUFastSet(battleAnimationSecondPalTable[animationID] + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[160], 8);
+		if(animationID < sizeof(battleAnimationSecondPalTable)/sizeof(battleAnimationSecondPalTable[0]))
+			if(battleAnimationSecondPalTable[animationID])
+				FE7JCPUFastSet(battleAnimationSecondPalTable[animationID] + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[160], 8);
 	}
 	
     EnablePaletteSync();
