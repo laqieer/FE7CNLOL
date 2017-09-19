@@ -92,10 +92,10 @@ SECTIONS
 	.PriscillaTestPalNo : {*.o(.PriscillaTestPalNo)}
 /*	. = 0x81BD514;
 	.FireRingPaletteTColor : {*.o(.FireRingPaletteTColor)}	*/
-	. = 0x8E00008 + 0x20 * (3 - 1);
+/*	. = 0x8E00008 + 0x20 * (3 - 1);
 	.FireDragonTestAnimation : {*.o(.FireDragonTestAnimation)}
 	. = 0x8C4C17C;
-	.DisableEliwoodPromotedPalette : {*.O(.DisableEliwoodPromotedPalette)}
+	.DisableEliwoodPromotedPalette : {*.O(.DisableEliwoodPromotedPalette)}	*/
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}
