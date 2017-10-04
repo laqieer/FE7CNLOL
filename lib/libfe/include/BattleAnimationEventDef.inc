@@ -123,3 +123,27 @@ ShowFrame \frames, \No, \sheet, \frameSection
 .macro	EndOAMInfo
 .word	-1,-1,-1
 .endm
+
+@ 扩展
+
+@ 0x87指令组
+.macro	CmdEx subCmd=0
+.byte	\subCmd, 0, 0, 0x87
+.endm
+
+@ 设置精灵调色板(0x88/0x89)
+.macro	SetPal palAddr
+.word	\palAddr + 0x80000000
+.endm
+
+@ 显示BG(0x8A)
+@ 参数: n=0-3,要使用的BG层;No: 背景编号(结构体数组索引,记录图片数据,调色板和TSA的地址)
+.macro	ShowBG n=1, No=0
+.hword	No
+.byte	n, 0x8A
+.endm
+
+@ 清BG
+.macro	clearBG n=1
+ShowBG \n,0
+.endm

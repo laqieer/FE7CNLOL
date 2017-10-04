@@ -32,6 +32,50 @@ typedef	struct {
 	void *palGroup;			// 第五个指针指向调色板组
 } BattleAnimation;
 
+// 动画运行结构体定义
+typedef struct ais {
+	u16 state;	// 当前运行状态
+				// AND 0x02: True when cape flowing? Acts as though AND 0x01 is false?
+				// AND 0x01: True to display sprites/continue animation
+	s16 XOffset;	// X offset based on screen scroll
+	s16 YOffset;	// unknown
+	u16 delayCountdown;	// 延迟倒计时
+	u16 OBJAttr2Base;	// 精灵OAM属性2基值
+						// Halfword of basis for part 2 of 0-2 of OAM data (which selects which tile is the top left corner)
+						// 0x9B00 for right unit (name = 0x300; tile 768 where the sheet is loaded to)
+	u16 unk_A;
+	u16 unk_C;
+	u16 unk_E;
+	u16 unk_10;
+	u8 unk_12;
+	u8 frameID;	// 帧ID
+	/*
+	u8 unk_14;
+	u8 C85ID;	// ID of 0x85 command being executed
+	u16 unk_16;
+	u32 unk_18;
+	u32 unk_1C;
+	*/
+	// C85指令ID存储的偏移(通常是0)
+	u8 C85IDBufferIndex;
+	// C85指令的ID(最低一个字节)可以被存储到接下来一片连续的缓冲区中(具体缓存在哪由C85IDBufferIndex决定)(通常只是存储在第一个位置)
+	u8 C85IDBuffer[11];
+	u32 *nextCmd;	// Frame pointer
+					// 当前执行到的位置(指向下一条指令)
+	u32	*lastCmd;		// Pointer to last 0x86 command?
+	void *sheet;	// ROM中的sheet数据(可压缩)
+	void *sheetBuffer;	// RAM中的sheet数据(无压缩)
+	void *OAMInfoBuffer;	// OAM start pointer
+	// 不能在定义typedef类型之前使用它
+//	AnimationInterpreter *parent;	// Parent AIS (drawn before this one)
+//	AnimationInterpreter *child;	// Child AIS (drawn after this one)
+	struct ais *parent;	// Parent AIS (drawn before this one)
+	struct ais *child;	// Child AIS (drawn after this one)
+	void *currentOAMInfo;	// OAM pointer
+	u32 unk_40;
+	u32 unk_44;
+} AnimationInterpreter;
+
 // 人物个别战斗动画调色板列表
 #define	characterBattlePalTable	((CharacterBattlePal *)0x8FD8008)
 
@@ -42,6 +86,22 @@ typedef struct {
 } CharacterBattlePal;
 
 // 战斗动画相关全局变量
+
+// AIS指针表(4个元素的数组)
+#define	AISTable							((AnimationInterpreter **)0x2000000)
+// 分别是:
+// 左边战斗动画AIS
+// #define	BattleAISLeftSide					(AISTable[0])
+// 暂不清楚这个的用途
+// spell data struct for left unit?
+// #define BattleAIS2LeftSide					(AISTable[1])
+// 右边战斗动画AIS
+// #define	BattleAISRightSide					(AISTable[2])
+// #define	BattleAIS2RightSide					(AISTable[3])
+// AIS池(最多容纳50个AIS)起始地址
+#define	AISBank		((AnimationInterpreter *)0x2028E6C)
+// AIS树根节点
+#define	RootAIS		((AnimationInterpreter **)0x2029C7C)
 
 // 战斗动画位于左侧
 #define	IfBattleAnimationIsAtTheLeftSide	(*(u16 *)0x203DFE8)
@@ -79,6 +139,10 @@ typedef struct {
 #define	BattleAnimationOAML2RBuffer					((void *)0x20041C8)
 // 右侧动画OAM信息缓存
 #define	BattleAnimationOAMR2LBuffer					((void *)0x20099C8)
+// 右侧动画sheet缓存
+#define	BattleAnimationSheetBufferRightSide			((void *)0x2002088)
+// 左侧动画sheet缓存
+#define	BattleAnimationSheetBufferLeftSide			((void *)0x2000088)
 // 左侧武器的魔法动画ID
 #define	SpellAnimationIDLeftSide					(*(u16 *)0x203DFFC)
 // 右侧武器的魔法动画ID
@@ -116,6 +180,28 @@ void UnitKakudai1Ex(struct context *ctx);
 // 原来的战斗动画事件处理程序
 // void battleAnimationEventHandler();
 #define	battleAnimationEventHandler	sub(8053C3C)
+
+// 对所有的AIS执行
+// void ForAllAIS();
+#define	ForAllAIS	sub(8006488)
+
+// 处理所有的动画脚本
+// void battleAnimationScriptProc();
+// #define	battleAnimationScriptProc	sub(8006320)
+
+// 处理单个动画脚本
+// signed int BattleAnimationScriptHandler(AnimationInterpreter *AIS);
+// #define	BattleAnimationScriptHandler	sub(8006518)
+
+// 处理动画0x85指令事件
+// void battleAnimationEventHandler();
+// #define	battleAnimationEventHandler		sub(8053C3C)
+
+// 处理动画0x86指令载入的OAM属性
+// void battleAnimationOAMInfoHandler(void *battleAnimationOAMInfoBuffer, int a2, unsigned __int16 a3, int a4);
+#define	battleAnimationOAMInfoHandler	sub(8067C30)
+// void BattleAnimationOAMInfoHandler2(AnimationInterpreter *AIS);
+#define	BattleAnimationOAMInfoHandler2	sub(80066E0)
 
 /*
 // 定义变量的别名
@@ -214,3 +300,11 @@ extern const int loc_806829C_EX;
 #define	efxFireDragonBGPaletteAnimation		((struct coroutine *)0x8C4879C)
 #define	FireDragonBGPaletteAnimation		sub(8066118)
 // void FireDragonBGPaletteAnimation(struct context *ctx)
+
+// BG图片
+typedef struct {
+	void *img;
+	void *pal;
+	void *tsa;
+} BGImage;
+

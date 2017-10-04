@@ -22,6 +22,8 @@
 #define BG1CNTBuffer	*(u16 *)0x30027A0
 #define BG2CNTBuffer	*(u16 *)0x30027A4
 #define BG3CNTBuffer	*(u16 *)0x30027A8
+#define BGCNTBufferArray	((u16 *)0x300279C)
+#define	BGnCNTBuffer(n)	BGCNTBufferArray[2*(n)]
 #define BG0HOFSBuffer	*(u16 *)0x30027AC
 #define BG0VOFSBuffer	*(u16 *)0x30027AE
 #define BG1HOFSBuffer	*(u16 *)0x30027B0
@@ -63,6 +65,8 @@
 #define BG1MapBaseAddr	*(u32 *)0x2024C64
 #define BG2MapBaseAddr	*(u32 *)0x2024C68
 #define BG3MapBaseAddr	*(u32 *)0x2024C6C
+#define	BGnMapBaseAddrArray	((void **)0x2024C60)
+#define	BGnMapBaseAddr(n)	BGnMapBaseAddrArray[n]
 #define BG0Map			(*(u16 (*)[32][32])(BG0MapBaseAddr))
 #define BG1Map			(*(u16 (*)[32][32])(BG1MapBaseAddr))
 #define BG2Map			(*(u16 (*)[32][32])(BG2MapBaseAddr))
@@ -71,6 +75,7 @@
 #define BG1MapBuffer	(u16 (*)[32][32])0x2023460
 #define BG2MapBuffer	(u16 (*)[32][32])0x2023C60
 #define BG3MapBuffer	(u16 (*)[32][32])0x2024460
+#define	BGnMapBuffer(n)	((u16 *)(0x2022C60 + 0x800 * (n)))
 // 控制标识，决定VBlank期间是否需要同步BG调色板
 #define BGPaletteBufferSyncFlag		*(u8 *)0x300000D
 #define BGPaletteBufferSyncEnable	1

@@ -136,6 +136,10 @@
 // 其实这个函数同时是负责所有调色板的，故追加
 #define	EnablePaletteSync	sub(8001034)
 
+// 关闭调色板同步
+// void DisablePaletteSync();
+#define	DisablePaletteSync	sub(8001048)
+
 // 写入调色板缓冲
 #define OutputToBGPaletteBuffer	sub(800105C)
 // void OutputToBGPaletteBuffer(void *src, signed int paletteOffset, signed int len);

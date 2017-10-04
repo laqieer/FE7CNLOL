@@ -96,6 +96,8 @@ SECTIONS
 	.FireDragonTestAnimation : {*.o(.FireDragonTestAnimation)}
 	. = 0x8C4C17C;
 	.DisableEliwoodPromotedPalette : {*.O(.DisableEliwoodPromotedPalette)}	*/
+	. = 0x8006518;
+	.callBattleAnimationScriptHandler : {*.o(.callBattleAnimationScriptHandler)}
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}

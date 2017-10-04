@@ -10,6 +10,11 @@
 
 #include "agbDebug.h"
 
+// 0x8A载入BG图片库
+const BGImage C8ABGBank[] = {
+	0
+};
+
 // 普莉希拉上层色板
 const u16 PriscillaAnimationTest_PalA[] = {
 	0x5355, 0x4106, 0x7733, 0x51C3, 0x7FFA, 0x2F01, 0x1140, 0x474D,
@@ -418,6 +423,17 @@ const PTRFUN ExtraAnimation[] = {
 	endBGPaletteAnimation		// EFX 11
 };
 
+// C87扩展事件处理函数模板
+void C87DoNothing(AnimationInterpreter *AIS)
+{
+
+}
+
+// C87扩展动画指令函数表
+const PTRFUN BattleAnimationEventEX[] = {
+	C87DoNothing
+};
+
 // 读取战斗动画相关数据到内存
 void battleAnimationInit()
 {
@@ -808,6 +824,302 @@ void UnitKakudai1Ex(struct context *ctx)
   else
     *(u16 *)&ctx->userSpace[15] = *(*(u16 **)0x81DE218 + *(u16 *)0x203E004) + v8;
   breakLoop(ctx);
+}
+
+/*
+// 处理所有动画脚本
+void battleAnimationScriptProc()
+{
+	signed int flag; // r5@1
+	AnimationInterpreter *AIS; // r4@2
+	u16 currentState; // r1@4
+	int delayCount; // r1@6
+
+	flag = 0;
+	if ( RootAIS )
+	{
+		for ( AIS = (AnimationInterpreter *)RootAIS; ; AIS = AIS->child )
+		{
+			currentState = AIS->state;
+			if ( AIS->state )
+			{
+				if ( currentState & 8 )
+					goto label_8;
+				delayCount = AIS->delayCountdown;
+				if ( !AIS->delayCountdown || (AIS->delayCountdown = delayCount - 1, !((delayCount - 1) << 16)) )
+				{
+					do
+					{
+						if ( BattleAnimationScriptHandler(AIS) == 1 )
+							flag = 1;
+					}
+					while ( !AIS->delayCountdown );
+				}
+				currentState = AIS->state;
+				if ( AIS->state )
+				{
+label_8:
+					if ( !(currentState & 2) )
+						BattleAnimationOAMInfoHandler2(AIS);
+					if ( !AIS->child )
+						break;
+				}
+			}
+		}
+		if ( flag == 1 )
+			ForAllAIS();
+	}
+}
+*/
+
+/*	动画脚本事件指令解析:
+	4字节为一个单位,bit31-0
+	(1) bit31 = 1
+		①	bit30 = 0
+			bit29-24 : 指令分类号CmdType
+			(a) CmdType = 0	[0x80000000]
+			结束当前动画模式的事件序列(用作模式之间的分隔符)
+			(b) CmdType = 1	[0x81000000]
+			暂停动画?
+			(c) CmdType = 2	[0x82000000]
+			移动当前处理指针到上个位置?
+			(d) CmdType = 3	[0x8300YYXX]
+			偏移屏幕
+			bit7-0 : 横向(水平)偏移 [XX]
+			bit15-8 : 纵向(垂直)偏移 [YY]
+			(e) CmdType = 4	[0x8400XXXX]
+			设置延迟帧数
+			bit15-0 : 延迟帧数 [XXXX]
+			(f) CmdType = 5	[0x850000XX]
+			触发各种事件
+			bit7-0 : 事件号 [XX] (会先被缓存在一个buffer里,以便之后在battleAnimationEventHandler里继续进一步处理)
+			根据事件号区分是否需要停滞处理
+			会停滞当前解析进程的事件有:
+				0x18 Use this instead of 0x02 to dodge toward the foreground instead of toward the background
+				0x39 Pauses the attacker, makes them flash white and makes the screen flash white
+					Essentially makes it look as though the attacker was hit, but without blue sparks
+				0x2D ? (Assassin critical) (Lethality activator that is dependent on other commands?)
+				0x52 See command 0x2D
+				0x13 ? (ranged attack - hand axe for Hector)
+				0x01 Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)
+					(should be used even in missed attack) (should end standing animations)
+				0x02 Start of dodge
+				0x03 Start attack animation; should be followed by 0x07; should head "dodged attack"
+					(melee that will miss)
+				0x04 Prepare HP depletion routine; needed to animate return to standing frame after hit
+				0x05 Call spell associated with equipped weapon
+			(g) CmdType = 6	[0x86XXYYYY,&sheet,section offset]
+			显示精灵组
+			bit23-16 : 帧编号 [XX]
+			bit15-0 : 显示帧数 [YYYY]
+			下一个4字节是指向sheet的指针
+			再下一个4字节是要显示的精灵组的OAM信息在data3/4中的偏移地址
+			(h) CmdType = 7	[0x870000XX] (扩展)
+			执行函数指针表数组中的某一个函数(扩展事件)
+			bit7-0 : 事件号 [XX]
+			(i) CmdType = 8/9 [0x8XXXXXXX] (扩展)
+			更换精灵色板
+			bit27-0 : 色板地址 [XXXXXXX]
+			(j) CmdType = 0xA [0x8ANNXXXX] (扩展)
+			载入BG图片
+			bit23-16 : BGn (0-3) [NN]
+			bit15-0 : 图片序号 [XXXX] 用一个结构体数组存储每张图的图片数据,调色板和TSA
+		②	bit30 = 1
+			(a) bit29 = 0
+				(i) bit28 = 0 [0xC000000000 + function pointer]
+				调用外部函数(第一个参数是AIS指针，第二个参数是0?(不存在这个参数?))
+				bit27-0: 函数指针
+				(ii) bit28 = 1 [0xD0000000 + &Cmd]
+				置指向当前位置和上个位置的指针
+				bit27-0: 指向指令的指针
+			(b) bit29 = 1
+	(2) bit31 = 0
+		置当前OAM信息指针且设置延迟帧数
+		bit27-2 : 指向OAMInfo的指针(最低两位为0，即4字节对齐)
+		bit30-28,1-0 : 延迟帧数(3位+2位构成总共5位)
+
+*/
+
+// 处理单个动画脚本
+int BattleAnimationScriptHandler(AnimationInterpreter *AIS)
+{
+	bool flag; // r4@1
+	u32 *pCmd; // r0@1
+	unsigned int Cmd; // r3@1
+	int v5; // r1@4
+	unsigned int CmdType; // r1@9
+	__int16 v7; // r0@11
+	signed __int16 v8; // r1@11
+	u32 *pSheet; // r0@28
+	void *sheet; // r1@28
+	u32 frameSection; // r1@28
+	int v12; // r0@2
+	int n;
+
+	flag = 0;
+	pCmd = AIS->nextCmd;
+	Cmd = *pCmd;
+	AIS->nextCmd = pCmd + 1;
+	if ( (Cmd & 0x80000000) != 0 )
+	{
+		if ( !(Cmd & 0x40000000) )
+		{
+			CmdType = (Cmd >> 24) & 0x3F;
+			// if ( CmdType > 6 )
+			if ( CmdType > 0xA )
+				return flag;
+			switch ( CmdType )
+			{
+				case 0u:
+					--AIS->nextCmd;
+					AIS->delayCountdown = 1;
+					v7 = AIS->unk_C & 0xFFF;
+					v8 = 0x4000;
+					goto LABEL_29;
+				case 1u:
+					AIS->state = 0;
+					AIS->delayCountdown = 1;
+					return 1;
+				case 2u:
+					AIS->nextCmd = AIS->lastCmd;
+					LOWORD(v12) = 1;
+					goto LABEL_30;
+				case 4u:
+					AIS->delayCountdown = Cmd;
+					return flag;
+				case 3u:
+					AIS->XOffset += (char)Cmd;
+					AIS->YOffset += (signed int)(Cmd << 16) >> 24;
+					v12 = (Cmd >> 16) & 0xFF;
+					goto LABEL_30;
+				case 5u:
+					AIS->unk_C = AIS->unk_C & 0xFFF | 0x1000;
+					AIS->C85IDBuffer[AIS->C85IDBufferIndex++] = Cmd;
+					AIS->delayCountdown = 1;
+					if ( (unsigned __int8)Cmd == 0x18 )
+						goto LABEL_27;
+					if ( (unsigned __int8)Cmd > 0x18u )
+					{
+						if ( (unsigned __int8)Cmd != 0x39 )
+						{
+							if ( (unsigned __int8)Cmd > 0x39u )
+							{
+								if ( (unsigned __int8)Cmd != 0x52 )
+									return flag;
+							}
+							else if ( (unsigned __int8)Cmd != 0x2D )
+							{
+								return flag;
+							}
+						}
+					}
+					else if ( (unsigned __int8)Cmd < 1u || (unsigned __int8)Cmd > 5u && (unsigned __int8)Cmd != 0x13 )
+					{
+						return flag;
+					}
+LABEL_27:
+					--AIS->nextCmd;
+					return flag;
+				case 6u:
+					AIS->delayCountdown = Cmd;
+					AIS->frameID = Cmd >> 16;
+					pSheet = AIS->nextCmd;
+					sheet = (void *)*pSheet;
+					++pSheet;
+					AIS->sheet = sheet;
+					AIS->nextCmd = pSheet;
+					frameSection = *pSheet;
+					AIS->nextCmd = pSheet + 1;
+					AIS->currentOAMInfo = (char *)AIS->OAMInfoBuffer + frameSection;
+					v7 = AIS->unk_C & 0xFFF;
+					v8 = 0x2000;
+LABEL_29:
+					AIS->unk_C = v7 | v8;
+					return flag;
+				case 7u:
+					BattleAnimationEventEX[Cmd&0xFF](AIS);
+					return flag;
+				case 8u:
+				case 9u:
+					if(isUnitAtRightOrLeft(AIS))
+						FE7JCPUFastSet(Cmd&0x9FFFFFC,&OBJPaletteBuffer[112],16);
+					else
+						FE7JCPUFastSet(Cmd&0x9FFFFFC,&OBJPaletteBuffer[144],16);					
+					return flag;
+				case 0xA:
+					n = (Cmd>>16)&0xFF;
+					// Set Character Base Block
+					BGnCNTBuffer(n) = BGnCNTBuffer(n) & (~(3<<2)) | (2<<2);
+					if(Cmd&0xFFFF == 0)
+						{
+							// 清第一个tile的图像数据
+							int zero = 0;
+							FE7JCPUFastSet(&zero,0x6008000,(1<<24)|((8*8/2)/4));
+							// 清整张map
+							// Set BG Map Buffer
+							memClear2K(BGnMapBuffer(n),0);
+							// Enable Buffer Sync
+							EnableBGMapSync(n);
+						}
+					else
+						{
+							BGImage image = C8ABGBank[Cmd&0xFFFF];
+							// 图像,色板,TSA都压缩
+							FE7JLZ77UnCompVram(image.img, 0x6008000);
+							FE7JLZ77UnCompWram(image.pal, &BGPaletteBuffer[16*6]);
+							EnableBGPaletteSync();
+							FE7JLZ77UnCompWram(image.tsa, BGnMapBuffer(n));
+							for(int i = 0; i < 0x800/4; i++)
+							{
+								*((u32 *)BGnMapBuffer(n) + i) |= (6<<12) * 0x10001;
+								if(!isUnitAtRightOrLeft(AIS))
+									*((u32 *)BGnMapBuffer(n) + i) |= (1<<10) * 0x10001;
+							}
+							if(!isUnitAtRightOrLeft(AIS))
+							{
+								for(int i = 0; i < 32; i++)
+									for(int j = 0; j < 15; j++)
+										// swap(((u16 **)BG3MapBuffer)[i][j],((u16 **)BG3MapBuffer)[i][31-j]);
+										// swap_u16(((u16 **)BG3MapBuffer+32*i)+j,((u16 **)BG3MapBuffer+32*i)+31-j);
+										swap_u16(BGnMapBuffer(n)+32*i+j,BGnMapBuffer(n)+32*i+31-j);
+							}
+							EnableBGMapSync(n);
+						}
+					return flag;
+				default:
+					return flag;
+			}
+		}
+		v5 = (Cmd >> 28) & 3;
+		if ( v5 )
+		{
+			if ( v5 == 1 )
+			{
+				AIS->lastCmd = (u32 *)(Cmd & 0xFFFFFFF);
+				AIS->nextCmd = (u32 *)(Cmd & 0xFFFFFFF);
+				AIS->delayCountdown = 1;
+			}
+		}
+		else
+		{
+		//	call_via_r3((int)AIS, 0, (int)AIS, (int (*)(void))(Cmd & 0xFFFFFFF));
+			((void (*)(AnimationInterpreter *))(Cmd & 0xFFFFFFF))(AIS);
+		}
+	}
+	else
+	{
+		AIS->currentOAMInfo = (void *)(Cmd & 0xFFFFFFC);
+		LOWORD(v12) = ((Cmd >> 26) & 0x1C) + (Cmd & 3);
+LABEL_30:
+		AIS->delayCountdown = v12;
+	}
+	return flag;
+}
+
+__attribute__((section(".callBattleAnimationScriptHandler")))
+int callBattleAnimationScriptHandler(AnimationInterpreter *AIS)
+{
+	return BattleAnimationScriptHandler(AIS);
 }
 
 /*
