@@ -131,6 +131,24 @@ ShowFrame \frames, \No, \sheet, \frameSection
 .byte	\subCmd, 0, 0, 0x87
 .endm
 
+@ 龙人变身过程:原动画->变身动画->变身后的动画(由当前装备品ID决定)->变身解除动画->原动画
+@ 原动画开头加Trans 1,x,变身动画结尾加Trans 2,变身后的动画结尾加Trans 3,变身解除动画结尾加Trans 4
+@ t指定变身的阶段,x控制所在的模式(参见BattleAnimationModeConfig动画模式控制设置表)
+@ Mode->x
+@ 1,2->0
+@ 3,4->1
+@ 5->2
+@ 6->3
+@ 7->4
+@ 8->5
+@ 9->6
+@ 10->7
+@ 11->8
+@ 12->9
+.macro	Trans	t=1, x=0
+.byte	\t, \x, 0, 0x87
+.endm
+
 @ 设置精灵调色板(0x88/0x89)
 .macro	SetPal palAddr
 .word	\palAddr + 0x80000000

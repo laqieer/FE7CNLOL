@@ -61,7 +61,8 @@ SECTIONS
 	. = 0x8054AC0;
 	.callBattleAnimationAISInit : {*.o(.callBattleAnimationAISInit)}	
 	. = 0x8054D7C;
-	.call_sub_8054D7C : {*.o(.call_sub_8054D7C)}	
+	/*	.call_sub_8054D7C : {*.o(.call_sub_8054D7C)}	*/
+	.callInitAIS : {*.o(.callInitAIS)}
 	. = 0x8054764;
 	.call_sub_8054764 : {*.o(.call_sub_8054764)}
 	. = 0x8053D6C;
@@ -98,6 +99,16 @@ SECTIONS
 	.DisableEliwoodPromotedPalette : {*.O(.DisableEliwoodPromotedPalette)}	*/
 	. = 0x8006518;
 	.callBattleAnimationScriptHandler : {*.o(.callBattleAnimationScriptHandler)}
+	. = 0x804C7C4;
+	.call_sub_804C7C4 : {*.o(.call_sub_804C7C4)}
+	. = 0x8C4F468 + 84 * 0x41 + 52;
+	.NilsBattleAnimationConf : {*.o(.NilsBattleAnimationConf)}
+	. = 0x8C4F468 + 84 * 0x41 + 40;
+	.BardAbility : {*.o(.BardAbility)}
+	. = 0x8C4C158 + 52 * (0x26 - 1) + 35;
+	.DisableNilsCharacterPalette : {*.o(.DisableNilsCharacterPalette)}
+	. = 0x8C51538 + 36 * 0x8F + 25;
+	.FlametongueRange : {*.o(.FlametongueRange)}
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}

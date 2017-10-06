@@ -83,10 +83,159 @@ __attribute__((section(".C2F_EX")))
 const int C2F_EX = &callExtraAnimationCRT;
 // int C2F_EX = callExtraAnimationCRT;
 
+// 梅尔动画调色板
+const u16 BattleAnimation_Myrrh_pal[] = {
+0x5355,0x7BDE,0x5BFF,0x4B1F,0x1592,0x07FF,0x173B,0x1677,	// Player
+0x6D9B,0x4CF2,0x344B,0x093D,0x0054,0x438C,0x2E87,0x14A5,
+0x5355,0x7BDE,0x5BFF,0x4B1F,0x1592,0x07FF,0x173B,0x1677,	// Enemy
+0x6D9B,0x4CF2,0x344B,0x093D,0x0054,0x438C,0x2E87,0x14A5,
+0x5355,0x7BDE,0x5BFF,0x4B1F,0x1592,0x07FF,0x173B,0x1677,	// NPC
+0x6D9B,0x4CF2,0x344B,0x093D,0x0054,0x438C,0x2E87,0x14A5,
+0x5355,0x7BDE,0x5BFF,0x4B1F,0x1592,0x07FF,0x173B,0x1677,	// 4th(arena)
+0x6D9B,0x4CF2,0x344B,0x093D,0x0054,0x438C,0x2E87,0x14A5,
+};
+
+// 梅尔变身和解除变身动画调色板
+const u16 BattleAnimation_MyrrhTrans_pal[] = {
+0x5355,0x7BDE,0x5BFF,0x4B1F,0x1592,0x07FF,0x173B,0x1677,	// Player
+0x6D9B,0x4CF2,0x344B,0x093D,0x0054,0x438C,0x2E87,0x14A5,
+0x5355,0x0FBD,0x1F3C,0x0E78,0x6B37,0x4E2C,0x7FFF,0x53DB,	// Enemy
+0x2B4A,0x2267,0x17DE,0x235D,0x16B9,0x09F4,0x054C,0x14A5,
+0x5355,0x7BDE,0x5BFF,0x4B1F,0x1592,0x07FF,0x173B,0x1677,	// NPC
+0x6D9B,0x4CF2,0x344B,0x093D,0x0054,0x438C,0x2E87,0x14A5,
+0x5355,0x0FBD,0x1F3C,0x0E78,0x6B37,0x4E2C,0x7FFF,0x53DB,	// 4th(arena)
+0x2B4A,0x2267,0x17DE,0x235D,0x16B9,0x09F4,0x054C,0x14A5,
+};
+
+// 梅尔龙动画调色板
+const u16 BattleAnimation_MyrrhDragon_pal[] = {
+0x5355,0x0FBD,0x1F3C,0x0E78,0x6B37,0x4E2C,0x7FFF,0x53DB,	// Player
+0x2B4A,0x2267,0x17DE,0x235D,0x16B9,0x09F4,0x054C,0x14A5,
+0x5355,0x0FBD,0x1F3C,0x0E78,0x6B37,0x4E2C,0x7FFF,0x53DB,	// Enemy
+0x2B4A,0x2267,0x17DE,0x235D,0x16B9,0x09F4,0x054C,0x14A5,
+0x5355,0x0FBD,0x1F3C,0x0E78,0x6B37,0x4E2C,0x7FFF,0x53DB,	// NPC
+0x2B4A,0x2267,0x17DE,0x235D,0x16B9,0x09F4,0x054C,0x14A5,
+0x5355,0x0FBD,0x1F3C,0x0E78,0x6B37,0x4E2C,0x7FFF,0x53DB,	// 4th(arena)
+0x2B4A,0x2267,0x17DE,0x235D,0x16B9,0x09F4,0x054C,0x14A5,
+};
+
+// 珐变身前动画调色板
+const u16 BattleAnimation_Fa_pal[] = {
+0x5355,0x7FFF,0x6BFF,0x439D,0x192E,0x7E7F,0x5538,0x4132,	// Player
+0x07FF,0x1A9E,0x0AFA,0x7FF5,0x7FAD,0x7E0A,0x60E7,0x14A5,
+0x5355,0x7FFF,0x6BFF,0x439D,0x192E,0x7F55,0x7E8E,0x696B,	// Enemy
+0x07FF,0x1A9E,0x0AFA,0x3ABF,0x15DD,0x0C9B,0x0051,0x14A5,
+0x5355,0x7FFF,0x6BFF,0x439D,0x192E,0x7F3F,0x7A9B,0x454E,	// NPC
+0x07FF,0x1A9E,0x0AFA,0x4FD9,0x3352,0x26E8,0x2628,0x14A5,
+0x5355,0x7FFF,0x6BFF,0x439D,0x192E,0x4ADE,0x201F,0x0052,	// 4th(arena)
+0x07FF,0x1A9E,0x0AFA,0x737B,0x62F7,0x5A72,0x458C,0x14A5,
+};
+
+// 珐变身后动画(神龙)调色板
+const u16 BattleAnimation_FaDragon_pal[] = {
+0x5355,0x7FFF,0x5FDF,0x3F5C,0x06D9,0x0615,0x1D6E,0x5355,	// Player
+0x5355,0x7FF5,0x7FAD,0x732A,0x5E66,0x61C5,0x40E3,0x14A5,
+0x5355,0x7FFF,0x5FDF,0x3F5C,0x06D9,0x0615,0x1D6E,0x5355,	// Enemy
+0x5355,0x2A3F,0x215E,0x291C,0x5138,0x0053,0x000D,0x14A5,
+0x5355,0x7FFF,0x5FDF,0x3F5C,0x06D9,0x0615,0x1D6E,0x5355,	// NPC
+0x5355,0x4FF6,0x178D,0x0B4A,0x0EA7,0x0202,0x1582,0x14A5,
+0x5355,0x7FFF,0x5FDF,0x3F5C,0x06D9,0x0615,0x1D6E,0x5355,	// 4th(arena)
+0x5355,0x735A,0x62F7,0x5EB5,0x4E10,0x458C,0x3D4A,0x14A5,
+};
+
+// 珐变身成神龙的动画调色板
+const u16 BattleAnimation_FaTrans_pal[] = {
+0x5355,0x7FFF,0x6BFF,0x439D,0x192E,0x7E7F,0x5538,0x4132,	// Player
+0x07FF,0x1A9E,0x0AFA,0x7FF5,0x7FAD,0x7E0A,0x60E7,0x14A5,
+0x5355,0x7FFF,0x6BFF,0x439D,0x192E,0x7F55,0x7E8E,0x696B,	// Enemy
+0x07FF,0x1A9E,0x0AFA,0x3ABF,0x15DD,0x0C9B,0x0051,0x14A5,
+0x5355,0x7FFF,0x6BFF,0x439D,0x192E,0x7F3F,0x7A9B,0x454E,	// NPC
+0x07FF,0x1A9E,0x0AFA,0x4FD9,0x3352,0x26E8,0x2628,0x14A5,
+0x5355,0x7FFF,0x6BFF,0x439D,0x192E,0x4ADE,0x201F,0x0052,	// 4th(arena)
+0x07FF,0x1A9E,0x0AFA,0x737B,0x62F7,0x5A72,0x458C,0x14A5,
+};
+
+// 新增战斗动画数据
+const BattleAnimation NewBattleAnimationBank[] = {
+	// 梅尔变身前动画(0x100)
+	{
+		"mf_mi1",
+		&BattleAnimation_Myrrh_data1,	// Mode divider
+		&BattleAnimation_Myrrh_data2,	// Script
+		&BattleAnimation_Myrrh_data3,	// Right X Y Position
+		&BattleAnimation_Myrrh_data4,	// Left X Y Position
+		&BattleAnimation_Myrrh_pal,	// Palette Group
+	},
+	// 梅尔变身动画(0x101)
+	{
+		"fifd_he1",	// Identifier
+		&BattleAnimation_MyrrhTrans_data1,	// Mode divider
+		&BattleAnimation_MyrrhTrans_data2,	// Script
+		&BattleAnimation_MyrrhTrans_data3,	// Right X Y Position
+		&BattleAnimation_MyrrhTrans_data4,	// Left X Y Position
+		&BattleAnimation_MyrrhTrans_pal,	// Palette Group
+	},
+	// 梅尔解除变身动画(0x102)
+	{
+		"fifd_hk1",	// Identifier
+		&BattleAnimation_MyrrhInvers_data1,	// Mode divider
+		&BattleAnimation_MyrrhInvers_data2,	// Script
+		&BattleAnimation_MyrrhInvers_data3,	// Right X Y Position
+		&BattleAnimation_MyrrhInvers_data4,	// Left X Y Position
+		&BattleAnimation_MyrrhTrans_pal,	// Palette Group
+	},
+	// 梅尔龙动画(0x103)
+	{
+		"fifd_mg1",	// Identifier
+		&BattleAnimation_MyrrhDragon_data1,	// Mode divider
+		&BattleAnimation_MyrrhDragon_data2,	// Script
+		&BattleAnimation_MyrrhDragon_data3,	// Right X Y Position
+		&BattleAnimation_MyrrhDragon_data4,	// Left X Y Position
+		&BattleAnimation_MyrrhDragon_pal,	// Palette Group
+	},
+	// 珐变身前动画(0x104)
+	{
+		"mamf_no1",	// Identifier
+		&BattleAnimation_Fa_data1,	// Mode divider
+		&BattleAnimation_Fa_data2,	// Script
+		&BattleAnimation_Fa_data3,	// Right X Y Position
+		&BattleAnimation_Fa_data4,	// Left X Y Position
+		&BattleAnimation_Fa_pal,	// Palette Group
+	},
+	// 珐变身后动画(神龙)(0x105)
+	{
+		"godd_mg1",	// Identifier
+		&BattleAnimation_FaDragon_data1,	// Mode divider
+		&BattleAnimation_FaDragon_data2,	// Script
+		&BattleAnimation_FaDragon_data3,	// Right X Y Position
+		&BattleAnimation_FaDragon_data4,	// Left X Y Position
+		&BattleAnimation_FaDragon_pal,	// Palette Group
+	},
+	// 珐变身成神龙的动画(0x106)
+	{
+		"godd_he1",	// Identifier
+		&BattleAnimation_FaTrans_data1,	// Mode divider
+		&BattleAnimation_FaTrans_data2,	// Script
+		&BattleAnimation_FaTrans_data3,	// Right X Y Position
+		&BattleAnimation_FaTrans_data4,	// Left X Y Position
+		&BattleAnimation_FaTrans_pal,	// Palette Group
+	},
+	// 珐解除变身的动画(0x107)
+	{
+		"godd_hk1",	// Identifier
+		&BattleAnimation_FaInvers_data1,	// Mode divider
+		&BattleAnimation_FaInvers_data2,	// Script
+		&BattleAnimation_FaInvers_data3,	// Right X Y Position
+		&BattleAnimation_FaInvers_data4,	// Left X Y Position
+		&BattleAnimation_FaTrans_pal,	// Palette Group
+	}
+};
+
 // 战斗动画库地址表
 const BattleAnimation * const battleAnimationBank[] =
 {
-	FE7BattleAnimationBank
+	FE7BattleAnimationBank,
+	NewBattleAnimationBank
 };
 
 // 交换2个双字节
@@ -429,9 +578,230 @@ void C87DoNothing(AnimationInterpreter *AIS)
 
 }
 
+// 龙人变身过程:原动画->变身动画->变身后的动画(由当前装备品ID决定)->变身解除动画(->原动画,不需要,去掉)->原动画(需要- -)
+// trans1 : 原动画->变身动画
+// trans2 : 变身动画->变身后的动画
+// trans3 : 变身后的动画->变身解除动画
+// trans4 : 变身解除动画->原动画
+
+// 根据原动画ID查找变身动画ID和变身解除动画ID
+const BattleAnimationTransInfo BattleAnimationTransTable[] = {
+	[0x100] = {0x101,0x102},
+	// [0x103] = {0x102,0x101}
+	// [0x102] = {0x100,0}
+	[0x104] = {0x106,0x107}
+};
+
+// 根据当前装备品的代码决定变身后的动画
+const u16 Item2TransAnimationID[] = {
+	[Flametongue] = 0x103,
+	[FillaMight] = 0x105
+};
+
+// 获取当前动画ID
+u16 getAnimationID(AnimationInterpreter *AIS)
+{
+	return BattleAnimationIDArray[isUnitAtRightOrLeft(AIS)];
+}
+
+// 获取当前装备品ID
+u8 getEquippedItemID(AnimationInterpreter *AIS)
+{
+	return *(u8 *)(((u32 *)0x203E06C)[isUnitAtRightOrLeft(AIS)] + 74);
+}
+
+void C87Trans1(AnimationInterpreter *AIS)
+{
+//	int mode;
+
+	if(getAnimationID(AIS) < sizeof(BattleAnimationTransTable)/sizeof(BattleAnimationTransTable[0]) && BattleAnimationTransTable[getAnimationID(AIS)].transAnimationID)
+	{
+		// TODO : 获取当前mode
+		// ((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->inversAnimationID = BattleAnimationTransTable[getAnimationID(AIS)].inversAnimationID;
+		((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->animationID = getAnimationID(AIS);
+		((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->modeX = (*(AIS->nextCmd-1)>>8)&0xFF;
+		transformateBattleAnimation(AIS,BattleAnimationTransTable[getAnimationID(AIS)].transAnimationID);
+		/*
+		// 变身动画只用mode1
+		if(isUnitAtRightOrLeft(AIS))
+		{
+			if(BattleAnimationEventBufferRightSide[0] == 'l' + ('a'<<8) +('q'<<16))
+				AIS->nextCmd = BattleAnimationEventBufferRightSide[1];
+			else
+				AIS->nextCmd = BattleAnimationEventBufferRightSide;
+		}
+		else
+		{
+			if(BattleAnimationEventBufferLeftSide[0] == 'l' + ('a'<<8) +('q'<<16))
+				AIS->nextCmd = BattleAnimationEventBufferLeftSide[1];
+			else
+				AIS->nextCmd = BattleAnimationEventBufferLeftSide;
+		}
+		*/
+		InitAIS(AIS,0);
+	//	getSpecialAnimationEffectInfo(AIS)->unk_8 = mode;
+	}
+}
+
+void C87Trans2(AnimationInterpreter *AIS)
+{
+	int mode;
+	int sectionOffset;
+	int eventBuffer;
+	int modeX;
+	
+	if(getEquippedItemID(AIS) < sizeof(Item2TransAnimationID)/sizeof(Item2TransAnimationID[0]) && Item2TransAnimationID[getEquippedItemID(AIS)])
+	/*
+	{
+		transformateBattleAnimation(AIS,Item2TransAnimationID[getEquippedItemID(AIS)]);
+		
+		// mode = ((u32 *)0x81DE1E0)[*((u8 *)0x81DE208 + *(u16 *)0x203E004)] & 0xFF;
+		mode = 0;	// TODO : 从脚本指令里获取
+		if(isUnitAtRightOrLeft(AIS))
+		{
+			sectionOffset = BattleAnimationSectionInfoRightSide[mode];
+			eventBuffer = BattleAnimationEventBufferRightSide;
+		}
+		else
+		{
+			sectionOffset = BattleAnimationSectionInfoLeftSide[mode];
+			eventBuffer = BattleAnimationEventBufferLeftSide;
+		}
+		if(*(u32 *)eventBuffer == 'l' + ('a'<<8) +('q'<<16))
+			eventBuffer = *((u32 *)eventBuffer + 1);
+		AIS->lastCmd = eventBuffer + sectionOffset;
+		AIS->nextCmd = eventBuffer + sectionOffset;
+		
+	}
+	*/
+	{
+		// BattleAnimationIDArray[isUnitAtRightOrLeft(AIS)] = Item2TransAnimationID[getEquippedItemID(AIS)];
+		// battleAnimationInit();
+		// initBothAIS();
+		modeX = ((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->modeX;
+		((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->modeX = 0;
+		transformateBattleAnimation(AIS,Item2TransAnimationID[getEquippedItemID(AIS)]);
+		InitAIS(AIS,modeX);
+		// AIS->unk_E = 0;
+		// AIS->modeX = 6;
+	}
+}
+
+void sub_804C7C4(struct context *ctx)
+{
+	AnimationInterpreter *AISLeft; // r0@4
+	signed int v3; // r0@6
+	AnimationInterpreter *AISRight; // r0@7
+
+	if ( *(_DWORD *)&ctx->userSpace[31] == 2 )
+	{
+		ctx->loop = sub(804C854);
+	}
+	else
+	{
+		if ( *(_DWORD *)&ctx->userSpace[27] )
+		{
+			AISRight = AISTable[2];
+			*(_DWORD *)&ctx->userSpace[51] = AISTable[2];
+			// 为了让变身解除协程知道动画何时结束,故修改下面的判断
+			// if ( callSpecialAnimationEffectTypeGetter(AISRight) )
+			if(callSpecialAnimationEffectTypeGetter(AISRight) || ((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AISRight))->animationID)
+			{
+				setSpecialAnimationEffectInfoState4(*(AnimationInterpreter **)&ctx->userSpace[51]);
+				ctx->loop = sub(804C834);
+			}
+			v3 = 0;
+		}
+		else
+		{
+			AISLeft = AISTable[0];
+			*(_DWORD *)&ctx->userSpace[51] = AISTable[0];
+			// 为了让变身解除协程知道动画何时结束,故修改下面的判断
+			// if ( callSpecialAnimationEffectTypeGetter(AISLeft) )
+			if(callSpecialAnimationEffectTypeGetter(AISLeft) || ((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AISLeft))->animationID)
+			{
+				setSpecialAnimationEffectInfoState4(*(AnimationInterpreter **)&ctx->userSpace[51]);
+				ctx->loop = sub(804C834);
+			}
+			v3 = 1;
+		}
+		*(_DWORD *)&ctx->userSpace[27] = v3;
+		++*(_DWORD *)&ctx->userSpace[31];
+	}
+}
+
+__attribute__((section(".call_sub_804C7C4")))
+void call_sub_804C7C4(struct context *ctx)
+{
+	sub_804C7C4(ctx);
+}
+
+void InversTransformate(struct context *ctx)
+{
+	AnimationInterpreter *AIS;
+
+	AIS = *(AnimationInterpreter **)&ctx->userSpace[51];
+	if ( getSpecialAnimationEffectInfoState(AIS) & 4 )
+	{
+		((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->state = 0;
+		transformateBattleAnimation(AIS,*(u16 *)&ctx->userSpace[55]);
+		InitAIS(AIS,0);
+		breakLoop(ctx);
+	}
+}
+
+const struct coroutine InversTrans[] = {
+	setLoopFuncAndYield(InversTransformate),
+	endofCoroutine
+};
+
+void C87Trans3(AnimationInterpreter *AIS)
+{
+	struct context *ctx;
+
+	if(BattleAnimationTransTable[((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->animationID].inversAnimationID && !getSpecialAnimationEffectInfoState(AIS))
+	{
+		// transformateBattleAnimation(AIS,((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->inversAnimationID);
+		/*
+		// 变身解除动画只用mode1
+		if(isUnitAtRightOrLeft(AIS))
+		{
+			if(BattleAnimationEventBufferRightSide[0] == 'l' + ('a'<<8) +('q'<<16))
+				AIS->nextCmd = BattleAnimationEventBufferRightSide[1];
+			else
+				AIS->nextCmd = BattleAnimationEventBufferRightSide;
+		}
+		else
+		{
+			if(BattleAnimationEventBufferLeftSide[0] == 'l' + ('a'<<8) +('q'<<16))
+				AIS->nextCmd = BattleAnimationEventBufferLeftSide[1];
+			else
+				AIS->nextCmd = BattleAnimationEventBufferLeftSide;
+		}
+		*/
+		// InitAIS(AIS,0);
+		ctx = createContext(InversTrans,3);
+		*(AnimationInterpreter **)&ctx->userSpace[51] = AIS;
+		*(u16 *)&ctx->userSpace[55] = BattleAnimationTransTable[((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->animationID].inversAnimationID;
+		// ((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->inversAnimationID = 0;
+		((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->state = 1;	// 避免重复创建上下文
+	}
+}
+
+void C87Trans4(AnimationInterpreter *AIS)
+{
+	transformateBattleAnimation(AIS,((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->animationID);
+	((SpecialAnimationEffectInfo *)getSpecialAnimationEffectInfo(AIS))->animationID = 0;
+	setSpecialAnimationEffectInfoState(AIS, 8);
+}
+
 // C87扩展动画指令函数表
 const PTRFUN BattleAnimationEventEX[] = {
-	C87DoNothing
+	C87DoNothing,
+	C87Trans1,
+	C87Trans2,
+	C87Trans3,
+	C87Trans4
 };
 
 // 读取战斗动画相关数据到内存
@@ -718,7 +1088,7 @@ void callBattleAnimationInit()
 // 扩展后的UnitKakudai1
 void UnitKakudai1Ex(struct context *ctx)
 {
-  int v2; // r6@1
+  int mode; // r6@1
   char *v3; // r1@5
   void *v4; // r0@5
   char *v5; // r1@7
@@ -726,19 +1096,19 @@ void UnitKakudai1Ex(struct context *ctx)
   short v7; // r5@12
   short v8; // r3@12
 
-  v2 = ((u32 *)0x81DE1E0)[*((u8 *)0x81DE208 + *(u16 *)0x203E004)] & 0xFF;
+  mode = ((u32 *)0x81DE1E0)[*((u8 *)0x81DE208 + *(u16 *)0x203E004)] & 0xFF;
   battleAnimationInit();
   if ( !*(u32 *)&ctx->userSpace[27] && *(u16 *)0x203A3D4 & 0x40 )
     sub(806788C)(BGPaletteBuffer, 23, 1);
   if ( IfBattleAnimationIsAtTheLeftSide == 1 )
   {
-//    v3 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[v2];
+//    v3 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[mode];
 
 //	无压缩data2支持
 	if(BattleAnimationEventBufferLeftSide[0] == 'l' + ('a'<<8) +('q'<<16))
-		v3 = (char *)BattleAnimationEventBufferLeftSide[1] + BattleAnimationSectionInfoLeftSide[v2];
+		v3 = (char *)BattleAnimationEventBufferLeftSide[1] + BattleAnimationSectionInfoLeftSide[mode];
 	else
-		v3 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[v2];
+		v3 = (char *)BattleAnimationEventBufferLeftSide + BattleAnimationSectionInfoLeftSide[mode];
 	
 //    v4 = (void *)*((u32 *)v3 + 1);
 	v4 = *((void **)v3 + 1);
@@ -760,13 +1130,13 @@ void UnitKakudai1Ex(struct context *ctx)
   }
   if ( IfBattleAnimationIsAtTheRightSide == 1 )
   {
-//    v5 = (char *)BattleAnimationEventBufferRightSide + BattleAnimationSectionInfoRightSide[v2];
+//    v5 = (char *)BattleAnimationEventBufferRightSide + BattleAnimationSectionInfoRightSide[mode];
 
 //	无压缩data2支持
 	if(BattleAnimationEventBufferRightSide[0] == 'l' + ('a'<<8) +('q'<<16))
-		v5 = (char *)BattleAnimationEventBufferRightSide[1] + BattleAnimationSectionInfoRightSide[v2];
+		v5 = (char *)BattleAnimationEventBufferRightSide[1] + BattleAnimationSectionInfoRightSide[mode];
 	else
-		v5 = (char *)BattleAnimationEventBufferRightSide + BattleAnimationSectionInfoRightSide[v2];
+		v5 = (char *)BattleAnimationEventBufferRightSide + BattleAnimationSectionInfoRightSide[mode];
 	
     v6 = *((void **)v5 + 1);
 //    *(u32 *)&ctx->userSpace[47] = (char *)BattleAnimationOAMR2LBuffer + *((u32 *)v5 + 2);
@@ -1042,9 +1412,9 @@ LABEL_29:
 				case 8u:
 				case 9u:
 					if(isUnitAtRightOrLeft(AIS))
-						FE7JCPUFastSet(Cmd&0x9FFFFFC,&OBJPaletteBuffer[112],16);
+						FE7JCPUFastSet(Cmd&0x9FFFFFC,&OBJPaletteBuffer[144],16);
 					else
-						FE7JCPUFastSet(Cmd&0x9FFFFFC,&OBJPaletteBuffer[144],16);					
+						FE7JCPUFastSet(Cmd&0x9FFFFFC,&OBJPaletteBuffer[112],16);					
 					return flag;
 				case 0xA:
 					n = (Cmd>>16)&0xFF;
@@ -2534,11 +2904,77 @@ void sub_8054D7C(int a1, int a2)
 }
 */
 
+/*
 __attribute__((section(".call_sub_8054D7C")))
 void call_sub_8054D7C(int a1, int a2)
 {
 	sub_8054D7C(a1,a2);
 //	sub(8054D7C)(a1,a2);
+}
+*/
+
+void InitAIS(AnimationInterpreter *AIS, int x)
+{
+	int mode; // r5@2
+	char *v5; // r1@2
+	u16 v6; // r7@4
+	int v7; // r1@6
+	u32 *v8; // r0@6
+	int v9; // r1@8
+
+	if ( sub(8054E4C)(AIS) )
+	{
+		mode = ((((u32 *)0x81DE1E0)[x])>>16) & 0xFF;
+		v5 = (char *)0x81DE1E0 + 4 * x + 3;
+	}
+	else
+	{
+		mode = (((u32 *)0x81DE1E0)[x]) & 0xFF;
+		v5 = (char *)0x81DE1E0 + 4 * x + 1;
+	}
+	v6 = (unsigned __int8)*v5;
+	if ( mode == 255 )
+	{
+		AIS->lastCmd = (u32 *)0x8C0A5D8;
+		AIS->nextCmd = (u32 *)0x8C0A5D8;
+		AIS->unk_10 = 0;
+	}
+	else
+	{
+		if ( isUnitAtRightOrLeft(AIS) )
+		{
+			v7 = BattleAnimationSectionInfoRightSide[mode];
+			v8 = BattleAnimationEventBufferRightSide;
+		}
+		else
+		{
+			v7 = BattleAnimationSectionInfoLeftSide[mode];
+			v8 = BattleAnimationEventBufferLeftSide;
+		}
+		// 添加无压缩data2支持
+		if(v8[0] == 'l' + ('a'<<8) +('q'<<16))
+			v8 = v8[1];
+		v9 = (int)v8 + v7;
+		AIS->lastCmd = (u32 *)v9;
+		AIS->nextCmd = (u32 *)v9;
+	}
+	AIS->unk_A = v6;
+	AIS->OBJAttr2Base = AIS->OBJAttr2Base & 0xF3FF | 0x800;
+	AIS->delayCountdown = 0;
+	AIS->unk_C &= 0x700u;
+	AIS->modeX = x;
+	AIS->C85IDBufferIndex = 0;
+	AIS->OAMInfoBuffer = (char *)BattleAnimationOAML2RBuffer + 0x5800 * isUnitAtRightOrLeft(AIS);
+	// 添加无压缩data3和data4支持
+	if(*(u32 *)AIS->OAMInfoBuffer == 'l' + ('a'<<8) +('q'<<16))
+		AIS->OAMInfoBuffer = ((u32 *)AIS->OAMInfoBuffer)[1];
+	ForAllAIS();
+}
+
+__attribute__((section(".callInitAIS")))
+void callInitAIS(AnimationInterpreter *AIS, int x)
+{
+	InitAIS(AIS,x);
 }
 
 // 外挂背景动画扩展

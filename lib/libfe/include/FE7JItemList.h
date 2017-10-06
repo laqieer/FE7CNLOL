@@ -90,7 +90,7 @@ enum {
 	Berserk,
 	Warp,
 	Rescue,
-	Torch,
+	TorchStaff,
 	Hammerne,
 	Unlock,
 	Barrier,

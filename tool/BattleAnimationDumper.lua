@@ -1164,6 +1164,7 @@ end
 
 -- C85注释
 C85Comments = {}
+-- FE7
 C85Comments[0x00] = [[NOP]]
 C85Comments[0x01] = [[Wait for HP to deplete (freezes if no HP depletion is occurring/has occurred)]]
 C85Comments[0x02] = [[Start of dodge]]
@@ -1275,7 +1276,12 @@ function C85H()
 		return
 	end
 	-- 原来的指令
-	script:write(string.format('Cmd 0x%X @ %s',string.byte(decompressedData2[i]),C85Comments[string.byte(decompressedData2[i])]))
+	if(C85Comments[string.byte(decompressedData2[i])])
+	then
+		script:write(string.format('Cmd 0x%X @ %s',string.byte(decompressedData2[i]),C85Comments[string.byte(decompressedData2[i])]))
+	else
+		script:write(string.format('Cmd 0x%X',string.byte(decompressedData2[i])))
+	end
 end
 
 -- 压缩sheet图片

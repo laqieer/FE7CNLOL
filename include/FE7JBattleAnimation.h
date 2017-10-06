@@ -11,6 +11,7 @@
 #include "FE7JMemoryMap.h"
 #include "FE7JCoroutine.h"
 #include "IDAPro.h"
+#include "FE7JItemList.h"
 
 #pragma long_calls
 // 读取战斗动画相关数据到内存
@@ -47,7 +48,7 @@ typedef struct ais {
 	u16 unk_C;
 	u16 unk_E;
 	u16 unk_10;
-	u8 unk_12;
+	u8 modeX;	// 控制当前所处的模式
 	u8 frameID;	// 帧ID
 	/*
 	u8 unk_14;
@@ -111,6 +112,7 @@ typedef struct {
 #define	BattleAnimationIDLeftSide			(*(u16 *)0x203E066)
 // 右侧战斗动画ID
 #define	BattleAnimationIDRightSide			(*(u16 *)0x203E068)
+#define	BattleAnimationIDArray				((u16 *)0x203E066)
 // 左侧战斗动画调色板组中序号
 #define	BattleAnimationPalSlotLeftSide		(*(u16 *)0x203DFF8)
 // 右侧战斗动画调色板组中序号
@@ -225,12 +227,26 @@ void call_sub_8054AC0(int xl, int xr);
 // void battleAnimationAISInit(int xl,int xr);
 #define battleAnimationAISInit	sub_8054AC0
 
-
+/*
 #pragma long_calls
 void sub_8054D7C(int a1, int a2);
 #pragma long_calls_off
 
 void call_sub_8054D7C(int a1, int a2);
+
+#define	InitAIS	call_sub_8054D7C
+// void InitAIS(AnimationInterpreter *AIS, int x);
+*/
+
+#pragma long_calls
+void InitAIS(AnimationInterpreter *AIS, int x);
+#pragma long_calls_off
+
+void callInitAIS(AnimationInterpreter *AIS, int x);
+
+// 初始化两侧的AIS
+#define	initBothAIS	sub(8054A30)
+// void initBothAIS();
 
 #pragma long_calls
 void sub_8054764(void *AIS);
@@ -307,4 +323,93 @@ typedef struct {
 	void *pal;
 	void *tsa;
 } BGImage;
+
+// 原作中的特殊动画效果(身体的一部分是背景的敌方和龙人变身动画)控制
+typedef	struct {
+	u16 type; // 指定具体是哪一种特殊效果(0=什么都没有;烈火里1=古火龙;圣魔里1=僵尸龙,2=魔王,3=梅尔变身)
+	u16 state; // 1->3->7->F,似乎是用来标识进行到了哪个阶段,每一位代表一个阶段
+	struct context *ctx; // 特效协程的上下文
+	// u32 unk_8; // 原来是未使用的(,这里我们用来记录变身前的原始动画以便最后返回到这个动画，不需要,去掉)(这里用来存储解除变身的动画ID和变身后动画的模式控制字)
+	// u16 inversAnimationID;	// 新增,解除变身动画ID
+	u16 animationID;	// 改用原动画ID,为了最后返回
+	u16 modeX;	// 动画模式控制字(BattleAnimationModeConfig的索引)
+	AnimationInterpreter *AIS; // 当前的AIS
+} SpecialAnimationEffectInfo;
+#define	SpecialAnimationEffectInfoLeftSide	((SpecialAnimationEffectInfo *)0x2020040)
+#define	SpecialAnimationEffectInfoRightSide	((SpecialAnimationEffectInfo *)0x2020050)
+#define	initSpecialAnimationEffectInfo			sub(8065214)
+// void initSpecialAnimationEffectInfo();
+#define	getSpecialAnimationEffectInfo			sub(8065238)
+// SpecialAnimationEffectInfo *getSpecialAnimationEffectInfo(AnimationInterpreter *AIS);
+#define	getSpecialAnimationEffectInfoType		sub(8065288)
+// int getSpecialAnimationEffectType(AnimationInterpreter *AIS);
+#define	callSpecialAnimationEffectTypeGetter	sub(806527C)
+// int callSpecialAnimationEffectTypeGetter(AnimationInterpreter *AIS);
+#define	getSpecialAnimationEffectInfoState		sub(8065258)
+// int getSpecialAnimationEffectInfoState(AnimationInterpreter *AIS);
+#define	setSpecialAnimationEffectInfoState		sub(8065264)
+// void setSpecialAnimationEffectInfoState(int AIS, __int16 state);
+#define	setSpecialAnimationEffectInfoState4		sub(8065430)
+// void setSpecialAnimationEffectInfoState4(AnimationInterpreter *AIS);
+#define	callSpecialAnimationEffectTypeGetter	sub(806527C)
+// int callSpecialAnimationEffectTypeGetter(AnimationInterpreter *AIS);
+#define	setSpecialAnimationEffectInfoType		sub(8065294)
+// void setSpecialAnimationEffectInfoType(AnimationInterpreter *AIS, __int16 type);
+#define	ifSpecialAnimationEffectExist			sub(80652AC)
+// bool ifSpecialAnimationEffectExist();
+
+// 变换战斗动画(用于龙人变身,古代火龙等)
+#define	transformateBattleAnimation				sub(8053AA8)
+// void transformateBattleAnimation(AnimationInterpreter *AIS, __int16 animationID;
+
+// 变身动画信息
+typedef	struct {
+	u16	transAnimationID;	// 变身动画ID
+	u16 inversAnimationID;	// 反变换动画ID
+} BattleAnimationTransInfo;
+
+#pragma long_calls
+void sub_804C7C4(struct context *ctx);
+#pragma long_calls_off
+
+// 梅尔变身前动画
+extern const int BattleAnimation_Myrrh_data1;
+extern const int BattleAnimation_Myrrh_data2;
+extern const int BattleAnimation_Myrrh_data3;
+extern const int BattleAnimation_Myrrh_data4;
+// 梅尔变身动画
+extern const int BattleAnimation_MyrrhTrans_data1;
+extern const int BattleAnimation_MyrrhTrans_data2;
+extern const int BattleAnimation_MyrrhTrans_data3;
+extern const int BattleAnimation_MyrrhTrans_data4;
+// 梅尔解除变身动画
+extern const int BattleAnimation_MyrrhInvers_data1;
+extern const int BattleAnimation_MyrrhInvers_data2;
+extern const int BattleAnimation_MyrrhInvers_data3;
+extern const int BattleAnimation_MyrrhInvers_data4;
+// 梅尔龙动画
+extern const int BattleAnimation_MyrrhDragon_data1;
+extern const int BattleAnimation_MyrrhDragon_data2;
+extern const int BattleAnimation_MyrrhDragon_data3;
+extern const int BattleAnimation_MyrrhDragon_data4;
+// 珐变身前动画
+extern const int BattleAnimation_Fa_data1;
+extern const int BattleAnimation_Fa_data2;
+extern const int BattleAnimation_Fa_data3;
+extern const int BattleAnimation_Fa_data4;
+// 珐变身后动画(神龙)
+extern const int BattleAnimation_FaDragon_data1;
+extern const int BattleAnimation_FaDragon_data2;
+extern const int BattleAnimation_FaDragon_data3;
+extern const int BattleAnimation_FaDragon_data4;
+// 珐变身成神龙的动画
+extern const int BattleAnimation_FaTrans_data1;
+extern const int BattleAnimation_FaTrans_data2;
+extern const int BattleAnimation_FaTrans_data3;
+extern const int BattleAnimation_FaTrans_data4;
+// 珐解除变身的动画
+extern const int BattleAnimation_FaInvers_data1;
+extern const int BattleAnimation_FaInvers_data2;
+extern const int BattleAnimation_FaInvers_data3;
+extern const int BattleAnimation_FaInvers_data4;
 
