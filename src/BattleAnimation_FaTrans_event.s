@@ -17,7 +17,7 @@ BattleAnimation_FaTrans_data2:
 
 BattleAnimation_FaTrans_Mode1:	@ Normal attack (Layered in front of the enemy)
 
-	SetPal BattleAnimation_FaTrans_pal
+	@ SetPal BattleAnimation_FaTrans_pal
 	Show 0, BattleAnimation_FaTrans_sheet_1, BattleAnimation_FaTrans_frame_R_0 - BattleAnimation_FaTrans_data3, 1
 	Show 1, BattleAnimation_FaTrans_sheet_1, BattleAnimation_FaTrans_frame_R_1 - BattleAnimation_FaTrans_data3, 1
 	Show 2, BattleAnimation_FaTrans_sheet_1, BattleAnimation_FaTrans_frame_R_2 - BattleAnimation_FaTrans_data3, 1

@@ -19,7 +19,8 @@ BattleAnimation_MyrrhInvers_Mode1:	@ Normal attack (Layered in front of the enem
 
 	@ Cmd 2
 	@ Cmd 0xE
-	SetPal BattleAnimation_MyrrhDragon_pal
+	@ SetPal BattleAnimation_MyrrhDragon_pal
+	SetPal BattleAnimation_MyrrhTrans_pal
 	Show 0, BattleAnimation_MyrrhInvers_sheet_1, BattleAnimation_MyrrhInvers_frame_R_0 - BattleAnimation_MyrrhInvers_data3, 9
 	Show 1, BattleAnimation_MyrrhInvers_sheet_1, BattleAnimation_MyrrhInvers_frame_R_1 - BattleAnimation_MyrrhInvers_data3, 4
 	Show 2, BattleAnimation_MyrrhInvers_sheet_1, BattleAnimation_MyrrhInvers_frame_R_2 - BattleAnimation_MyrrhInvers_data3, 2
@@ -29,7 +30,7 @@ BattleAnimation_MyrrhInvers_Mode1:	@ Normal attack (Layered in front of the enem
 	Show 6, BattleAnimation_MyrrhInvers_sheet_3, BattleAnimation_MyrrhInvers_frame_R_6 - BattleAnimation_MyrrhInvers_data3, 3
 	Show 7, BattleAnimation_MyrrhInvers_sheet_3, BattleAnimation_MyrrhInvers_frame_R_7 - BattleAnimation_MyrrhInvers_data3, 2
 	Show 8, BattleAnimation_MyrrhInvers_sheet_3, BattleAnimation_MyrrhInvers_frame_R_8 - BattleAnimation_MyrrhInvers_data3, 2
-	SetPal BattleAnimation_Myrrh_pal
+	@ SetPal BattleAnimation_Myrrh_pal
 	Show 9, BattleAnimation_MyrrhInvers_sheet_4, BattleAnimation_MyrrhInvers_frame_R_9 - BattleAnimation_MyrrhInvers_data3, 2
 	Show 10, BattleAnimation_MyrrhInvers_sheet_4, BattleAnimation_MyrrhInvers_frame_R_10 - BattleAnimation_MyrrhInvers_data3, 2
 	Show 11, BattleAnimation_MyrrhInvers_sheet_4, BattleAnimation_MyrrhInvers_frame_R_11 - BattleAnimation_MyrrhInvers_data3, 2

@@ -17,13 +17,15 @@ BattleAnimation_MyrrhTrans_data2:
 
 BattleAnimation_MyrrhTrans_Mode1:	@ Normal attack (Layered in front of the enemy)
 
-	SetPal BattleAnimation_Myrrh_pal
+	@ SetPal BattleAnimation_Myrrh_pal
+	@ SetPal BattleAnimation_MyrrhTrans_pal
+	@ SetPal BattleAnimation_Fa_pal
 	Show 0, BattleAnimation_MyrrhTrans_sheet_1, BattleAnimation_MyrrhTrans_frame_R_0 - BattleAnimation_MyrrhTrans_data3, 1
 	Show 1, BattleAnimation_MyrrhTrans_sheet_1, BattleAnimation_MyrrhTrans_frame_R_1 - BattleAnimation_MyrrhTrans_data3, 6
 	Show 2, BattleAnimation_MyrrhTrans_sheet_1, BattleAnimation_MyrrhTrans_frame_R_2 - BattleAnimation_MyrrhTrans_data3, 6
 	@ Cmd 0xE @ Start of dodging frames (should go after standing frame and before dodging animation)
-	SetPal BattleAnimation_MyrrhDragon_pal
 	Show 3, BattleAnimation_MyrrhTrans_sheet_1, BattleAnimation_MyrrhTrans_frame_R_3 - BattleAnimation_MyrrhTrans_data3, 4
+	SetPal BattleAnimation_MyrrhTrans_pal
 	Show 4, BattleAnimation_MyrrhTrans_sheet_2, BattleAnimation_MyrrhTrans_frame_R_4 - BattleAnimation_MyrrhTrans_data3, 4
 	Show 5, BattleAnimation_MyrrhTrans_sheet_2, BattleAnimation_MyrrhTrans_frame_R_5 - BattleAnimation_MyrrhTrans_data3, 4
 	Show 6, BattleAnimation_MyrrhTrans_sheet_2, BattleAnimation_MyrrhTrans_frame_R_6 - BattleAnimation_MyrrhTrans_data3, 2

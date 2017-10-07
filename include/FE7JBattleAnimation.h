@@ -12,6 +12,7 @@
 #include "FE7JCoroutine.h"
 #include "IDAPro.h"
 #include "FE7JItemList.h"
+#include "AgbMemoryMap.h"
 
 #pragma long_calls
 // 读取战斗动画相关数据到内存

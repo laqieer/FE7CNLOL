@@ -21,68 +21,6 @@ const u16 PriscillaAnimationTest_PalA[] = {
 	0x0DE2, 0x5FDF, 0x3ADD, 0x1D50, 0x00B4, 0x14FC, 0x7FFF, 0x14A5
 };
 
-// 人物别第二调色板表
-const u16 const * characterBattleSecondPalTable[] = {
-	[0x79-1] = PriscillaAnimationTest_PalA
-};
-
-// 动画第二调色板组表
-const u16 const * battleAnimationSecondPalTable[] = {
-	
-};
-
-// 扩展后的战斗动画协程
-__attribute__((section(".ekrUnitKakudaiEx")))
-const struct coroutine ekrUnitKakudaiEx[] =
-{
-	spellStart,
-	setLoopFuncAndYield(UnitKakudai1Ex),
-//	setLoopFuncAndYield(UnitKakudai1),
-	setLoopFuncAndYield(UnitKakudai2),
-	setLoopFuncAndYield(UnitKakudai3),
-	endofCoroutine
-};
-
-// C0D指令处理函数中的跳转表扩展
-// 还有卡机bug(已修复 2017/8/13)
-__attribute__((section(".C0DHandlerJPT")))
-const int C0DHandlerJPT[] = {
-//	0x080540B4,
-	&C0DHandlerJPTCase0_1_2_3_9,
-//	0x080540B4,
-	&C0DHandlerJPTCase0_1_2_3_9,
-//	0x080540B4,
-	&C0DHandlerJPTCase0_1_2_3_9,
-//	0x080540B4,
-	&C0DHandlerJPTCase0_1_2_3_9,
-	0x080541B8,
-	0x080541B8,
-	0x080541C6,
-	0x080541C6,
-	0x080541C6,
-//	0x080540B4
-	&C0DHandlerJPTCase0_1_2_3_9
-};
-
-// 法师施法斗篷飘动效果扩展(整体循环)
-// 有卡机bug(已修复 2017/8/13)
-__attribute__((section(".capeFlowingAnimationEx")))
-const int capeFlowingAnimationEx = &loc_80065EC_EX;
-
-// 战斗动画中声音播放扩展
-__attribute__((section(".battleAnimationSoundEx")))
-const int battleAnimationSoundEx = &loc_806829C_EX;
-
-// 附加动画扩展C2E(普通)
-__attribute__((section(".C2E_EX")))
-const int C2E_EX = &callExtraAnimation;
-// int C2E_EX = callExtraAnimation;
-
-// 附加动画扩展C2F(必杀)
-__attribute__((section(".C2F_EX")))
-const int C2F_EX = &callExtraAnimationCRT;
-// int C2F_EX = callExtraAnimationCRT;
-
 // 梅尔动画调色板
 const u16 BattleAnimation_Myrrh_pal[] = {
 0x5355,0x7BDE,0x5BFF,0x4B1F,0x1592,0x07FF,0x173B,0x1677,	// Player
@@ -154,6 +92,71 @@ const u16 BattleAnimation_FaTrans_pal[] = {
 0x5355,0x7FFF,0x6BFF,0x439D,0x192E,0x4ADE,0x201F,0x0052,	// 4th(arena)
 0x07FF,0x1A9E,0x0AFA,0x737B,0x62F7,0x5A72,0x458C,0x14A5,
 };
+
+// 人物别第二调色板表
+const u16 const * characterBattleSecondPalTable[] = {
+	[0x79-1] = PriscillaAnimationTest_PalA
+};
+
+// 动画第二调色板组表
+const u16 const * battleAnimationSecondPalTable[] = {
+	[0x101] = BattleAnimation_MyrrhDragon_pal,
+	[0x102] = BattleAnimation_MyrrhDragon_pal,
+	[0x106] = BattleAnimation_FaDragon_pal,
+	[0x107] = BattleAnimation_FaDragon_pal
+};
+
+// 扩展后的战斗动画协程
+__attribute__((section(".ekrUnitKakudaiEx")))
+const struct coroutine ekrUnitKakudaiEx[] =
+{
+	spellStart,
+	setLoopFuncAndYield(UnitKakudai1Ex),
+//	setLoopFuncAndYield(UnitKakudai1),
+	setLoopFuncAndYield(UnitKakudai2),
+	setLoopFuncAndYield(UnitKakudai3),
+	endofCoroutine
+};
+
+// C0D指令处理函数中的跳转表扩展
+// 还有卡机bug(已修复 2017/8/13)
+__attribute__((section(".C0DHandlerJPT")))
+const int C0DHandlerJPT[] = {
+//	0x080540B4,
+	&C0DHandlerJPTCase0_1_2_3_9,
+//	0x080540B4,
+	&C0DHandlerJPTCase0_1_2_3_9,
+//	0x080540B4,
+	&C0DHandlerJPTCase0_1_2_3_9,
+//	0x080540B4,
+	&C0DHandlerJPTCase0_1_2_3_9,
+	0x080541B8,
+	0x080541B8,
+	0x080541C6,
+	0x080541C6,
+	0x080541C6,
+//	0x080540B4
+	&C0DHandlerJPTCase0_1_2_3_9
+};
+
+// 法师施法斗篷飘动效果扩展(整体循环)
+// 有卡机bug(已修复 2017/8/13)
+__attribute__((section(".capeFlowingAnimationEx")))
+const int capeFlowingAnimationEx = &loc_80065EC_EX;
+
+// 战斗动画中声音播放扩展
+__attribute__((section(".battleAnimationSoundEx")))
+const int battleAnimationSoundEx = &loc_806829C_EX;
+
+// 附加动画扩展C2E(普通)
+__attribute__((section(".C2E_EX")))
+const int C2E_EX = &callExtraAnimation;
+// int C2E_EX = callExtraAnimation;
+
+// 附加动画扩展C2F(必杀)
+__attribute__((section(".C2F_EX")))
+const int C2F_EX = &callExtraAnimationCRT;
+// int C2F_EX = callExtraAnimationCRT;
 
 // 新增战斗动画数据
 const BattleAnimation NewBattleAnimationBank[] = {
@@ -809,7 +812,7 @@ void battleAnimationInit()
 {
   int animationID; // 动画ID
   int palSlotIDInPalGroup; // 用动画调色板组中的哪个槽
-  int characterBattlePaletteID; // 人物指定动画调色板ID
+  s16 characterBattlePaletteID; // 人物指定动画调色板ID
   BattleAnimation *animation; // 战斗动画数据
   signed int animationID_PalGroup; // 用这个动画ID的调色板组
   short v10; // r0@10
@@ -994,12 +997,14 @@ void battleAnimationInit()
 		if(characterBattlePaletteID < sizeof(characterBattleSecondPalTable)/sizeof(characterBattleSecondPalTable[0]))
 			if(characterBattleSecondPalTable[characterBattlePaletteID])
 				FE7JCPUFastSet(characterBattleSecondPalTable[characterBattlePaletteID], &OBJPaletteBuffer[160], 8);
+		// DEBUG("characterBattlePaletteID = %d",characterBattlePaletteID)
 	}
 	else
 	{
 		if(animationID < sizeof(battleAnimationSecondPalTable)/sizeof(battleAnimationSecondPalTable[0]))
 			if(battleAnimationSecondPalTable[animationID])
 				FE7JCPUFastSet(battleAnimationSecondPalTable[animationID] + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[160], 8);
+		// DEBUG("animationID = 0x%x",animationID)
 	}
 	
     EnablePaletteSync();
@@ -1414,7 +1419,15 @@ LABEL_29:
 					if(isUnitAtRightOrLeft(AIS))
 						FE7JCPUFastSet(Cmd&0x9FFFFFC,&OBJPaletteBuffer[144],16);
 					else
-						FE7JCPUFastSet(Cmd&0x9FFFFFC,&OBJPaletteBuffer[112],16);					
+						FE7JCPUFastSet(Cmd&0x9FFFFFC,&OBJPaletteBuffer[112],16);
+					EnablePaletteSync();
+					/*
+					if(isUnitAtRightOrLeft(AIS))
+						FE7JCPUFastSet(Cmd&0x9FFFFFC,OBJ_PLTT + 32 * 9,16);
+					else
+						FE7JCPUFastSet(Cmd&0x9FFFFFC,OBJ_PLTT + 32 * 7,16);
+					*/
+					// FE7JCPUFastSet(OBJ_PLTT + 32 * 9,OBJ_PLTT + 32 * 9,16); // 不做点什么"有意义"的事情就直接返回的话会死机,莫名其妙
 					return flag;
 				case 0xA:
 					n = (Cmd>>16)&0xFF;

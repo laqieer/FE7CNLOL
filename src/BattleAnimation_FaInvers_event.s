@@ -17,7 +17,7 @@ BattleAnimation_FaInvers_data2:
 
 BattleAnimation_FaInvers_Mode1:	@ Normal attack (Layered in front of the enemy)
 
-	SetPal BattleAnimation_FaTrans_pal
+	@ SetPal BattleAnimation_FaTrans_pal
 	@ SetPal BattleAnimation_FaTrans_pal+0x20
 	Show 0, BattleAnimation_FaInvers_sheet_1, BattleAnimation_FaInvers_frame_R_0 - BattleAnimation_FaInvers_data3, 9
 	Show 1, BattleAnimation_FaInvers_sheet_1, BattleAnimation_FaInvers_frame_R_1 - BattleAnimation_FaInvers_data3, 4
