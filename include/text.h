@@ -23,6 +23,6 @@ const char* const text[]=
 /*	[0x0835] = talk(\x20,Right,	"你好，" endl
 								"我是琪琪" pushA)	*/
 	[0x0835] = sbsaysth(pTikiF,Right,"你好，" endl
-									"我是琪琪。" pushA)
+									"我是小琪琪。" pushA)
 };
 

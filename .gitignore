@@ -1,4 +1,5 @@
 build
+doc
 *.gba
 *.elf
 FE7CNLOL_??.png

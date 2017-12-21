@@ -1,0 +1,338 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FB48C1FE-7F7E-4AF4-9278-B30C78D3D253}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakeBuildCommandLine>make</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\FE_kaizou2\FE7CNLOL\lib\libmy\include;D:\FE_kaizou2\FE7CNLOL\lib\libfe\include;D:\FE_kaizou2\FE7CNLOL\lib\libagb\include\backup;D:\FE_kaizou2\FE7CNLOL\lib\libagb\include;D:\FE_kaizou2\FE7CNLOL\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakeBuildCommandLine>make</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="lib\libtonc\base.c" />
+    <ClCompile Include="lib\libtonc\src\pre1.3\tonc_bitmap.c" />
+    <ClCompile Include="lib\libtonc\src\pre1.3\tonc_text.c" />
+    <ClCompile Include="lib\libtonc\src\pre1.3\tonc_text_bm.c" />
+    <ClCompile Include="lib\libtonc\src\pre1.3\tonc_text_map.c" />
+    <ClCompile Include="lib\libtonc\src\pre1.3\tonc_text_oam.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_bg.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_bg_affine.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_bmp16.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_bmp8.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_color.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_core.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_input.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_irq.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_math.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_oam.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_obj_affine.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_sbmp16.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_sbmp8.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_schr4c.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_schr4r.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_surface.c" />
+    <ClCompile Include="lib\libtonc\src\tonc_video.c" />
+    <ClCompile Include="lib\libtonc\src\tte\ase_drawg.c" />
+    <ClCompile Include="lib\libtonc\src\tte\bmp16_drawg.c" />
+    <ClCompile Include="lib\libtonc\src\tte\bmp16_drawg_b1cs.c" />
+    <ClCompile Include="lib\libtonc\src\tte\bmp8_drawg.c" />
+    <ClCompile Include="lib\libtonc\src\tte\bmp8_drawg_b1cs.c" />
+    <ClCompile Include="lib\libtonc\src\tte\chr4c_drawg_b1cts.c" />
+    <ClCompile Include="lib\libtonc\src\tte\chr4c_drawg_b4cts.c" />
+    <ClCompile Include="lib\libtonc\src\tte\chr4r_drawg_b1cts.c" />
+    <ClCompile Include="lib\libtonc\src\tte\obj_drawg.c" />
+    <ClCompile Include="lib\libtonc\src\tte\se_drawg.c" />
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_ase.c" />
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_bmp.c" />
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_chr4c.c" />
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_chr4r.c" />
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_obj.c" />
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_se.c" />
+    <ClCompile Include="lib\libtonc\src\tte\tte_iohook.c" />
+    <ClCompile Include="lib\libtonc\src\tte\tte_main.c" />
+    <ClCompile Include="src\AgbDebug.c" />
+    <ClCompile Include="src\ClassBattleAnimationConfig.c" />
+    <ClCompile Include="src\FalconKnightSpearAnimationWithIceEffect.c" />
+    <ClCompile Include="src\FE7CNText.c" />
+    <ClCompile Include="src\FE7JBattleAnimation.c" />
+    <ClCompile Include="src\FE7JPortrait.c" />
+    <ClCompile Include="src\FireDragonTestAnimation.c" />
+    <ClCompile Include="src\LordKnightEliwoodDurandalAnimation.c" />
+    <ClCompile Include="src\LynBladeLordSwordAnimationTest.c" />
+    <ClCompile Include="src\LynPortrait.c" />
+    <ClCompile Include="src\msyhl_M14_CP936.c" />
+    <ClCompile Include="src\NinoSageAnimationTest.c" />
+    <ClCompile Include="src\PriscillaAnimationTest.c" />
+    <ClCompile Include="src\SharonPortrait.c" />
+    <ClCompile Include="src\showFont.c" />
+    <ClCompile Include="src\spellAnimation.c" />
+    <ClCompile Include="src\spellArou.c" />
+    <ClCompile Include="src\spellBloodMoon.c" />
+    <ClCompile Include="src\spellFireSea.c" />
+    <ClCompile Include="src\spellIceWorld.c" />
+    <ClCompile Include="src\spellNaglfar.c" />
+    <ClCompile Include="src\TikiFPortrait.c" />
+    <ClCompile Include="src\TikiPortrait.c" />
+    <ClCompile Include="src\Zfull-GB_M12_CP936.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="build\all_gfx.h" />
+    <ClInclude Include="build\LynBladeLordSwordAnimationData2_bin.h" />
+    <ClInclude Include="build\LynEyeFrameH_bin.h" />
+    <ClInclude Include="build\LynEyeFrameV_bin.h" />
+    <ClInclude Include="build\LynMainPortraitH_bin.h" />
+    <ClInclude Include="build\LynMainPortraitV_bin.h" />
+    <ClInclude Include="build\NinoSageAnimationData2_bin.h" />
+    <ClInclude Include="build\NinoSageAnimationData3_bin.h" />
+    <ClInclude Include="build\NinoSageAnimationData4_bin.h" />
+    <ClInclude Include="build\SharonEyeFrameImg_bin.h" />
+    <ClInclude Include="build\SharonMainPortraitImg_bin.h" />
+    <ClInclude Include="build\SharonMiniPortraitImgLZ_bin.h" />
+    <ClInclude Include="build\SharonMouthFrameImg_bin.h" />
+    <ClInclude Include="build\TikiEyeFrameImg_bin.h" />
+    <ClInclude Include="build\TikiFEyeFrame_bin.h" />
+    <ClInclude Include="build\TikiFMainPortrait_bin.h" />
+    <ClInclude Include="build\TikiFMiniPortraitLZ_bin.h" />
+    <ClInclude Include="build\TikiFMouthFrame_bin.h" />
+    <ClInclude Include="build\TikiMainPortraitImg_bin.h" />
+    <ClInclude Include="build\TikiMainPortraitPal_bin.h" />
+    <ClInclude Include="build\TikiMouthFrameImg_bin.h" />
+    <ClInclude Include="gfx\TikiPortraitUnused.h" />
+    <ClInclude Include="include\FE7CNText.h" />
+    <ClInclude Include="include\FE7JBattleAnimation.h" />
+    <ClInclude Include="include\FE7JPortrait.h" />
+    <ClInclude Include="include\font.h" />
+    <ClInclude Include="include\IDAPro.h" />
+    <ClInclude Include="include\portraitID.h" />
+    <ClInclude Include="include\SharonPortraitSheetPal.h" />
+    <ClInclude Include="include\spellAnimation.h" />
+    <ClInclude Include="include\spellArou.h" />
+    <ClInclude Include="include\spellBloodMoon.h" />
+    <ClInclude Include="include\spellFireSea.h" />
+    <ClInclude Include="include\spellIceWorld.h" />
+    <ClInclude Include="include\spellNaglfar.h" />
+    <ClInclude Include="include\text.h" />
+    <ClInclude Include="lib\libagb\include\Agb.h" />
+    <ClInclude Include="lib\libagb\include\AgbDefine.h" />
+    <ClInclude Include="lib\libagb\include\AgbIr.h" />
+    <ClInclude Include="lib\libagb\include\AgbMacro.h" />
+    <ClInclude Include="lib\libagb\include\AgbMemoryMap.h" />
+    <ClInclude Include="lib\libagb\include\AgbMultiBoot.h" />
+    <ClInclude Include="lib\libagb\include\AgbSound.h" />
+    <ClInclude Include="lib\libagb\include\AgbSystemCall.h" />
+    <ClInclude Include="lib\libagb\include\AgbTypes.h" />
+    <ClInclude Include="lib\libagb\include\backup\AgbDacs.h" />
+    <ClInclude Include="lib\libagb\include\backup\AgbEeprom.h" />
+    <ClInclude Include="lib\libagb\include\backup\AgbFlash.h" />
+    <ClInclude Include="lib\libagb\include\backup\AgbSram.h" />
+    <ClInclude Include="lib\libagb\include\backup\AgbSramFast.h" />
+    <ClInclude Include="lib\libagb\include\IsAgbPrint.h" />
+    <ClInclude Include="lib\libfe\include\ClassBattleAnimationConfig.h" />
+    <ClInclude Include="lib\libfe\include\FE7JCoroutine.h" />
+    <ClInclude Include="lib\libfe\include\FE7JFunc.h" />
+    <ClInclude Include="lib\libfe\include\FE7JItemList.h" />
+    <ClInclude Include="lib\libfe\include\FE7JMemoryMap.h" />
+    <ClInclude Include="lib\libfe\include\FE7JSound.h" />
+    <ClInclude Include="lib\libfe\include\FE7JSpellAnimationList.h" />
+    <ClInclude Include="lib\libfe\include\SpellAssociationStruct.h" />
+    <ClInclude Include="lib\libfe\include\textControlCodes.h" />
+    <ClInclude Include="lib\libgba\include\BoyScout.h" />
+    <ClInclude Include="lib\libgba\include\disc.h" />
+    <ClInclude Include="lib\libgba\include\disc_io.h" />
+    <ClInclude Include="lib\libgba\include\dldi.h" />
+    <ClInclude Include="lib\libgba\include\erapi.h" />
+    <ClInclude Include="lib\libgba\include\fade.h" />
+    <ClInclude Include="lib\libgba\include\fat.h" />
+    <ClInclude Include="lib\libgba\include\gba.h" />
+    <ClInclude Include="lib\libgba\include\gba_affine.h" />
+    <ClInclude Include="lib\libgba\include\gba_base.h" />
+    <ClInclude Include="lib\libgba\include\gba_compression.h" />
+    <ClInclude Include="lib\libgba\include\gba_console.h" />
+    <ClInclude Include="lib\libgba\include\gba_dma.h" />
+    <ClInclude Include="lib\libgba\include\gba_input.h" />
+    <ClInclude Include="lib\libgba\include\gba_interrupt.h" />
+    <ClInclude Include="lib\libgba\include\gba_multiboot.h" />
+    <ClInclude Include="lib\libgba\include\gba_sio.h" />
+    <ClInclude Include="lib\libgba\include\gba_sound.h" />
+    <ClInclude Include="lib\libgba\include\gba_sprites.h" />
+    <ClInclude Include="lib\libgba\include\gba_systemcalls.h" />
+    <ClInclude Include="lib\libgba\include\gba_timers.h" />
+    <ClInclude Include="lib\libgba\include\gba_types.h" />
+    <ClInclude Include="lib\libgba\include\gba_video.h" />
+    <ClInclude Include="lib\libgba\include\libfatversion.h" />
+    <ClInclude Include="lib\libgba\include\mappy.h" />
+    <ClInclude Include="lib\libgba\include\maxmod.h" />
+    <ClInclude Include="lib\libgba\include\mbv2.h" />
+    <ClInclude Include="lib\libgba\include\mm_types.h" />
+    <ClInclude Include="lib\libgba\include\pcx.h" />
+    <ClInclude Include="lib\libgba\include\xcomms.h" />
+    <ClInclude Include="lib\libgba\include\xcomms_cmd.h" />
+    <ClInclude Include="lib\libgs\include\AgbSystemCall.h" />
+    <ClInclude Include="lib\libgs\include\agbtypes.h" />
+    <ClInclude Include="lib\libgs\include\gbaplayer.h" />
+    <ClInclude Include="lib\libgs\include\gsback.h" />
+    <ClInclude Include="lib\libgs\include\GsDebugText.h" />
+    <ClInclude Include="lib\libgs\include\GsDEFINE.h" />
+    <ClInclude Include="lib\libgs\include\GsGBA.h" />
+    <ClInclude Include="lib\libgs\include\GsGFX.h" />
+    <ClInclude Include="lib\libgs\include\GsGfxE.h" />
+    <ClInclude Include="lib\libgs\include\GsINTR.h" />
+    <ClInclude Include="lib\libgs\include\gsmath.h" />
+    <ClInclude Include="lib\libgs\include\GsMEMORY.h" />
+    <ClInclude Include="lib\libgs\include\GsModplayer.h" />
+    <ClInclude Include="lib\libgs\include\GsSOUND.h" />
+    <ClInclude Include="lib\libgs\include\GsSPRITE.h" />
+    <ClInclude Include="lib\libgs\include\GsText.h" />
+    <ClInclude Include="lib\libgs\include\GsTileTxtM.h" />
+    <ClInclude Include="lib\libgs\include\GsTYPE.h" />
+    <ClInclude Include="lib\libgs\include\GtSPRITE.h" />
+    <ClInclude Include="lib\libgs\include\NMOD.H" />
+    <ClInclude Include="lib\libmy\include\AgbDebug.h" />
+    <ClInclude Include="lib\libmy\include\callFunc.h" />
+    <ClInclude Include="lib\libtonc\base.h" />
+    <ClInclude Include="lib\libtonc\include\tonc.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_asminc.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_bios.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_core.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_input.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_irq.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_legacy.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_libgba.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_math.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_memdef.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_memmap.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_nocash.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_oam.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_surface.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_text.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_tte.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_types.h" />
+    <ClInclude Include="lib\libtonc\include\tonc_video.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="data\LynBladeLordSwordAnimationData2.bin" />
+    <None Include="data\LynEyeFrameH.bin" />
+    <None Include="data\LynEyeFrameV.bin" />
+    <None Include="data\LynMainPortraitH.bin" />
+    <None Include="data\LynMainPortraitV.bin" />
+    <None Include="data\NinoSageAnimationData2.bin" />
+    <None Include="data\NinoSageAnimationData3.bin" />
+    <None Include="data\NinoSageAnimationData4.bin" />
+    <None Include="data\SharonEyeFrameImg.bin" />
+    <None Include="data\SharonMainPortraitImg.bin" />
+    <None Include="data\SharonMiniPortraitImgLZ.bin" />
+    <None Include="data\SharonMouthFrameImg.bin" />
+    <None Include="data\TikiEyeFrameImg.bin" />
+    <None Include="data\TikiFEyeFrame.bin" />
+    <None Include="data\TikiFMainPortrait.bin" />
+    <None Include="data\TikiFMiniPortraitLZ.bin" />
+    <None Include="data\TikiFMouthFrame.bin" />
+    <None Include="data\TikiMainPortraitImg.bin" />
+    <None Include="data\TikiMainPortraitPal.bin" />
+    <None Include="data\TikiMouthFrameImg.bin" />
+    <None Include="include\BattleAnimation_FaDragon_OAMInfo.inc" />
+    <None Include="include\BattleAnimation_FaDragon_sheet.inc" />
+    <None Include="include\BattleAnimation_FaInvers_OAMInfo.inc" />
+    <None Include="include\BattleAnimation_FaInvers_sheet.inc" />
+    <None Include="include\BattleAnimation_FaTrans_OAMInfo.inc" />
+    <None Include="include\BattleAnimation_FaTrans_sheet.inc" />
+    <None Include="include\BattleAnimation_Fa_OAMInfo.inc" />
+    <None Include="include\BattleAnimation_Fa_sheet.inc" />
+    <None Include="include\BattleAnimation_MamkuteDragon_OAMInfo.inc" />
+    <None Include="include\BattleAnimation_MamkuteDragon_sheet.inc" />
+    <None Include="include\BattleAnimation_Mamkute_OAMInfo.inc" />
+    <None Include="include\BattleAnimation_Mamkute_sheet.inc" />
+    <None Include="include\BattleAnimation_MyrrhDragon_OAMInfo.inc" />
+    <None Include="include\BattleAnimation_MyrrhDragon_sheet.inc" />
+    <None Include="include\BattleAnimation_MyrrhInvers_OAMInfo.inc" />
+    <None Include="include\BattleAnimation_MyrrhInvers_sheet.inc" />
+    <None Include="include\BattleAnimation_MyrrhTrans_OAMInfo.inc" />
+    <None Include="include\BattleAnimation_MyrrhTrans_sheet.inc" />
+    <None Include="include\BattleAnimation_Myrrh_OAMInfo.inc" />
+    <None Include="include\BattleAnimation_Myrrh_sheet.inc" />
+    <None Include="include\BattleAnimation_Sain_promoted_OAMInfo.inc" />
+    <None Include="include\BattleAnimation_Sain_promoted_sheet.inc" />
+    <None Include="include\PriscillaAnimationTest_OAMInfo.inc" />
+    <None Include="include\PriscillaAnimationTest_sheet.inc" />
+    <None Include="lib\libfe\include\BattleAnimationEventDef.inc" />
+    <None Include="lib\libfe\include\FE7JCharacterList.inc" />
+    <None Include="lib\libfe\include\FE7JClassList.inc" />
+    <None Include="lib\libfe\include\FE7JEvent.inc" />
+    <None Include="lib\libfe\include\FE7JItemList.inc" />
+    <None Include="tool\laq.bin" />
+    <None Include="trash\赛因上位动画\BattleAnimation_Sain_promoted_OAMInfo.inc" />
+    <None Include="trash\赛因上位动画\BattleAnimation_Sain_promoted_sheet.inc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,770 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="lib\libtonc\base.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_bg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_bg_affine.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_bmp16.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_bmp8.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_color.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_core.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_input.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_irq.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_math.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_oam.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_obj_affine.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_sbmp16.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_sbmp8.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_schr4c.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_schr4r.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_surface.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tonc_video.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\pre1.3\tonc_bitmap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\pre1.3\tonc_text.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\pre1.3\tonc_text_bm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\pre1.3\tonc_text_map.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\pre1.3\tonc_text_oam.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\ase_drawg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\bmp16_drawg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\bmp16_drawg_b1cs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\bmp8_drawg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\bmp8_drawg_b1cs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\chr4c_drawg_b1cts.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\chr4c_drawg_b4cts.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\chr4r_drawg_b1cts.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\obj_drawg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\se_drawg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_ase.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_bmp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_chr4c.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_chr4r.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_obj.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\tte_init_se.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\tte_iohook.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\libtonc\src\tte\tte_main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AgbDebug.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClassBattleAnimationConfig.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FalconKnightSpearAnimationWithIceEffect.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FE7CNText.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FE7JBattleAnimation.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FE7JPortrait.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FireDragonTestAnimation.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LordKnightEliwoodDurandalAnimation.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LynBladeLordSwordAnimationTest.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LynPortrait.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\msyhl_M14_CP936.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NinoSageAnimationTest.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PriscillaAnimationTest.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SharonPortrait.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\showFont.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spellAnimation.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spellArou.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spellBloodMoon.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spellFireSea.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spellIceWorld.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spellNaglfar.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TikiFPortrait.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TikiPortrait.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Zfull-GB_M12_CP936.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="build\all_gfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\LynBladeLordSwordAnimationData2_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\LynEyeFrameH_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\LynEyeFrameV_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\LynMainPortraitH_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\LynMainPortraitV_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\NinoSageAnimationData2_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\NinoSageAnimationData3_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\NinoSageAnimationData4_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\SharonEyeFrameImg_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\SharonMainPortraitImg_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\SharonMiniPortraitImgLZ_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\SharonMouthFrameImg_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\TikiEyeFrameImg_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\TikiFEyeFrame_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\TikiFMainPortrait_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\TikiFMiniPortraitLZ_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\TikiFMouthFrame_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\TikiMainPortraitImg_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\TikiMainPortraitPal_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\TikiMouthFrameImg_bin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\TikiPortraitUnused.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FE7CNText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FE7JBattleAnimation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FE7JPortrait.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IDAPro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\portraitID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SharonPortraitSheetPal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\spellAnimation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\spellArou.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\spellBloodMoon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\spellFireSea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\spellIceWorld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\spellNaglfar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\Agb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\AgbDefine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\AgbIr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\AgbMacro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\AgbMemoryMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\AgbMultiBoot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\AgbSound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\AgbSystemCall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\AgbTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\IsAgbPrint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\backup\AgbDacs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\backup\AgbEeprom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\backup\AgbFlash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\backup\AgbSram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libagb\include\backup\AgbSramFast.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libfe\include\ClassBattleAnimationConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libfe\include\FE7JCoroutine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libfe\include\FE7JFunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libfe\include\FE7JItemList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libfe\include\FE7JMemoryMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libfe\include\FE7JSound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libfe\include\FE7JSpellAnimationList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libfe\include\SpellAssociationStruct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libfe\include\textControlCodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\BoyScout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\disc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\disc_io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\dldi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\erapi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\fade.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\fat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_affine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_compression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_dma.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_interrupt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_multiboot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_sio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_sound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_sprites.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_systemcalls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_timers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\gba_video.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\libfatversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\mappy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\maxmod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\mbv2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\mm_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\pcx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\xcomms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgba\include\xcomms_cmd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\AgbSystemCall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\agbtypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\gbaplayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\gsback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsDebugText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsDEFINE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsGBA.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsGFX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsGfxE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsINTR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\gsmath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsMEMORY.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsModplayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsSOUND.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsSPRITE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsTileTxtM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GsTYPE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\GtSPRITE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libgs\include\NMOD.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libmy\include\AgbDebug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libmy\include\callFunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_asminc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_bios.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_irq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_legacy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_libgba.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_memdef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_memmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_nocash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_oam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_surface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_tte.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\libtonc\include\tonc_video.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\BattleAnimation_FaDragon_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_FaDragon_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_FaInvers_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_FaInvers_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_FaTrans_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_FaTrans_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_Fa_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_Fa_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_MamkuteDragon_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_MamkuteDragon_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_Mamkute_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_Mamkute_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_MyrrhDragon_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_MyrrhDragon_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_MyrrhInvers_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_MyrrhInvers_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_MyrrhTrans_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_MyrrhTrans_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_Myrrh_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_Myrrh_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_Sain_promoted_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\BattleAnimation_Sain_promoted_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\PriscillaAnimationTest_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\PriscillaAnimationTest_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="lib\libfe\include\BattleAnimationEventDef.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="lib\libfe\include\FE7JCharacterList.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="lib\libfe\include\FE7JClassList.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="lib\libfe\include\FE7JEvent.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="lib\libfe\include\FE7JItemList.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="trash\赛因上位动画\BattleAnimation_Sain_promoted_OAMInfo.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="trash\赛因上位动画\BattleAnimation_Sain_promoted_sheet.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="data\LynBladeLordSwordAnimationData2.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\LynEyeFrameH.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\LynEyeFrameV.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\LynMainPortraitH.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\LynMainPortraitV.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\NinoSageAnimationData2.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\NinoSageAnimationData3.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\NinoSageAnimationData4.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\SharonEyeFrameImg.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\SharonMainPortraitImg.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\SharonMiniPortraitImgLZ.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\SharonMouthFrameImg.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\TikiEyeFrameImg.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\TikiFEyeFrame.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\TikiFMainPortrait.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\TikiFMiniPortraitLZ.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\TikiFMouthFrame.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\TikiMainPortraitImg.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\TikiMainPortraitPal.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\TikiMouthFrameImg.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="tool\laq.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,7 @@
+﻿  [ -d build ] || mkdir -p build
+  make --no-print-directory -f /d/FE_kaizou2/FE7CNLOL/gfxmake
+  [ -d build ] || mkdir -p build
+  make --no-print-directory -C build -f /d/FE_kaizou2/FE7CNLOL/gfxmake
+  make[2]: Nothing to be done for `all'.
+  make --no-print-directory -C build -f /d/FE_kaizou2/FE7CNLOL/Makefile
+  make[1]: `/d/FE_kaizou2/FE7CNLOL/FE7CNLOL.gba' is up to date.
