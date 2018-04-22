@@ -23,6 +23,7 @@ end
 -- 解包出的内容存放在这个目录下
 baseDir = arg[1]
 os.execute('md "'..baseDir..'"')
+os.execute('md "'..baseDir..'/data"')
 
 -- 解压函数表
 decompFunc = {}
