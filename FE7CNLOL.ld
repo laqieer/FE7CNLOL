@@ -109,6 +109,8 @@ SECTIONS
 	.DisableNilsCharacterPalette : {*.o(.DisableNilsCharacterPalette)}
 	. = 0x8C51538 + 36 * 0x8F + 25;
 	.FlametongueRange : {*.o(.FlametongueRange)}
+	. = 0x80A119C;
+	.callSaveGameEx : {*.o(.callSaveGameEx)}	
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}

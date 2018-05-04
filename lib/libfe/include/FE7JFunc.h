@@ -336,3 +336,8 @@
 #define	getTargetAIS		sub(8054F90)
 
 #define loadFlashBG			sub(804F7B8)
+
+// 获取游戏时间
+// int getPlayTime();
+#define getPlayTime	sub(8000EEC)
+

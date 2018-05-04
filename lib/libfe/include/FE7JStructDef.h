@@ -95,7 +95,7 @@ typedef struct CharacterInfo
 	CharacterID id;
 
 	// 职业(用于在支援界面显示)
-	ClassID class;
+	ClassID m_class;
 
 	// 人物头像
 	PortraitID portrait;
@@ -284,165 +284,6 @@ typedef struct ItemDataInfo
 	u8 number;		// 物品数量
 }ItemData;
 
-// WRAM中的人物
-typedef struct UnitDataInWRAM
-{
-	// 角色指针
-	Character *character;
-	// 职业指针
-	Class *class;
-	// 等级
-	u8 lv;
-	// 经验值
-	u8 exp;
-	// 未知,偏移0xA
-	u8 unk_A;
-	// 编号(我军:1-0x3E(62人) 敌军:0x81-0xB2(50人) NPC:0x41-0x54(20人) 通信斗技场第4军:0xC1-0xC5(5人))
-	u8 deployNumber;
-	// 行动状态(0-行动前)
-	u8 actionState;
-	// 未知标识位,偏移0xD,bit0-3
-	u8 unk_flags_D_0_3:4;
-	// 物品掉落
-	u8 dropItem:1;
-	// 成长率上升(亚法水滴使用效果)
-	u8 growthPlus:1;
-	// 未知标识位,偏移0xD,bit6-7
-	u8 unk_flags_D_6_7:2;
-	// 未知，偏移0xE
-	u8 unk_E;
-	// 未知，偏移0xF
-	u8 unk_F;
-	// X坐标
-	u8 PositionX;
-	// Y坐标
-	u8 PositionY;
-	// 最大HP
-	s8 maxHp;
-	// 现在HP
-	s8 hp;
-	// 力/魔
-	s8 str;
-	// 技
-	s8 skl;
-	// 速
-	s8 spd;
-	// 守备
-	s8 def;
-	// 魔防
-	s8 res;
-	// 幸运
-	s8 luk;
-	// 体格附加值
-	s8 conBonus;
-	// 同行人物编号(救出/被救出)
-	u8 aidUnitNumber;
-	// 未知，偏移0x1C
-	u8 unk_1C;
-	// 移动附加值
-	s8 movBonus;
-
-	// 携带物品栏
-	ItemData items[5];
-
-	// 武器熟练度
-
-	// 剑等级
-	u8 levelSword;
-	// 枪等级
-	u8 levelLance;
-	// 斧等级
-	u8 levelAxe;
-	// 弓等级
-	u8 levelBow;
-	// 杖等级
-	u8 levelStaff;
-	// 理等级
-	u8 levelAnima;
-	// 光等级
-	u8 levelLight;
-	// 闇等级
-	u8 levelDark;
-
-	// buff/异常状态种类
-	u8 stateType:4;
-	// buff/异常状态持续回合数
-	u8 stateTurn:4;
-
-	// 火把/照明杖剩余回合数(视野附加值)
-	u8 sightBonus:4;
-	// 圣水/魔防杖剩余回合数(魔防附加值)
-	u8 resBonus:4;
-
-	// 支援等级
-	u8 levelSupport[7];
-
-	// 支援解锁flag
-
-	// 第1人
-	u8 unlockSupport1:1;
-	// 第2人
-	u8 unlockSupport2:1;
-	// 第3人
-	u8 unlockSupport3:1;
-	// 第4人
-	u8 unlockSupport4:1;
-	// 第5人
-	u8 unlockSupport5:1;
-	// 第6人
-	u8 unlockSupport6:1;
-	// 第7人
-	u8 unlockSupport7:1;
-	// 填充位
-	u8 unlockSupport8:1;
-		
-	// 未知，偏移0x3A
-	u8 unk_3A[6];
-
-	// AI(电脑控制下的任务行为规则)
-
-	// 回血
-	u8 AI_healing:3;
-	// 目标选择
-	u8 AI_targeting:5;
-	// 撤退
-	u8 AI_retreat;
-	// 行动
-	u8 AI_action;
-	u8 AI_action_counter;
-	// 移动
-	u8 AI_movement;
-	u8 AI_movement_counter;
-
-	// 未知，偏移0x46
-	u8 unk_46[2];
-}Unit;
-
-// 人物buff/异常状态种类定义
-
-// 正常
-#define unitState_none		0
-// 中毒
-#define	unitState_poison	1
-// 睡眠
-#define	unitState_sleep		2
-// 沉默
-#define	unitState_silence	3
-// 狂乱
-#define	unitState_berserker	4
-// 攻击上升
-#define	unitState_attack	5
-// 防御上升
-#define	unitState_defense	6
-// 必杀上升
-#define	unitState_critical	7
-// 回避上升
-#define	unitState_avoid		8
-// 生病
-#define	unitState_ill		9
-// 石化(圣魔里有，烈火里没有)
-#define unitState_stone		0
-
 // 职业战斗动画配置数据
 typedef struct ClassBattleAnimationConfigData
 {
@@ -457,35 +298,6 @@ typedef struct ClassBattleAnimationConfigData
 	// 动画编号
 	AnimationID animation;
 }ClassBattleAnimationConfig;
-
-// 武器类型定义
-
-// 剑
-#define weaponType_sword				0
-// 枪
-#define weaponType_lance				1
-// 斧
-#define weaponType_axe					2
-// 弓
-#define weaponType_bow					3
-// 杖
-#define weaponType_staff				4
-// 理
-#define weaponType_anima				5
-// 光
-#define weaponType_light				6
-// 闇
-#define weaponType_dark					7
-// 道具
-#define weaponType_item					9
-// 龙石/魔物专用
-#define weaponType_dragonStone			0xB
-// 戒指
-#define weaponType_ring					0xC
-// 火龙石
-#define weaponType_flameDragonStone		0x11
-// 舞蹈戒指?
-#define weaponType_dancingRing			0x12
 
 // ROM中的职业
 typedef struct ClassInfo
@@ -718,6 +530,206 @@ typedef struct ClassInfo
 	u8 *unk_ptr_50;
 	
 }Class;
+
+// WRAM中的人物
+typedef struct UnitDataInWRAM
+{
+	// 角色指针
+	Character *character;
+	// 职业指针
+	Class *m_class;
+	// 等级
+	u8 lv;
+	// 经验值
+	u8 exp;
+	// 未知,偏移0xA
+	u8 unk_A;
+	// 编号(我军:1-0x3E(62人) 敌军:0x81-0xB2(50人) NPC:0x41-0x54(20人) 通信斗技场第4军:0xC1-0xC5(5人))
+	u8 deployNumber;
+	// 行动状态(0-行动前)
+	u8 actionState;
+	// 未知标识位,偏移0xD,bit0-3
+	u8 unk_flags_D_0_3:4;
+	// 物品掉落
+	u8 dropItem:1;
+	// 成长率上升(亚法水滴使用效果)
+	u8 growthPlus:1;
+	// 未知标识位,偏移0xD,bit6-7
+	u8 unk_flags_D_6_7:2;
+	// 未知，偏移0xE
+	u8 unk_E;
+	// 未知，偏移0xF
+	u8 unk_F;
+	// X坐标
+	u8 PositionX;
+	// Y坐标
+	u8 PositionY;
+	// 最大HP
+	s8 maxHp;
+	// 现在HP
+	s8 hp;
+	// 力/魔
+	s8 str;
+	// 技
+	s8 skl;
+	// 速
+	s8 spd;
+	// 守备
+	s8 def;
+	// 魔防
+	s8 res;
+	// 幸运
+	s8 luk;
+	// 体格附加值
+	s8 conBonus;
+	// 同行人物编号(救出/被救出)
+	u8 aidUnitNumber;
+	// 未知，偏移0x1C
+	u8 unk_1C;
+	// 移动附加值
+	s8 movBonus;
+
+	// 携带物品栏
+	ItemData items[5];
+
+	// 武器熟练度
+
+	// 剑等级
+	u8 levelSword;
+	// 枪等级
+	u8 levelLance;
+	// 斧等级
+	u8 levelAxe;
+	// 弓等级
+	u8 levelBow;
+	// 杖等级
+	u8 levelStaff;
+	// 理等级
+	u8 levelAnima;
+	// 光等级
+	u8 levelLight;
+	// 闇等级
+	u8 levelDark;
+
+	// buff/异常状态种类
+	u8 stateType:4;
+	// buff/异常状态持续回合数
+	u8 stateTurn:4;
+
+	// 火把/照明杖剩余回合数(视野附加值)
+	u8 sightBonus:4;
+	// 圣水/魔防杖剩余回合数(魔防附加值)
+	u8 resBonus:4;
+
+	// 支援等级
+	u8 levelSupport[7];
+
+	// 支援解锁flag
+
+	// 第1人
+	u8 unlockSupport1:1;
+	// 第2人
+	u8 unlockSupport2:1;
+	// 第3人
+	u8 unlockSupport3:1;
+	// 第4人
+	u8 unlockSupport4:1;
+	// 第5人
+	u8 unlockSupport5:1;
+	// 第6人
+	u8 unlockSupport6:1;
+	// 第7人
+	u8 unlockSupport7:1;
+	// 填充位
+	u8 unlockSupport8:1;
+		
+	// 未知，偏移0x3A
+	u8 unk_3A[6];
+
+	// AI(电脑控制下的任务行为规则)
+
+	// 回血
+	u8 AI_healing:3;
+	// 目标选择
+	u8 AI_targeting:5;
+	// 撤退
+	u8 AI_retreat;
+	// 行动
+	u8 AI_action;
+	u8 AI_action_counter;
+	// 移动
+	u8 AI_movement;
+	u8 AI_movement_counter;
+
+	// 未知，偏移0x46
+	u8 unk_46[2];
+}Unit;
+
+// 人物内存池
+#define units			((Unit *)0x202BD4C)
+#define playerNum		62
+#define enemyNum		50
+#define npcNum			20
+#define p4Num			5
+#define units_player	((Unit *)0x202BD4C)
+#define units_enemy		((Unit *)0x202BD4C + playerNum)
+#define units_npc		((Unit *)0x202BD4C + playerNum + enemyNum)
+#define units_p4		((Unit *)0x202BD4C + playerNum + enemyNum + npcNum)
+#define units_end		((Unit *)0x202BD4C + playerNum + enemyNum + npcNum + p4Num)
+
+// 人物buff/异常状态种类定义
+
+// 正常
+#define unitState_none		0
+// 中毒
+#define	unitState_poison	1
+// 睡眠
+#define	unitState_sleep		2
+// 沉默
+#define	unitState_silence	3
+// 狂乱
+#define	unitState_berserker	4
+// 攻击上升
+#define	unitState_attack	5
+// 防御上升
+#define	unitState_defense	6
+// 必杀上升
+#define	unitState_critical	7
+// 回避上升
+#define	unitState_avoid		8
+// 生病
+#define	unitState_ill		9
+// 石化(圣魔里有，烈火里没有)
+#define unitState_stone		0
+
+// 武器类型定义
+
+// 剑
+#define weaponType_sword				0
+// 枪
+#define weaponType_lance				1
+// 斧
+#define weaponType_axe					2
+// 弓
+#define weaponType_bow					3
+// 杖
+#define weaponType_staff				4
+// 理
+#define weaponType_anima				5
+// 光
+#define weaponType_light				6
+// 闇
+#define weaponType_dark					7
+// 道具
+#define weaponType_item					9
+// 龙石/魔物专用
+#define weaponType_dragonStone			0xB
+// 戒指
+#define weaponType_ring					0xC
+// 火龙石
+#define weaponType_flameDragonStone		0x11
+// 舞蹈戒指?
+#define weaponType_dancingRing			0x12
 
 // ROM中的武器道具
 typedef struct ItemInfo

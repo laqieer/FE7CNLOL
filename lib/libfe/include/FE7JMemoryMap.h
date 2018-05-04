@@ -127,3 +127,7 @@ enum TileTransferType{
 
 // 魔法动画BGTile地址
 #define spellBGTile		((void *)0x6001C00)
+
+// 游戏时间
+#define playtime		(*(int *)0x3000010)
+

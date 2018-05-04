@@ -51,3 +51,5 @@ typedef int (*PTRFUN)();
 #define	_call_via_r14	sub(80C07C8)
 #define	_call_via_lr	_call_via_r14
 #define	retn			_call_via_r14
+
+#define NULL	0
