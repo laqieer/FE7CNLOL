@@ -6,6 +6,8 @@ CROSS_COMPILE	:=	arm-none-eabi-
 
 # 指定目标编译器
 CC	:=	$(CROSS_COMPILE)gcc
+# 指定汇编器
+AS	:=	$(CROSS_COMPILE)as
 # 目标复制命令生成二进制文件
 OBJCOPY	:=	$(CROSS_COMPILE)objcopy
 # 库归档
@@ -26,7 +28,8 @@ AR	:=	$(CROSS_COMPILE)gcc-ar
 # failed to merge target specific data of file rom.o
 # http://www.denx.de/wiki/DULG/SourceObjectHasEABIVersion4ButTargetHasEABIVersion0
 # note: valid arguments to '-mabi=' are: aapcs aapcs-linux apcs-gnu atpcs iwmmxt
-ARCH	:=	-mcpu=arm7tdmi -mabi=aapcs -mthumb -mthumb-interwork
+# ARCH	:=	-mcpu=arm7tdmi -mabi=aapcs -mthumb -mthumb-interwork
+ARCH	:=	-mcpu=arm7tdmi -mthumb -mthumb-interwork
 # ABI，application binary interface (ABI)，应用程序二进制接口
 # OABI中的O，表示“Old”，“Lagacy”，旧的，过时的，OABI就是旧的/老的ABI
 # EABI中的E，表示“Embedded”，嵌入式，是一种新的ABI
@@ -40,6 +43,9 @@ ARCH	:=	-mcpu=arm7tdmi -mabi=aapcs -mthumb -mthumb-interwork
 # -fno-toplevel-reorder 保持输入文件中的次序,以某些优化作为代价
 # -nostdinc 不在标准系统目录中搜索头文件，只在-I指定的目录中搜索
 CFLAGS	:=	$(ARCH) -g -O2 -Wall -fomit-frame-pointer -ffast-math -fno-toplevel-reorder -nostdinc
+
+# 汇编选项
+ASFLAGS :=	$(ARCH) -g
 
 # 设置.rom段的段属性
 OBJCOPYFLAGS := --set-section-flags .rom="r,c,a"

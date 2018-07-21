@@ -24,7 +24,9 @@ GFXLIBS     ?= libgfx.a
 LIBRARIES	:=	lib/libfe lib/libmy lib/libagb lib/libtonc
 # 链接的函数库
 LIBS        := -nostdlib -lgfx -ltonc
-# LIBS        := -lgfx -ltonc
+# LIBS        := -lgfx -
+# makefile本身(修改了makefile就应该先make clean再重新make)
+# MAKEFILES	:= makefile gbamake
 
 # 若在顶层目录
 ifeq (0,$(MAKELEVEL))
@@ -89,10 +91,12 @@ $(OUTPUT).elf: $(OFILES) $(LDS) $(GFXLIBS)
 	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 .S.o:
-	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) $(INCLUDES) -c $< -o $@
+#	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d -x assembler-with-cpp $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(AS) --MD $(DEPSDIR)/$*.d $(ASFLAGS) $(INCLUDES) -o $@ $<
 	
 .s.o:
-	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) $(INCLUDES) -c $< -o $@
+#	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d -x assembler-with-cpp $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(AS) --MD $(DEPSDIR)/$*.d $(ASFLAGS) $(INCLUDES) -o $@ $<
 	
 %.s: %.bin
 	bin2s $< >$@
