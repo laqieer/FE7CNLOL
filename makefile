@@ -90,11 +90,9 @@ $(OUTPUT).elf: $(OFILES) $(LDS) $(GFXLIBS)
 .c.o:
 #	从注释自动生成段配置
 #	格式: //SECTION <段名> <地址>
-	echo > ../$(BUILD)/$*.lds
-#	sed -i '/INCLUDE $*\.lds/d' ../$(BUILD)/auto.lds
-	echo "INCLUDE $*.lds" >> ../$(BUILD)/auto.lds
-	sed -n '/^\/\/SECTION\s\+\(\S\+\)\s\+0x\(\S\+\)/!D;s/^\/\/SECTION\s\+\(\S\+\)\s\+0x\(\S\+\)/\. = 0x\2; \.\1 : {\*\.o(.\1)}/g;p' $< > ../$(BUILD)/$*.lds
-	sed -i 's|^//SECTION\s\+\(\S\+\)\s\+0x\(\S\+\)|__attribute__((section(\"\.\1\")))|g' $<
+	-sed -n '/INCLUDE\s\+$*\.lds/ q 1' ../$(BUILD)/auto.lds; if [ $$? -eq 0 ]; then echo -e "\nINCLUDE $*.lds" >> ../$(BUILD)/auto.lds; fi
+	sed '/^\/\/SECTION\s\+\S\+\s\+0x\S\+/ s/^\/\/SECTION\s\+\(\S\+\)\s\+0x\(\S\+\)/\. = 0x\2; \.\1 : {\*\.o(\.\1)}/w ../$(BUILD)/$*.lds' $<
+	sed -i -n '/^\/\/SECTION\s\+\S\+\s\+0x\S\+/ s/^\/\/SECTION\s\+\(\S\+\)\s\+0x\S\+/__attribute__((section(\"\.\1\")))/; p' $<
 	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 .S.o:
@@ -104,11 +102,10 @@ $(OUTPUT).elf: $(OFILES) $(LDS) $(GFXLIBS)
 .s.o:
 #	从注释自动生成段配置
 #	格式: @section <段名> <地址>
-	echo > ../$(BUILD)/$*.lds
-#	sed -i '/INCLUDE $*\.lds/d' ../$(BUILD)/auto.lds
-	echo "INCLUDE $*.lds" >> ../$(BUILD)/auto.lds
-	sed -n '/^\@section\s\+\(\S\+\)\s\+0x\(\S\+\)/!D;s/^\@section\s\+\(\S\+\)\s\+0x\(\S\+\)/\. = 0x\2; \.\1 : {\*\.o(.\1)}/g;p' $< > ../$(BUILD)/$*.lds
-	sed -i 's|^\@section\s\+\(\S\+\)\s\+0x\(\S\+\)|\.section \.\1|g' $<
+#	定义的汇编段最后找不到了。。。
+#	-sed -n '/INCLUDE\s\+$*\.lds/ q 1' ../$(BUILD)/auto.lds; if [ $$? -eq 0 ]; then echo -e "\nINCLUDE $*.lds" >> ../$(BUILD)/auto.lds; fi
+#	sed '/^\@section\s\+\S\+\s\+0x\S\+/ s/^\@section\s\+\(\S\+\)\s\+0x\(\S\+\)/\. = 0x\2; \.\1 : {\*\.o(\.\1)}/w ../$(BUILD)/$*.lds' $<
+#	sed -i -n '/^\@section\s\+\S\+\s\+0x\S\+/ s/^\@section\s\+\(\S\+\)\s\+0x\S\+/\.section \.\1,"x"/; p' $<
 #	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d -x assembler-with-cpp $(CFLAGS) $(INCLUDES) -c $< -o $@
 	$(AS) --MD $(DEPSDIR)/$*.d $(ASFLAGS) $(INCLUDES) -o $@ $<
 	
