@@ -1,6 +1,6 @@
 /*	by laqieer
 	2017/1/27
-	链接脚本
+	主链接脚本
 */
 
 SECTIONS
@@ -110,8 +110,11 @@ SECTIONS
 	. = 0x8C51538 + 36 * 0x8F + 25;
 	.FlametongueRange : {*.o(.FlametongueRange)}
 	. = 0x80A119C;
-	.callSaveGameEx : {*.o(.callSaveGameEx)}	
+	.callSaveGameEx : {*.o(.callSaveGameEx)}
+	INCLUDE build\auto.lds
 	. = 0x9000000;	
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}
 }
+
+

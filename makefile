@@ -88,6 +88,13 @@ $(OUTPUT).elf: $(OFILES) $(LDS) $(GFXLIBS)
 	$(AR) -rc $@ $^
 
 .c.o:
+#	从注释自动生成段配置
+#	格式: //SECTION <段名> <地址>
+	echo > ../$(BUILD)/$*.lds
+#	sed -i '/INCLUDE $*\.lds/d' ../$(BUILD)/auto.lds
+	echo "INCLUDE $*.lds" >> ../$(BUILD)/auto.lds
+	sed -n '/^\/\/SECTION\s\+\(\S\+\)\s\+0x\(\S\+\)/!D;s/^\/\/SECTION\s\+\(\S\+\)\s\+0x\(\S\+\)/\. = 0x\2; \.\1 : {\*\.o(.\1)}/g;p' $< > ../$(BUILD)/$*.lds
+	sed -i 's|^//SECTION\s\+\(\S\+\)\s\+0x\(\S\+\)|__attribute__((section(\"\.\1\")))|g' $<
 	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 .S.o:
@@ -95,6 +102,13 @@ $(OUTPUT).elf: $(OFILES) $(LDS) $(GFXLIBS)
 	$(AS) --MD $(DEPSDIR)/$*.d $(ASFLAGS) $(INCLUDES) -o $@ $<
 	
 .s.o:
+#	从注释自动生成段配置
+#	格式: @section <段名> <地址>
+	echo > ../$(BUILD)/$*.lds
+#	sed -i '/INCLUDE $*\.lds/d' ../$(BUILD)/auto.lds
+	echo "INCLUDE $*.lds" >> ../$(BUILD)/auto.lds
+	sed -n '/^\@section\s\+\(\S\+\)\s\+0x\(\S\+\)/!D;s/^\@section\s\+\(\S\+\)\s\+0x\(\S\+\)/\. = 0x\2; \.\1 : {\*\.o(.\1)}/g;p' $< > ../$(BUILD)/$*.lds
+	sed -i 's|^\@section\s\+\(\S\+\)\s\+0x\(\S\+\)|\.section \.\1|g' $<
 #	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d -x assembler-with-cpp $(CFLAGS) $(INCLUDES) -c $< -o $@
 	$(AS) --MD $(DEPSDIR)/$*.d $(ASFLAGS) $(INCLUDES) -o $@ $<
 	
