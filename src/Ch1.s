@@ -54,7 +54,6 @@ MiscBasedEvents:
 	.byte 0x01, 0x00, 0x00, 0x00
 	.word label20
 	.byte 0x00, 0x00, 0x00, 0x00
-.section .Chapter1,"ax",%progbits
 PointerList:
 	.word TurnBasedEvents
 	.word CharacterBasedEvents
