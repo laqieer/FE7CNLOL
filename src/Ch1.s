@@ -1,9 +1,10 @@
 	.thumb
 	.global Ch1
-	.global TestFunc1
 	.include "event_func_Thumb.inc"
 	.include "event_func_C.inc"
 Ch1:
+	.extern TestExternSymbol
+	.global TestFunc1
 TurnBasedEvents:
 	.byte 0x02, 0x00, 0x00, 0x00
 	.word BeginningScene
@@ -17,6 +18,7 @@ TurnBasedEvents:
 	.word TestFunc2
 	.byte 0x3E, 0x00, 0x00, 0x00
 	.word TestFunc3
+	.byte 0xFF, 0xFF, 0xFF, 0xFF
 	.byte 0x00, 0x00, 0x00, 0x00
 TestFunc1:
 	 push	{ r4, r5, lr }
@@ -52,6 +54,7 @@ MiscBasedEvents:
 	.byte 0x01, 0x00, 0x00, 0x00
 	.word label20
 	.byte 0x00, 0x00, 0x00, 0x00
+.section .Chapter1,"ax",%progbits
 PointerList:
 	.word TurnBasedEvents
 	.word CharacterBasedEvents
