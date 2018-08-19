@@ -96,7 +96,9 @@ void SaveGameEx(enum saveslot saveslotNum)
 	sub(80A0F60)(saveslotNum);
 }
 
+#ifndef __INTELLISENSE__
 __attribute__((section(".callSaveGameEx")))
+#endif
 void callSaveGameEx(enum saveslot saveslotNum)
 {
 	SaveGameEx(saveslotNum);

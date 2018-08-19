@@ -210,6 +210,12 @@
     <ClCompile Include="src\Zfull-GB_M12_CP936.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\TestFunc3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FE7JSave.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="build\all_gfx.h">
@@ -765,6 +771,12 @@
     </None>
     <None Include="tool\laq.bin">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="src\Ch1.s">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="src\TestFunc2.s">
+      <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
 </Project>

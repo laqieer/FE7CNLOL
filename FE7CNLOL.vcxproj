@@ -125,6 +125,7 @@
     <ClCompile Include="src\FE7CNText.c" />
     <ClCompile Include="src\FE7JBattleAnimation.c" />
     <ClCompile Include="src\FE7JPortrait.c" />
+    <ClCompile Include="src\FE7JSave.c" />
     <ClCompile Include="src\FireDragonTestAnimation.c" />
     <ClCompile Include="src\LordKnightEliwoodDurandalAnimation.c" />
     <ClCompile Include="src\LynBladeLordSwordAnimationTest.c" />
@@ -140,6 +141,7 @@
     <ClCompile Include="src\spellFireSea.c" />
     <ClCompile Include="src\spellIceWorld.c" />
     <ClCompile Include="src\spellNaglfar.c" />
+    <ClCompile Include="src\TestFunc3.c" />
     <ClCompile Include="src\TikiFPortrait.c" />
     <ClCompile Include="src\TikiPortrait.c" />
     <ClCompile Include="src\Zfull-GB_M12_CP936.c" />
@@ -328,6 +330,8 @@
     <None Include="lib\libfe\include\FE7JClassList.inc" />
     <None Include="lib\libfe\include\FE7JEvent.inc" />
     <None Include="lib\libfe\include\FE7JItemList.inc" />
+    <None Include="src\Ch1.s" />
+    <None Include="src\TestFunc2.s" />
     <None Include="tool\laq.bin" />
     <None Include="trash\赛因上位动画\BattleAnimation_Sain_promoted_OAMInfo.inc" />
     <None Include="trash\赛因上位动画\BattleAnimation_Sain_promoted_sheet.inc" />
