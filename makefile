@@ -64,14 +64,14 @@ export INCLUDES	:=	$(foreach dir,$(HEADERS),-I$(CURDIR)/$(dir)) \
 					-I$(CURDIR)/$(BUILD)
 
 # 伪目标
-.PHONY: all $(BUILD) clean event
+.PHONY: all $(BUILD) clean event gtags
 
 all	: event $(BUILD)
 
 # 切换到build目录下make
 $(BUILD):
 	[ -d $@ ] || mkdir -p $@
-	$(MAKE) --no-print-directory -f $(CURDIR)/gfxmake
+#	$(MAKE) --no-print-directory -f $(CURDIR)/gfxmake
 	$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 	
 event : $(notdir $(EVENTFILES:.event=.s))
@@ -81,6 +81,9 @@ event : $(notdir $(EVENTFILES:.event=.s))
 
 clean:
 	rm -fr $(BUILD) $(TARGET).elf $(TARGET).gba
+	
+gtags:
+	gtags
 	
 # 若已经进入到build目录
 else
