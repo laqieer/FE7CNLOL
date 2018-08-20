@@ -72,7 +72,8 @@ all	: event $(BUILD)
 $(BUILD):
 	[ -d $@ ] || mkdir -p $@
 #	$(MAKE) --no-print-directory -f $(CURDIR)/gfxmake
-	$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+#	$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+	make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 	
 event : $(notdir $(EVENTFILES:.event=.s))
 

@@ -1,0 +1,23 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "GDB",
+            "type": "gdb",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "target": "${workspaceRoot}/FE7CNLOL.elf", 
+            "gdbpath" : "E:/devkitPro/devkitARM/bin/arm-none-eabi-gdb.exe",
+            "preLaunchTask": "run gdb server",
+            "autorun": [
+                "target remote localhost:2345",
+                "symbol-file ./FE7CNLOL.elf",
+                // "monitor reset" 
+                // Target does not support this command.
+                ]
+        }
+    ]
+}
