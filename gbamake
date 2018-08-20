@@ -31,6 +31,7 @@ LD	:=	$(CROSS_COMPILE)ld
 # http://www.denx.de/wiki/DULG/SourceObjectHasEABIVersion4ButTargetHasEABIVersion0
 # note: valid arguments to '-mabi=' are: aapcs aapcs-linux apcs-gnu atpcs iwmmxt
 # ARCH	:=	-mcpu=arm7tdmi -mabi=aapcs -mthumb -mthumb-interwork
+# ARCH	:=	-mcpu=arm7tdmi -mthumb -mthumb-interwork -mabi=apcs-gnu
 ARCH	:=	-mcpu=arm7tdmi -mthumb -mthumb-interwork
 # ABI，application binary interface (ABI)，应用程序二进制接口
 # OABI中的O，表示“Old”，“Lagacy”，旧的，过时的，OABI就是旧的/老的ABI

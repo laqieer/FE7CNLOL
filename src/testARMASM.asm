@@ -7,4 +7,4 @@ start
      THUMB                         ; Subsequent instructions are Thumb
 into_thumb
      MOVS    r0, #10               ; New-style Thumb instructions
-	 END
+     END

@@ -157,8 +157,8 @@ ShowFrame \frames, \No, \sheet, \frameSection
 @ 显示BG(0x8A)
 @ 参数: n=0-3,要使用的BG层;No: 背景编号(结构体数组索引,记录图片数据,调色板和TSA的地址)
 .macro	ShowBG n=1, No=0
-.hword	No
-.byte	n, 0x8A
+.hword	\No
+.byte	\n, 0x8A
 .endm
 
 @ 清BG
