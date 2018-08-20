@@ -52,10 +52,12 @@ CFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 EVENTFILES	:=	$(foreach dir,$(EVENTS),$(wildcard $(dir)/*.event))
 SFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S))) \
 			$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
+ASMFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.asm))) \
+				$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.ASM)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.bin)))
 
 # export OFILES	:=	$(CFILES:.c=.o) $(subst .s,.o,$(SFILES:.S=.o)) $(BINFILES:.bin=.o) $(EVENTFILES:.event=.o)
-export OFILES	:=	$(CFILES:.c=.o) $(subst .s,.o,$(SFILES:.S=.o)) $(BINFILES:.bin=.o)
+export OFILES	:=	$(CFILES:.c=.o) $(subst .s,.o,$(SFILES:.S=.o)) $(subst .asm,.o,$(SFILES:.ASM=.o)) $(BINFILES:.bin=.o)
 # export OFILES	:=	$(CFILES:.c=.o) $(subst .s,.o,$(SFILES:.S=.o))
 # export LIBPATHS	:=	$(foreach dir,$(LIBRARIES),-L$(dir)/lib)
 export LIBPATHS	:=	$(foreach dir,$(LIBRARIES),-L../$(dir)/lib) -L$(CURDIR)
@@ -129,6 +131,12 @@ $(OUTPUT).elf: $(OFILES) $(LDS) $(GFXLIBS)
 	@sed -i -n '/^\@section\s\+\S\+\s\+0x\S\+/ s/^\@section\s\+\(\S\+\)\s\+0x\S\+/\.section \.\1,"ax",%progbits/; p' $<
 #	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d -x assembler-with-cpp $(CFLAGS) $(INCLUDES) -c $< -o $@
 	$(AS) --MD $(DEPSDIR)/$*.d $(ASFLAGS) $(INCLUDES) -o $@ $<
+	
+%.o: %.asm
+	armasm --MD --li -g --cpu=ARM7TDMI --thumb --apcs=interwork -o $@ $<
+	
+%.o: %.ASM
+	armasm --cpreproc --MD --li -g --cpu=ARM7TDMI --thumb --apcs=interwork -o $@ $<
 	
 %.s: %.bin
 	bin2s $< >$@

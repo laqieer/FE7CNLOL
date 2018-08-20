@@ -12,6 +12,8 @@ AS	:=	$(CROSS_COMPILE)as
 OBJCOPY	:=	$(CROSS_COMPILE)objcopy
 # 库归档
 AR	:=	$(CROSS_COMPILE)gcc-ar
+# 链接
+LD	:=	$(CROSS_COMPILE)ld
 
 # 基于arm架构
 # -mcpu=arm7tdmi 指定CPU型号
@@ -51,4 +53,5 @@ ASFLAGS :=	$(ARCH) -g
 OBJCOPYFLAGS := --set-section-flags .rom="r,c,a"
 
 # -nostdlib 不连接标准启动文件和标准库文件
-LDFLAGS	:= -g -T$(LDS) -Wl,-Map,$(notdir $(OUTPUT)).map
+# --no-warn-mismatch 忽略对象文件之间eabi version不匹配的问题，可能会造成严重后果
+LDFLAGS	:= -g -T$(LDS) -Wl,--no-warn-mismatch,-Map,$(notdir $(OUTPUT)).map
