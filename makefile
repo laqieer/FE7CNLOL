@@ -1,52 +1,52 @@
 # by laqieer
 # 2017/1/26
 
-# ï¿½ï¿½Ó¹ï¿½ï¿½ï¿½Â·ï¿½ï¿½
+# Ìí¼Ó¹¤¾ßÂ·¾¶
 # PATH	:=	$(DEVKITARM)/bin;$(PATH)
 # error: make: make: Command not found
 # I was inadvertently overriding my PATH so none of my commands were being found.
 
-# Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿Â¼ï¿½ï¿½ï¿½Ä¼ï¿½
+# Ö¸¶¨¸÷ÖÖÄ¿Â¼ºÍÎÄ¼þ
 
-# ï¿½ï¿½ï¿½Éµï¿½Ä¿ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½Ô¹ï¿½ï¿½ï¿½Ä¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+# Éú³ÉµÄÄ¿±êÎÄ¼þÒÔ¹¤³ÌÄ¿Â¼ÃûÃüÃû
 TARGET	:=	$(shell basename $(CURDIR))
-# ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ä¿Â¼
+# Éú³ÉÎÄ¼þµÄÄ¿Â¼
 BUILD	:=	build
-# ï¿½Â½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Ä¿Â¼
+# ÕÂ½ÚÊÂ¼þµÄÄ¿Â¼
 EVENTS	:=	event
-# Ô´ï¿½Ä¼ï¿½ï¿½ï¿½Ä¿Â¼
+# Ô´ÎÄ¼þµÄÄ¿Â¼
 SOURCES	:=	src sound $(EVENTS)
-# ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ýµï¿½Ä¿Â¼
+# ¶þ½øÖÆÊý¾ÝµÄÄ¿Â¼
 DATA	:=	data
-# Í·ï¿½Ä¼ï¿½
+# Í·ÎÄ¼þ
 HEADERS	:=	include
 # Create a gfx library variable
 GFXLIBS     ?= libgfx.a
-# ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
+# º¯Êý¿âÂ·¾¶
 LIBRARIES	:=	lib/libfe lib/libmy lib/libagb lib/libtonc
-# ï¿½ï¿½ï¿½ÓµÄºï¿½ï¿½ï¿½ï¿½ï¿½
+# Á´½ÓµÄº¯Êý¿â
 LIBS        := -nostdlib -lgfx -ltonc
 # LIBS        := -lgfx -
-# makefileï¿½ï¿½ï¿½ï¿½(ï¿½Þ¸ï¿½ï¿½ï¿½makefileï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½make cleanï¿½ï¿½ï¿½ï¿½ï¿½ï¿½make)
+# makefile±¾Éí(ÐÞ¸ÄÁËmakefile¾ÍÓ¦¸ÃÏÈmake cleanÔÙÖØÐÂmake)
 # MAKEFILES	:= makefile gbamake
 
 # Event Assembler Core
 EA	:=	Core
-# Event AssemblerÑ¡ï¿½ï¿½
+# Event AssemblerÑ¡Ïî
 EAFLAGS	:=	C FE7J
 
-# ï¿½ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½Ä¿Â¼
+# ÈôÔÚ¶¥²ãÄ¿Â¼
 ifeq (0,$(MAKELEVEL))
 
-# ï¿½ï¿½ï¿½Â²ã´«ï¿½Ý±ï¿½ï¿½ï¿½
+# ÏòÏÂ²ã´«µÝ±äÁ¿
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
 export DEPSDIR	:=	$(CURDIR)/$(BUILD)
-# ï¿½ï¿½ï¿½Ó½Å±ï¿½
+# Á´½Ó½Å±¾
 export LDS	=	$(OUTPUT).ld					
 
-# Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½åµ¥
+# Òª±àÒëµÄÎÄ¼þÀàÐÍÇåµ¥
 
 CFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 EVENTFILES	:=	$(foreach dir,$(EVENTS),$(wildcard $(dir)/*.event))
@@ -65,12 +65,12 @@ export INCLUDES	:=	$(foreach dir,$(HEADERS),-I$(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBRARIES),-I$(CURDIR)/$(dir)/include) \
 					-I$(CURDIR)/$(BUILD)
 
-# Î±Ä¿ï¿½ï¿½
+# Î±Ä¿±ê
 .PHONY: all $(BUILD) clean event gtags
 
 all	: event $(BUILD)
 
-# ï¿½Ð»ï¿½ï¿½ï¿½buildÄ¿Â¼ï¿½ï¿½make
+# ÇÐ»»µ½buildÄ¿Â¼ÏÂmake
 $(BUILD):
 	[ -d $@ ] || mkdir -p $@
 #	$(MAKE) --no-print-directory -f $(CURDIR)/gfxmake
@@ -88,28 +88,28 @@ clean:
 gtags:
 	gtags
 	
-# ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ëµ½buildÄ¿Â¼
+# ÈôÒÑ¾­½øÈëµ½buildÄ¿Â¼
 else
 
 include ../gbamake
 
-# ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+# ÒÀÀµÐÔ
 DEPENDS	:=	$(OFILES:.o=.d)
 
-# ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½
+# ÕæÕýµÄ±àÒëÄ¿±ê
 $(OUTPUT).gba: $(OUTPUT).elf
 
 $(OUTPUT).elf: $(OFILES) $(LDS) $(GFXLIBS)
 
-# Í¨ï¿½Ã¹ï¿½ï¿½ï¿½
+# Í¨ÓÃ¹æÔò
 
 %.a:
 	rm -f $@
 	$(AR) -rc $@ $^
 
 .c.o:
-#	ï¿½ï¿½×¢ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½É¶ï¿½ï¿½ï¿½ï¿½ï¿½
-#	ï¿½ï¿½Ê½: //SECTION <ï¿½ï¿½ï¿½ï¿½> <ï¿½ï¿½Ö·>
+#	´Ó×¢ÊÍ×Ô¶¯Éú³É¶ÎÅäÖÃ
+#	¸ñÊ½: //SECTION <¶ÎÃû> <µØÖ·>
 	@-sed -n '/INCLUDE\s\+$*\.lds/ q 1' ../$(BUILD)/auto.lds; if [ $$? -eq 0 ]; then echo -e "\nINCLUDE $*.lds" >> ../$(BUILD)/auto.lds; fi
 	@sed '/^\/\/SECTION\s\+\S\+\s\+0x\S\+/ s/^\/\/SECTION\s\+\(\S\+\)\s\+0x\(\S\+\)/\. = 0x\2; \.\1 : {\*\.o(\.\1)}/w ../$(BUILD)/$*.lds' $< >/dev/null
 	@sed -i -n '/^\/\/SECTION\s\+\S\+\s\+0x\S\+/ s/^\/\/SECTION\s\+\(\S\+\)\s\+0x\S\+/__attribute__((section(\"\.\1\")))/; p' $<
@@ -123,8 +123,8 @@ $(OUTPUT).elf: $(OFILES) $(LDS) $(GFXLIBS)
 	$(AS) --MD $(DEPSDIR)/$*.d $(ASFLAGS) $(INCLUDES) -o $@ $<
 	
 .s.o:
-#	ï¿½ï¿½×¢ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½É¶ï¿½ï¿½ï¿½ï¿½ï¿½
-#	ï¿½ï¿½Ê½: @section <ï¿½ï¿½ï¿½ï¿½> <ï¿½ï¿½Ö·>
+#	´Ó×¢ÊÍ×Ô¶¯Éú³É¶ÎÅäÖÃ
+#	¸ñÊ½: @section <¶ÎÃû> <µØÖ·>
 #	https://sourceware.org/binutils/docs-2.22/as/Section.html#Section
 	@-sed -n '/INCLUDE\s\+$*\.lds/ q 1' ../$(BUILD)/auto.lds; if [ $$? -eq 0 ]; then echo -e "\nINCLUDE $*.lds" >> ../$(BUILD)/auto.lds; fi
 	@sed '/^\@section\s\+\S\+\s\+0x\S\+/ s/^\@section\s\+\(\S\+\)\s\+0x\(\S\+\)/\. = 0x\2; \.\1 : {\*\.o(\.\1)}/w ../$(BUILD)/$*.lds' $< >/dev/null
@@ -154,7 +154,7 @@ $(OUTPUT).elf: $(OFILES) $(LDS) $(GFXLIBS)
 	$(OBJCOPY) $(OBJCOPYFLAGS) $<
 	$(OBJCOPY) -O binary $< $@
 
-# ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÝµÄ·ï¿½×°ï¿½ï¿½ï¿½ï¿½
+# ¶Ô¶þ½øÖÆÊý¾ÝµÄ·â×°ÃüÁî
 # define bin2o
 #	bin2s $< | $(CC) -o $@
 #	echo "extern const u8" `(echo $(<F) | sed -e 's/^\([0-9]\)/_\1/' | tr . _)`"[];" > `(echo $(<F) | tr . _)`.h
