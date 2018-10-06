@@ -6,11 +6,8 @@
 SECTIONS
 {
 	. = 0x8000000;
-	.rom (COPY): {KEEP(*.o(.rom))}
-	. = 0x9000000;	
-	.text : {*(.text)}
-	.rodata : {*(.rodata) . = ALIGN(4);}
-/*	.rom : {*.o(.rom)}*/
+	.rom : {*.o(.rom)}
+/*	.rom (COPY): {KEEP(*.o(.rom))}	*/
 	. = 0x805609C;
 	.spellAnimationTableBase : {*.o(.spellAnimationTableBase)}
 	. = 0x8D61A1C;
@@ -116,6 +113,12 @@ SECTIONS
 	. = 0x80A119C;
 	.callSaveGameEx : {*.o(.callSaveGameEx)}
 	INCLUDE build\auto.lds
+	. = 0x9000000;	
+	.text : {*(.text)}
+	.rodata : {*(.rodata) . = ALIGN(4);}
+/*	.data : {*(.data)}
+	.bss : {*(.bss)}	*/
+	/DISCARD/ : { *(.data) *(.bss) }	
 }
 
 

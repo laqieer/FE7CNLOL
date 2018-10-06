@@ -414,7 +414,7 @@ const u16 TikiFPortraitInBoxTemplate[1 + 10 * 9 + 1] =
 
 // 人物界面头像框模板表
 
-const void *portraitInBoxTemplateTable[] =
+const void * const portraitInBoxTemplateTable[] =
 {
 	oldPortraitInBoxTemplateLow,	// 原来的模板(无上移)
 	oldPortraitInBoxTemplateHigh,	// 原来的模板(有上移)

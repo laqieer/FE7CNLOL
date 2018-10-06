@@ -5,7 +5,7 @@
 #include "spellNaglfar.h"
 
 // 纳格尔法尔魔法主协程
-struct coroutine efxNaglfar[]={
+const struct coroutine efxNaglfar[]={
 	spellStart,
 	setLoopFuncAndYield(Naglfar),
 	endofCoroutine

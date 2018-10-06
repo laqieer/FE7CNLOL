@@ -61,6 +61,7 @@ OBJCOPYFLAGS := --set-section-flags .rom="r,c,a"
 
 # -nostdlib 不连接标准启动文件和标准库文件
 # --no-warn-mismatch 忽略对象文件之间eabi version不匹配的问题，可能会造成严重后果
-LDFLAGS	:= -g -T$(LDS) -Wl,--no-warn-mismatch,-Map,$(notdir $(OUTPUT)).map
+# --no-check-sections 不检查段重叠
+LDFLAGS	:= -g -T$(LDS) -Wl,--no-check-sections,--no-warn-mismatch,-Map,$(notdir $(OUTPUT)).map
 # debug信息会导致VBAM加载ELF卡死，可以不带-g选项生成release版，或者从debug版里strip（推荐）
 #LDFLAGS	:= -T$(LDS) -Wl,--no-warn-mismatch,-Map,$(notdir $(OUTPUT)).map

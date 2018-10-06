@@ -94,12 +94,12 @@ const u16 BattleAnimation_FaTrans_pal[] = {
 };
 
 // 人物别第二调色板表
-const u16 const * characterBattleSecondPalTable[] = {
+const u16 * const characterBattleSecondPalTable[] = {
 	[0x79-1] = PriscillaAnimationTest_PalA
 };
 
 // 动画第二调色板组表
-const u16 const * battleAnimationSecondPalTable[] = {
+const u16 * const battleAnimationSecondPalTable[] = {
 	[0x101] = BattleAnimation_MyrrhDragon_pal,
 	[0x102] = BattleAnimation_MyrrhDragon_pal,
 	[0x106] = BattleAnimation_FaDragon_pal,

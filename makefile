@@ -153,8 +153,21 @@ $(OUTPUT).elf: $(OFILES) $(LDS) $(GFXLIBS)
 	$(STRIP) -g -o $*-stripped.elf $@
 
 %.gba: %.elf
-	$(OBJCOPY) $(OBJCOPYFLAGS) $<
+#	$(OBJCOPY) $(OBJCOPYFLAGS) $<
 	$(OBJCOPY) -O binary $< $@
+	
+# 若使用ld链接,则有两种方式处理.rom段:
+#	(1) 链接的时候设置.rom段不加载,这样就不会出现段重叠的问题影响链接过程,生成elf;
+#		完成链接(已经生成elf)之后再用objcopy修改.rom段的属性让它输出占空间;
+#		objcopy从修改后的elf中dump出最后的二进制游戏卡带,包含了.rom段的内容。
+#		特点是.rom不在elf的section(段)中，却不在segment(程序节)中。
+#	(2) 链接的时候给链接器ld传递--no-check-sections选项,不检查段重叠;
+#		完成链接后直接用objcopy从elf中dump出游戏卡带内容即可。
+#		特点是生成的elf中包含完整的.rom,既在section中又在segment中。
+# 若使用armlink链接，则可以通过命令行选项将segment overlap的error降级为warning完成链接;
+#		完成链接后直接用objcopy从elf中dump出游戏卡带内容即可。
+#		特点是生成的elf中包含完整的.rom,既在section中又在segment中。
+# 详见: http://feuniverse.us/t/guide-doc-asm-hacking-in-c/3351
 
 # 对二进制数据的封装命令
 # define bin2o

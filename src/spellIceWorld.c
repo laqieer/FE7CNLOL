@@ -5,7 +5,7 @@
 #include "spellIceWorld.h"
 
 // 冰世界魔法主协程
-struct coroutine efxIceWorld[]={
+const struct coroutine efxIceWorld[]={
 	spellStart,
 	setLoopFuncAndYield(IceWorld),
 	endofCoroutine
@@ -229,7 +229,7 @@ void fubuki5()
 }
 
 // 吹雪协程
-struct coroutine efxFubuki[]={
+const struct coroutine efxFubuki[]={
 	spellStart,
 	execFunc(fubuki1),
 	setLoopFuncAndYield(fubuki2),

@@ -109,7 +109,7 @@ void BloodMoon(struct context *ctx)
 	}
 }
 
-struct coroutine efxBloodMoon[]={
+const struct coroutine efxBloodMoon[]={
 	spellStart,
 	setLoopFuncAndYield(BloodMoon),
 	endofCoroutine

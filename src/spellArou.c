@@ -5,7 +5,7 @@
 #include "spellArou.h"
 
 // 光箭魔法主协程
-struct coroutine efxArou[]={
+const struct coroutine efxArou[]={
 	spellStart,
 	setLoopFuncAndYield(Arou),
 	endofCoroutine
