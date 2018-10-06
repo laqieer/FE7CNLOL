@@ -149,6 +149,8 @@ $(OUTPUT).elf: $(OFILES) $(LDS) $(GFXLIBS)
 	
 %.elf:
 	$(CC) $(LDFLAGS) $(OFILES) $(LIBPATHS) $(LIBS) -o $@
+#	去掉调试信息，可以载入VBAM
+	$(STRIP) -g -o $*-stripped.elf $@
 
 %.gba: %.elf
 	$(OBJCOPY) $(OBJCOPYFLAGS) $<

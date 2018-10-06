@@ -14,6 +14,8 @@ OBJCOPY	:=	$(CROSS_COMPILE)objcopy
 AR	:=	$(CROSS_COMPILE)gcc-ar
 # 链接
 LD	:=	$(CROSS_COMPILE)ld
+# 用于去掉调试信息
+STRIP := $(CROSS_COMPILE)strip
 
 # 基于arm架构
 # -mcpu=arm7tdmi 指定CPU型号
@@ -46,9 +48,13 @@ ARCH	:=	-mcpu=arm7tdmi -mthumb -mthumb-interwork
 # -fno-toplevel-reorder 保持输入文件中的次序,以某些优化作为代价
 # -nostdinc 不在标准系统目录中搜索头文件，只在-I指定的目录中搜索
 CFLAGS	:=	$(ARCH) -g -O2 -Wall -fomit-frame-pointer -ffast-math -fno-toplevel-reorder -nostdinc
+# debug信息会导致VBAM加载ELF卡死，可以不带-g选项生成release版，或者从debug版里strip（推荐）
+#CFLAGS	:=	$(ARCH) -O2 -Wall -fomit-frame-pointer -ffast-math -fno-toplevel-reorder -nostdinc
 
 # 汇编选项
 ASFLAGS :=	$(ARCH) -g
+# debug信息会导致VBAM加载ELF卡死，可以不带-g选项生成release版，或者从debug版里strip（推荐）
+#ASFLAGS :=	$(ARCH)
 
 # 设置.rom段的段属性
 OBJCOPYFLAGS := --set-section-flags .rom="r,c,a"
@@ -56,3 +62,5 @@ OBJCOPYFLAGS := --set-section-flags .rom="r,c,a"
 # -nostdlib 不连接标准启动文件和标准库文件
 # --no-warn-mismatch 忽略对象文件之间eabi version不匹配的问题，可能会造成严重后果
 LDFLAGS	:= -g -T$(LDS) -Wl,--no-warn-mismatch,-Map,$(notdir $(OUTPUT)).map
+# debug信息会导致VBAM加载ELF卡死，可以不带-g选项生成release版，或者从debug版里strip（推荐）
+#LDFLAGS	:= -T$(LDS) -Wl,--no-warn-mismatch,-Map,$(notdir $(OUTPUT)).map
