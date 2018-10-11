@@ -33,11 +33,11 @@ SECTIONS
 	. = 0x8D5E23C + 28 * 0x16;
 	.LynPortraitV : {*.o(.LynPortraitV)}	
 	. = 0x8D5E23C + 28 * 0x16;
-	.TikiPortrait : {*.o(.TikiPortrait)}	
+	.TikiPortrait : {*.o(.TikiPortrait)}	*/
 	. = 0x8D5E23C + 28 * 0x20;
 	.SharonPortrait : {*.o(.SharonPortrait)}	
-	. = 0x8D5E23C + 28 * 0x20;
-	.TikiFPortrait : {*.o(.TikiFPortrait)}	*/
+	. = 0x8D5E23C + 28 * 0xC;
+	.TikiFPortrait : {*.o(.TikiFPortrait)}	
 	. = 0x8013318;
 	.callDecodeText : {*.o(.callDecodeText)}
 	. = 0x80056D8;
@@ -94,10 +94,10 @@ SECTIONS
 	.PriscillaTestPalNo : {*.o(.PriscillaTestPalNo)}
 /*	. = 0x81BD514;
 	.FireRingPaletteTColor : {*.o(.FireRingPaletteTColor)}	*/
-/*	. = 0x8E00008 + 0x20 * (3 - 1);
+	. = 0x8E00008 + 0x20 * (0x1B - 1);
 	.FireDragonTestAnimation : {*.o(.FireDragonTestAnimation)}
-	. = 0x8C4C17C;
-	.DisableEliwoodPromotedPalette : {*.O(.DisableEliwoodPromotedPalette)}	*/
+	. = 0x8C4C830;
+	.DisableEliwoodPromotedPalette : {*.O(.DisableEliwoodPromotedPalette)}	
 	. = 0x8006518;
 	.callBattleAnimationScriptHandler : {*.o(.callBattleAnimationScriptHandler)}
 	. = 0x804C7C4;
