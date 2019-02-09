@@ -198,3 +198,12 @@ void mouthAnimation(int *mempool);
 
 // 嘴部动画接口函数
 void callMouthAnimation(int *mempool);
+
+// 蒙版指针表
+extern const u16* const portraitMaskTable[];
+
+// 人物界面头像框模板表
+extern const void * const portraitInBoxTemplateTable[];
+
+// 模板组表
+extern const u32 portraitTemplatePairTable[][2];
