@@ -75,14 +75,21 @@ void blinkOrWink2(u32 *mempool, int eyeStatus)
 	}
 	winkFlag = eyeStatus & 0x80;
 	eyeShape = 2 - (eyeStatus & 1);
-	if(winkFlag)
+	/*if(winkFlag)
 		for(i = portrait->ce.eyeFrameInfo->height - portrait->ce.eyeFrameInfo->winkHeight;i < portrait->ce.eyeFrameInfo->height; i++)
 			for(j = portrait->ce.eyeFrameInfo->width - portrait->ce.eyeFrameInfo->winkWidth;j < portrait->ce.eyeFrameInfo->width; j++)
 				changeTiles((int)portrait->ce.eyeFrameInfo->eyeFrame[eyeShape] + 32 * (portrait->ce.eyeFrameInfo->width * i + j),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->ce.eyeFrameInfo->blinkTemplate[portrait->ce.eyeFrameInfo->width * i + j]) & 0x3FF),1,1);
 	else
 		for(i = 0;i < portrait->ce.eyeFrameInfo->height;i++)
 			for(j = 0;j < portrait->ce.eyeFrameInfo->width;j++)
-				changeTiles((int)portrait->ce.eyeFrameInfo->eyeFrame[eyeShape] + 32 * (portrait->ce.eyeFrameInfo->width * i + j),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->ce.eyeFrameInfo->blinkTemplate[portrait->ce.eyeFrameInfo->width * i + j]) & 0x3FF),1,1);				
+				changeTiles((int)portrait->ce.eyeFrameInfo->eyeFrame[eyeShape] + 32 * (portrait->ce.eyeFrameInfo->width * i + j),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->ce.eyeFrameInfo->blinkTemplate[portrait->ce.eyeFrameInfo->width * i + j]) & 0x3FF),1,1);*/
+	// 上面这个逐tile写入的方案时间开销大,最重要的是changeTiles这个函数的内部实现是向内存中的一个tile传送信息队列中追加一条传送记录而不是直接写入显存，在眼睛帧尺寸较大的时候(比如64x32)容易导致一段时间后的内存溢出,所以改用直接整体写入的方案,这个方案的局限性在于眼睛帧的所有tile在显存里也必须是二维相邻的，这样分解头像的眼睛帧必须保持完整，不能打散
+	// 更好的方案是根据眼睛帧模板程序自己计算最佳传送方案，让相邻的tile一次传送，懒得写这个算法了，这里先留个坑吧
+	// 或者可以小尺寸的眼睛帧逐个写tile，大尺寸的眼睛帧就整体写tile，作为折衷方案
+	if(winkFlag)
+		changeTiles((int)portrait->ce.eyeFrameInfo->eyeFrame[eyeShape] + 32 * (portrait->ce.eyeFrameInfo->width * (portrait->ce.eyeFrameInfo->height - portrait->ce.eyeFrameInfo->winkHeight) + (portrait->ce.eyeFrameInfo->width - portrait->ce.eyeFrameInfo->winkWidth)), 0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->ce.eyeFrameInfo->blinkTemplate[portrait->ce.eyeFrameInfo->width * (portrait->ce.eyeFrameInfo->height - portrait->ce.eyeFrameInfo->winkHeight) + (portrait->ce.eyeFrameInfo->width - portrait->ce.eyeFrameInfo->winkWidth)]) & 0x3FF), portrait->ce.eyeFrameInfo->winkWidth, portrait->ce.eyeFrameInfo->winkHeight);
+	else
+		changeTiles(portrait->ce.eyeFrameInfo->eyeFrame[eyeShape], 0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->ce.eyeFrameInfo->blinkTemplate[0]) & 0x3FF), portrait->ce.eyeFrameInfo->width, portrait->ce.eyeFrameInfo->height);
 }
 
 // 根据新老格式的不同调用相应的眨眼/使眼色函数
