@@ -12,6 +12,18 @@ const PTRFUN blinkOrWink[3] =
 	blinkOrWink2
 };
 
+// 序号FF以后的头像单独设一个指针表,从0x100开始
+__attribute__((section(".callGetPortrait")))
+struct Portrait *callGetPortrait(int portraitIndex)
+{
+	return GetPortrait(portraitIndex);
+}
+
+struct Portrait *GetPortrait(int portraitIndex)
+{
+  return (portraitIndex > 0xFF) ? &portraitTableNew[portraitIndex - 0x100] : &portraitTableOriginal[portraitIndex];
+}
+
 // 眨眼和使眼色，新增一个精灵，然后实时覆写VRAM中的Tile数据，支持非8像素对齐
 void blinkOrWink1(u32 *mempool, int eyeStatus)
 {

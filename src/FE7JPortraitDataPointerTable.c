@@ -3,6 +3,15 @@
 // 2019-2-9
 
 #include "FE7JPortrait.h"
+#include "SurtrPortrait.h"
+
+// 第二个头像指针表,起始序号0x100
+const struct Portrait portraitTableNew[] = {
+		{NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 0x100 空白
+		{SurtrPortraitMainL, SurtrPortraitMini, SurtrPortraitPal, SurtrMouthFrameL, {&SurtrEyeFrameInfoL}, 6, 4, 0, 0, 3, 5, 0, 0, 0}, // 0x101 斯尔特左半身
+		{SurtrPortraitMainR, SurtrPortraitMini, SurtrPortraitPal, SurtrMouthFrameR, {&SurtrEyeFrameInfoR}, 0, 4, 0, 0, 3, 5, 0, 0, 0}, // 0x102 斯尔特右半身
+		{SurtrPortraitMainS, SurtrPortraitMini, SurtrPortraitPal, NULL, NULL, 0, 0, 0, 0, 0, 0, 21, 4, 0}, // 0x103 斯尔特人物框
+};
 
 // 大头像精灵组合模板
 
@@ -105,16 +114,16 @@ extern const u16 TikiFPortraitTemplateRight[1 + 3 * 9];
 // 模板组表
 const u32 portraitTemplatePairTable[][2] =
 {
-		{oldPortraitTemplate1Left, oldPortraitTemplate1Right},
-		{oldPortraitTemplate2Left, oldPortraitTemplate2Right},
-		{oldPortraitTemplate3Left, oldPortraitTemplate3Right},
-		{oldPortraitTemplate4Left, oldPortraitTemplate4Right},
-		{newPortraitTemplateLeftH, newPortraitTemplateRightH},
-		{newPortraitTemplateLeftV, newPortraitTemplateRightV},
-		{TikiPortraitTemplateLeft, TikiPortraitTemplateRight},
-		{SharonPortraitTemplateLeft,SharonPortraitTemplateRight},
-		{TikiFPortraitTemplateLeft,TikiFPortraitTemplateRight},
-		{newPortraitTemplateLeftHS, newPortraitTemplateRightHS}
+		{oldPortraitTemplate1Left, oldPortraitTemplate1Right},	// 0
+		{oldPortraitTemplate2Left, oldPortraitTemplate2Right},	// 1
+		{oldPortraitTemplate3Left, oldPortraitTemplate3Right},	// 2
+		{oldPortraitTemplate4Left, oldPortraitTemplate4Right},	// 3
+		{newPortraitTemplateLeftH, newPortraitTemplateRightH},	// 4
+		{newPortraitTemplateLeftV, newPortraitTemplateRightV},	// 5
+		{TikiPortraitTemplateLeft, TikiPortraitTemplateRight},	// 6
+		{SharonPortraitTemplateLeft,SharonPortraitTemplateRight},	// 7
+		{TikiFPortraitTemplateLeft,TikiFPortraitTemplateRight},	// 8
+		{newPortraitTemplateLeftHS, newPortraitTemplateRightHS}	// 9
 };
 
 // 人物详细界面头像框内TSA模板
@@ -375,6 +384,22 @@ const u16 newPortraitInBoxTemplateRHS[] =
 	0
 };
 
+// 只包含小头像和人物属性界面头像框的头像位用的
+const u16 PurePortraitInBoxTemplate[] = 
+{
+	0x809,
+	getTileNo(20,0), getTileNo(21,0), getTileNo(22,0), getTileNo(23,0), getTileNo(24,0), getTileNo(25,0), getTileNo(26,0), getTileNo(27,0), getTileNo(28,0), getTileNo(29,0),
+	getTileNo(10,3), getTileNo(11,3), getTileNo(12,3), getTileNo(13,3), getTileNo(14,3), getTileNo(15,3), getTileNo(16,3), getTileNo(17,3), getTileNo(18,3), getTileNo(19,3),
+	getTileNo(10,2), getTileNo(11,2), getTileNo(12,2), getTileNo(13,2), getTileNo(14,2), getTileNo(15,2), getTileNo(16,2), getTileNo(17,2), getTileNo(18,2), getTileNo(19,2),
+	getTileNo(10,1), getTileNo(11,1), getTileNo(12,1), getTileNo(13,1), getTileNo(14,1), getTileNo(15,1), getTileNo(16,1), getTileNo(17,1), getTileNo(18,1), getTileNo(19,1),
+	getTileNo(10,0), getTileNo(11,0), getTileNo(12,0), getTileNo(13,0), getTileNo(14,0), getTileNo(15,0), getTileNo(16,0), getTileNo(17,0), getTileNo(18,0), getTileNo(19,0),
+	getTileNo(0,3), getTileNo(1,3), getTileNo(2,3), getTileNo(3,3), getTileNo(4,3), getTileNo(5,3), getTileNo(6,3), getTileNo(7,3), getTileNo(8,3), getTileNo(9,3),
+	getTileNo(0,2), getTileNo(1,2), getTileNo(2,2), getTileNo(3,2), getTileNo(4,2), getTileNo(5,2), getTileNo(6,2), getTileNo(7,2), getTileNo(8,2), getTileNo(9,2),
+	getTileNo(0,1), getTileNo(1,1), getTileNo(2,1), getTileNo(3,1), getTileNo(4,1), getTileNo(5,1), getTileNo(6,1), getTileNo(7,1), getTileNo(8,1), getTileNo(9,1),
+	getTileNo(0,0), getTileNo(1,0), getTileNo(2,0), getTileNo(3,0), getTileNo(4,0), getTileNo(5,0), getTileNo(6,0), getTileNo(7,0), getTileNo(8,0), getTileNo(9,0),
+	0
+};
+
 extern const u16 TikiPortraitInBoxTemplate[1 + 10 * 9 + 1];
 
 extern const u16 SharonPortraitInBoxTemplate[1 + 10 * 9 + 1];
@@ -385,27 +410,28 @@ extern const u16 TikiFPortraitInBoxTemplate[1 + 10 * 9 + 1];
 
 const void * const portraitInBoxTemplateTable[] =
 {
-	oldPortraitInBoxTemplateLow,	// 原来的模板(无上移)
-	oldPortraitInBoxTemplateHigh,	// 原来的模板(有上移)
-	newPortraitInBoxTemplateLH,		// 横式
-	newPortraitInBoxTemplateH,
-	newPortraitInBoxTemplateRH,
-	newPortraitInBoxTemplateLUH,
-	newPortraitInBoxTemplateUH,
-	newPortraitInBoxTemplateRUH,
-	newPortraitInBoxTemplateV,		// 立式
-	newPortraitInBoxTemplateUV,
-	newPortraitInBoxTemplateUUV,
-	newPortraitInBoxTemplateUUUV,
-	TikiPortraitInBoxTemplate,		// 幼女琪琪
-	SharonPortraitInBoxTemplate,	// 夏隆
-	TikiFPortraitInBoxTemplate,		// 成年琪琪
-	newPortraitInBoxTemplateULHS,	// 96x80 简化型
-	newPortraitInBoxTemplateUHS,
-	newPortraitInBoxTemplateURHS,
-	newPortraitInBoxTemplateLHS,
-	newPortraitInBoxTemplateHS,
-	newPortraitInBoxTemplateRHS
+	oldPortraitInBoxTemplateLow,	// 0 原来的模板(无上移)
+	oldPortraitInBoxTemplateHigh,	// 1 原来的模板(有上移)
+	newPortraitInBoxTemplateLH,		// 2 横式
+	newPortraitInBoxTemplateH,		// 3
+	newPortraitInBoxTemplateRH,		// 4
+	newPortraitInBoxTemplateLUH,	// 5
+	newPortraitInBoxTemplateUH,		// 6
+	newPortraitInBoxTemplateRUH,	// 7
+	newPortraitInBoxTemplateV,		// 8 立式
+	newPortraitInBoxTemplateUV,		// 9
+	newPortraitInBoxTemplateUUV,	// 10
+	newPortraitInBoxTemplateUUUV,	// 11
+	TikiPortraitInBoxTemplate,		// 12 幼女琪琪
+	SharonPortraitInBoxTemplate,	// 13 夏隆
+	TikiFPortraitInBoxTemplate,		// 14 成年琪琪
+	newPortraitInBoxTemplateULHS,	// 15 96x80 简化型
+	newPortraitInBoxTemplateUHS,	// 16
+	newPortraitInBoxTemplateURHS,	// 17
+	newPortraitInBoxTemplateLHS,	// 18
+	newPortraitInBoxTemplateHS,		// 19
+	newPortraitInBoxTemplateRHS,	// 20
+	PurePortraitInBoxTemplate,		// 21 纯头像框(最简)
 };
 
 

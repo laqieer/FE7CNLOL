@@ -28,6 +28,8 @@ SECTIONS
 	.callDrawPortraitInBox : {*.o(.callDrawPortraitInBox)}
 	. = 0x800749C;
 	.callMouthAnimation : {*.o(.callMouthAnimation)}
+	. = 0x80069B0;
+	.callGetPortrait : {*.o(.callGetPortrait)}
 /*	. = 0x8D5E23C + 28 * 0x16;
 	.LynPortraitH : {*.o(.LynPortraitH)}	
 	. = 0x8D5E23C + 28 * 0x16;

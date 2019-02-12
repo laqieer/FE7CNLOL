@@ -87,10 +87,10 @@ struct Portrait{
 
 // 头像指针表
 #define portraitTableBase	0x8D5E23C
-#define	portraitTable		(*(Portrait (*)[0xFFFF])portraitTableBase)
+#define	portraitTableOriginal	((struct Portrait*)portraitTableBase)
 
 // 根据头像ID计算ROM中的头像地址
-#define	GetPortrait			sub(80069B0)
+//#define	GetPortrait			sub(80069B0)
 // Portrait * GetPortrait(int portraitIndex)
 
 /*
@@ -147,6 +147,14 @@ void chooseMainPortraitSpriteTemplate(u32 *mempool);
 // 新的选择大头像精灵组合模板函数的接口
 void callChooseMainPortraitSpriteTemplate(s16 *mempool);
 
+// 头像指针表扩展到0x100之后
+#pragma long_calls
+struct Portrait *GetPortrait(int portraitIndex);
+#pragma long_calls_off
+
+// 头像指针表扩展函数的接口
+struct Portrait *callGetPortrait(int portraitIndex);
+
 // 根据头像ID判断头像框是否需要下移
 #define	PortraitHeightFix	sub(80070AC)
 // signed int PortraitHeightFix(int portraitID)
@@ -166,6 +174,9 @@ void callDrawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTi
 // 计算人物界面头像框TSA(tile编号)
 // x和y分别是对应Tile在256x32的图中的坐标
 #define	getTileNo(x,y)						((32 * (y) + (x))&1023)
+
+// 计算无压缩图片数据长度(字节数)作为数据头
+#define getUncompressedImageLength(byteNum)	((byteNum)<<8)
 
 // 取2个数的较小值
 #define min(a,b)	((a)<(b)?(a):(b))
@@ -207,3 +218,6 @@ extern const void * const portraitInBoxTemplateTable[];
 
 // 模板组表
 extern const u32 portraitTemplatePairTable[][2];
+
+// 新头像指针表(从0x100开始)
+extern const struct Portrait portraitTableNew[];
