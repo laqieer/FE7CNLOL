@@ -37,7 +37,9 @@ SECTIONS
 	. = 0x8D5E23C + 28 * 0x20;
 	.SharonPortrait : {*.o(.SharonPortrait)}	
 	. = 0x8D5E23C + 28 * 0xC;
-	.TikiFPortrait : {*.o(.TikiFPortrait)}	
+	.TikiFPortrait : {*.o(.TikiFPortrait)}		
+	. = 0x8D5E23C + 28 * 0x1B;
+	.HuajiPortrait : {*.o(.HuajiPortrait)}	
 	. = 0x8013318;
 	.callDecodeText : {*.o(.callDecodeText)}
 	. = 0x80056D8;

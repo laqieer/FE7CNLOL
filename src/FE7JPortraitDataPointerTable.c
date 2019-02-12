@@ -39,6 +39,32 @@ const u16 newPortraitTemplateRightH[1 + 3 * 10] =
 	0, 0X5020, 0X5C
 };
 
+// 96x80 新模板 简化型 朝左
+const u16 newPortraitTemplateLeftHS[] = 
+{
+	7,
+	getObjectAttribute1(1,0), getObjectAttribute2(3,0,-48), getObjectAttribute3(0), // 1
+	getObjectAttribute1(0,0), getObjectAttribute2(2,0,16), getObjectAttribute3(8), // 2
+	getObjectAttribute1(1,32), getObjectAttribute2(3,0,-48), getObjectAttribute3(8 + 4), // 3
+	getObjectAttribute1(0,32), getObjectAttribute2(2,0,16), getObjectAttribute3(8 + 4 + 8), // 4
+	getObjectAttribute1(1,64), getObjectAttribute2(2,0,-48), getObjectAttribute3(8 + 4 + 8 + 4), // 5
+	getObjectAttribute1(1,64), getObjectAttribute2(2,0,-16), getObjectAttribute3(8 + 4 + 8 + 4 + 32 * 2), // 6
+	getObjectAttribute1(1,64), getObjectAttribute2(2,0,16), getObjectAttribute3(8 + 4 + 8 + 4 + 4 + 32 * 2), // 7
+};
+
+// 96x80 新模板 简化型 朝右
+const u16 newPortraitTemplateRightHS[] = 
+{
+	7,
+	getObjectAttribute1(1,0), getObjectAttribute2(3,1,-16), getObjectAttribute3(0), // 1
+	getObjectAttribute1(0,0), getObjectAttribute2(2,1,-48), getObjectAttribute3(8), // 2
+	getObjectAttribute1(1,32), getObjectAttribute2(3,1,-16), getObjectAttribute3(8 + 4), // 3
+	getObjectAttribute1(0,32), getObjectAttribute2(2,1,-48), getObjectAttribute3(8 + 4 + 8), // 4
+	getObjectAttribute1(1,64), getObjectAttribute2(2,1,16), getObjectAttribute3(8 + 4 + 8 + 4), // 5
+	getObjectAttribute1(1,64), getObjectAttribute2(2,1,-16), getObjectAttribute3(8 + 4 + 8 + 4 + 32 * 2), // 6
+	getObjectAttribute1(1,64), getObjectAttribute2(2,1,-48), getObjectAttribute3(8 + 4 + 8 + 4 + 4 + 32 * 2), // 7
+};
+
 // 新模板，头像在左侧，面向右侧 (立式)
 const u16 newPortraitTemplateRightV[1 + 3 * 7] =
 {
@@ -87,7 +113,8 @@ const u32 portraitTemplatePairTable[][2] =
 		{newPortraitTemplateLeftV, newPortraitTemplateRightV},
 		{TikiPortraitTemplateLeft, TikiPortraitTemplateRight},
 		{SharonPortraitTemplateLeft,SharonPortraitTemplateRight},
-		{TikiFPortraitTemplateLeft,TikiFPortraitTemplateRight}
+		{TikiFPortraitTemplateLeft,TikiFPortraitTemplateRight},
+		{newPortraitTemplateLeftHS, newPortraitTemplateRightHS}
 };
 
 // 人物详细界面头像框内TSA模板
@@ -252,6 +279,102 @@ const u16 newPortraitInBoxTemplateUUUV[1 + 10 * 9 + 1] =
 	0
 };
 
+// 96x80, 新模板, 简化型
+const u16 newPortraitInBoxTemplateULHS[] = 
+{
+	0x809,
+	getTileNo(24,0), getTileNo(25,0), getTileNo(26,0), getTileNo(27,0), getTileNo(24,2), getTileNo(25,2), getTileNo(26,2), getTileNo(27,2), getTileNo(28,2), getTileNo(29,2),
+	getTileNo(12,3), getTileNo(13,3), getTileNo(14,3), getTileNo(15,3), getTileNo(16,3), getTileNo(17,3), getTileNo(18,3), getTileNo(19,3), getTileNo(20,3), getTileNo(21,3),
+	getTileNo(12,2), getTileNo(13,2), getTileNo(14,2), getTileNo(15,2), getTileNo(16,2), getTileNo(17,2), getTileNo(18,2), getTileNo(19,2), getTileNo(20,2), getTileNo(21,2),
+	getTileNo(12,1), getTileNo(13,1), getTileNo(14,1), getTileNo(15,1), getTileNo(16,1), getTileNo(17,1), getTileNo(18,1), getTileNo(19,1), getTileNo(20,1), getTileNo(21,1),
+	getTileNo(12,0), getTileNo(13,0), getTileNo(14,0), getTileNo(15,0), getTileNo(16,0), getTileNo(17,0), getTileNo(18,0), getTileNo(19,0), getTileNo(20,0), getTileNo(21,0),
+	getTileNo(0,3), getTileNo(1,3), getTileNo(2,3), getTileNo(3,3), getTileNo(4,3), getTileNo(5,3), getTileNo(6,3), getTileNo(7,3), getTileNo(8,3), getTileNo(9,3),
+	getTileNo(0,2), getTileNo(1,2), getTileNo(2,2), getTileNo(3,2), getTileNo(4,2), getTileNo(5,2), getTileNo(6,2), getTileNo(7,2), getTileNo(8,2), getTileNo(9,2),
+	getTileNo(0,1), getTileNo(1,1), getTileNo(2,1), getTileNo(3,1), getTileNo(4,1), getTileNo(5,1), getTileNo(6,1), getTileNo(7,1), getTileNo(8,1), getTileNo(9,1),
+	getTileNo(0,0), getTileNo(1,0), getTileNo(2,0), getTileNo(3,0), getTileNo(4,0), getTileNo(5,0), getTileNo(6,0), getTileNo(7,0), getTileNo(8,0), getTileNo(9,0),
+	0
+};
+
+// 96x80, 新模板, 简化型
+const u16 newPortraitInBoxTemplateUHS[] = 
+{
+	0x809,
+	getTileNo(25,0), getTileNo(26,0), getTileNo(27,0), getTileNo(24,2), getTileNo(25,2), getTileNo(26,2), getTileNo(27,2), getTileNo(28,2), getTileNo(29,2), getTileNo(30,2),
+	getTileNo(13,3), getTileNo(14,3), getTileNo(15,3), getTileNo(16,3), getTileNo(17,3), getTileNo(18,3), getTileNo(19,3), getTileNo(20,3), getTileNo(21,3), getTileNo(22,3),
+	getTileNo(13,2), getTileNo(14,2), getTileNo(15,2), getTileNo(16,2), getTileNo(17,2), getTileNo(18,2), getTileNo(19,2), getTileNo(20,2), getTileNo(21,2), getTileNo(22,2),
+	getTileNo(13,1), getTileNo(14,1), getTileNo(15,1), getTileNo(16,1), getTileNo(17,1), getTileNo(18,1), getTileNo(19,1), getTileNo(20,1), getTileNo(21,1), getTileNo(22,1),
+	getTileNo(13,0), getTileNo(14,0), getTileNo(15,0), getTileNo(16,0), getTileNo(17,0), getTileNo(18,0), getTileNo(19,0), getTileNo(20,0), getTileNo(21,0), getTileNo(22,0),
+	getTileNo(1,3), getTileNo(2,3), getTileNo(3,3), getTileNo(4,3), getTileNo(5,3), getTileNo(6,3), getTileNo(7,3), getTileNo(8,3), getTileNo(9,3), getTileNo(10,3),
+	getTileNo(1,2), getTileNo(2,2), getTileNo(3,2), getTileNo(4,2), getTileNo(5,2), getTileNo(6,2), getTileNo(7,2), getTileNo(8,2), getTileNo(9,2), getTileNo(10,2),
+	getTileNo(1,1), getTileNo(2,1), getTileNo(3,1), getTileNo(4,1), getTileNo(5,1), getTileNo(6,1), getTileNo(7,1), getTileNo(8,1), getTileNo(9,1), getTileNo(10,1),
+	getTileNo(1,0), getTileNo(2,0), getTileNo(3,0), getTileNo(4,0), getTileNo(5,0), getTileNo(6,0), getTileNo(7,0), getTileNo(8,0), getTileNo(9,0), getTileNo(10,0),
+	0
+};
+
+// 96x80, 新模板, 简化型
+const u16 newPortraitInBoxTemplateURHS[] = 
+{
+	0x809,
+	getTileNo(26,0), getTileNo(27,0), getTileNo(24,2), getTileNo(25,2), getTileNo(26,2), getTileNo(27,2), getTileNo(28,2), getTileNo(29,2), getTileNo(30,2), getTileNo(31,2),
+	getTileNo(14,3), getTileNo(15,3), getTileNo(16,3), getTileNo(17,3), getTileNo(18,3), getTileNo(19,3), getTileNo(20,3), getTileNo(21,3), getTileNo(22,3), getTileNo(23,3),
+	getTileNo(14,2), getTileNo(15,2), getTileNo(16,2), getTileNo(17,2), getTileNo(18,2), getTileNo(19,2), getTileNo(20,2), getTileNo(21,2), getTileNo(22,2), getTileNo(23,2),
+	getTileNo(14,1), getTileNo(15,1), getTileNo(16,1), getTileNo(17,1), getTileNo(18,1), getTileNo(19,1), getTileNo(20,1), getTileNo(21,1), getTileNo(22,1), getTileNo(23,1),
+	getTileNo(14,0), getTileNo(15,0), getTileNo(16,0), getTileNo(17,0), getTileNo(18,0), getTileNo(19,0), getTileNo(20,0), getTileNo(21,0), getTileNo(22,0), getTileNo(23,0),
+	getTileNo(2,3), getTileNo(3,3), getTileNo(4,3), getTileNo(5,3), getTileNo(6,3), getTileNo(7,3), getTileNo(8,3), getTileNo(9,3), getTileNo(10,3), getTileNo(11,3),
+	getTileNo(2,2), getTileNo(3,2), getTileNo(4,2), getTileNo(5,2), getTileNo(6,2), getTileNo(7,2), getTileNo(8,2), getTileNo(9,2), getTileNo(10,2), getTileNo(11,2),
+	getTileNo(2,1), getTileNo(3,1), getTileNo(4,1), getTileNo(5,1), getTileNo(6,1), getTileNo(7,1), getTileNo(8,1), getTileNo(9,1), getTileNo(10,1), getTileNo(11,1),
+	getTileNo(2,0), getTileNo(3,0), getTileNo(4,0), getTileNo(5,0), getTileNo(6,0), getTileNo(7,0), getTileNo(8,0), getTileNo(9,0), getTileNo(10,0), getTileNo(11,0),
+	0
+};
+
+// 96x80, 新模板, 简化型
+const u16 newPortraitInBoxTemplateLHS[] = 
+{
+	0x809,
+	getTileNo(24,1), getTileNo(25,1), getTileNo(26,1), getTileNo(27,1), getTileNo(24,3), getTileNo(25,3), getTileNo(26,3), getTileNo(27,3), getTileNo(28,3), getTileNo(29,3),
+	getTileNo(24,0), getTileNo(25,0), getTileNo(26,0), getTileNo(27,0), getTileNo(24,2), getTileNo(25,2), getTileNo(26,2), getTileNo(27,2), getTileNo(28,2), getTileNo(29,2),
+	getTileNo(12,3), getTileNo(13,3), getTileNo(14,3), getTileNo(15,3), getTileNo(16,3), getTileNo(17,3), getTileNo(18,3), getTileNo(19,3), getTileNo(20,3), getTileNo(21,3),
+	getTileNo(12,2), getTileNo(13,2), getTileNo(14,2), getTileNo(15,2), getTileNo(16,2), getTileNo(17,2), getTileNo(18,2), getTileNo(19,2), getTileNo(20,2), getTileNo(21,2),
+	getTileNo(12,1), getTileNo(13,1), getTileNo(14,1), getTileNo(15,1), getTileNo(16,1), getTileNo(17,1), getTileNo(18,1), getTileNo(19,1), getTileNo(20,1), getTileNo(21,1),
+	getTileNo(12,0), getTileNo(13,0), getTileNo(14,0), getTileNo(15,0), getTileNo(16,0), getTileNo(17,0), getTileNo(18,0), getTileNo(19,0), getTileNo(20,0), getTileNo(21,0),
+	getTileNo(0,3), getTileNo(1,3), getTileNo(2,3), getTileNo(3,3), getTileNo(4,3), getTileNo(5,3), getTileNo(6,3), getTileNo(7,3), getTileNo(8,3), getTileNo(9,3),
+	getTileNo(0,2), getTileNo(1,2), getTileNo(2,2), getTileNo(3,2), getTileNo(4,2), getTileNo(5,2), getTileNo(6,2), getTileNo(7,2), getTileNo(8,2), getTileNo(9,2),
+	getTileNo(0,1), getTileNo(1,1), getTileNo(2,1), getTileNo(3,1), getTileNo(4,1), getTileNo(5,1), getTileNo(6,1), getTileNo(7,1), getTileNo(8,1), getTileNo(9,1),
+	0
+};
+
+// 96x80, 新模板, 简化型
+const u16 newPortraitInBoxTemplateHS[] = 
+{
+	0x809,
+	getTileNo(25,1), getTileNo(26,1), getTileNo(27,1), getTileNo(24,3), getTileNo(25,3), getTileNo(26,3), getTileNo(27,3), getTileNo(28,3), getTileNo(29,3), getTileNo(30,3),
+	getTileNo(25,0), getTileNo(26,0), getTileNo(27,0), getTileNo(24,2), getTileNo(25,2), getTileNo(26,2), getTileNo(27,2), getTileNo(28,2), getTileNo(29,2), getTileNo(30,2),
+	getTileNo(13,3), getTileNo(14,3), getTileNo(15,3), getTileNo(16,3), getTileNo(17,3), getTileNo(18,3), getTileNo(19,3), getTileNo(20,3), getTileNo(21,3), getTileNo(22,3),
+	getTileNo(13,2), getTileNo(14,2), getTileNo(15,2), getTileNo(16,2), getTileNo(17,2), getTileNo(18,2), getTileNo(19,2), getTileNo(20,2), getTileNo(21,2), getTileNo(22,2),
+	getTileNo(13,1), getTileNo(14,1), getTileNo(15,1), getTileNo(16,1), getTileNo(17,1), getTileNo(18,1), getTileNo(19,1), getTileNo(20,1), getTileNo(21,1), getTileNo(22,1),
+	getTileNo(13,0), getTileNo(14,0), getTileNo(15,0), getTileNo(16,0), getTileNo(17,0), getTileNo(18,0), getTileNo(19,0), getTileNo(20,0), getTileNo(21,0), getTileNo(22,0),
+	getTileNo(1,3), getTileNo(2,3), getTileNo(3,3), getTileNo(4,3), getTileNo(5,3), getTileNo(6,3), getTileNo(7,3), getTileNo(8,3), getTileNo(9,3), getTileNo(10,3),
+	getTileNo(1,2), getTileNo(2,2), getTileNo(3,2), getTileNo(4,2), getTileNo(5,2), getTileNo(6,2), getTileNo(7,2), getTileNo(8,2), getTileNo(9,2), getTileNo(10,2),
+	getTileNo(1,1), getTileNo(2,1), getTileNo(3,1), getTileNo(4,1), getTileNo(5,1), getTileNo(6,1), getTileNo(7,1), getTileNo(8,1), getTileNo(9,1), getTileNo(10,1),
+	0
+};
+
+// 96x80, 新模板, 简化型
+const u16 newPortraitInBoxTemplateRHS[] = 
+{
+	0x809,
+	getTileNo(26,1), getTileNo(27,1), getTileNo(24,3), getTileNo(25,3), getTileNo(26,3), getTileNo(27,3), getTileNo(28,3), getTileNo(29,3), getTileNo(30,3), getTileNo(31,3),
+	getTileNo(26,0), getTileNo(27,0), getTileNo(24,2), getTileNo(25,2), getTileNo(26,2), getTileNo(27,2), getTileNo(28,2), getTileNo(29,2), getTileNo(30,2), getTileNo(31,2),
+	getTileNo(14,3), getTileNo(15,3), getTileNo(16,3), getTileNo(17,3), getTileNo(18,3), getTileNo(19,3), getTileNo(20,3), getTileNo(21,3), getTileNo(22,3), getTileNo(23,3),
+	getTileNo(14,2), getTileNo(15,2), getTileNo(16,2), getTileNo(17,2), getTileNo(18,2), getTileNo(19,2), getTileNo(20,2), getTileNo(21,2), getTileNo(22,2), getTileNo(23,2),
+	getTileNo(14,1), getTileNo(15,1), getTileNo(16,1), getTileNo(17,1), getTileNo(18,1), getTileNo(19,1), getTileNo(20,1), getTileNo(21,1), getTileNo(22,1), getTileNo(23,1),
+	getTileNo(14,0), getTileNo(15,0), getTileNo(16,0), getTileNo(17,0), getTileNo(18,0), getTileNo(19,0), getTileNo(20,0), getTileNo(21,0), getTileNo(22,0), getTileNo(23,0),
+	getTileNo(2,3), getTileNo(3,3), getTileNo(4,3), getTileNo(5,3), getTileNo(6,3), getTileNo(7,3), getTileNo(8,3), getTileNo(9,3), getTileNo(10,3), getTileNo(11,3),
+	getTileNo(2,2), getTileNo(3,2), getTileNo(4,2), getTileNo(5,2), getTileNo(6,2), getTileNo(7,2), getTileNo(8,2), getTileNo(9,2), getTileNo(10,2), getTileNo(11,2),
+	getTileNo(2,1), getTileNo(3,1), getTileNo(4,1), getTileNo(5,1), getTileNo(6,1), getTileNo(7,1), getTileNo(8,1), getTileNo(9,1), getTileNo(10,1), getTileNo(11,1),
+	0
+};
+
 extern const u16 TikiPortraitInBoxTemplate[1 + 10 * 9 + 1];
 
 extern const u16 SharonPortraitInBoxTemplate[1 + 10 * 9 + 1];
@@ -276,7 +399,13 @@ const void * const portraitInBoxTemplateTable[] =
 	newPortraitInBoxTemplateUUUV,
 	TikiPortraitInBoxTemplate,		// 幼女琪琪
 	SharonPortraitInBoxTemplate,	// 夏隆
-	TikiFPortraitInBoxTemplate		// 成年琪琪
+	TikiFPortraitInBoxTemplate,		// 成年琪琪
+	newPortraitInBoxTemplateULHS,	// 96x80 简化型
+	newPortraitInBoxTemplateUHS,
+	newPortraitInBoxTemplateURHS,
+	newPortraitInBoxTemplateLHS,
+	newPortraitInBoxTemplateHS,
+	newPortraitInBoxTemplateRHS
 };
 
 
@@ -292,13 +421,26 @@ const u16 portraitMaskCommon[9][10] = {
 	{1,1,1,1,1,1,1,1,1,1}
 };
 
+const u16 portraitMaskAll[9][10] = {
+	{1,1,1,1,1,1,1,1,1,1},
+	{1,1,1,1,1,1,1,1,1,1},
+	{1,1,1,1,1,1,1,1,1,1},
+	{1,1,1,1,1,1,1,1,1,1},
+	{1,1,1,1,1,1,1,1,1,1},
+	{1,1,1,1,1,1,1,1,1,1},
+	{1,1,1,1,1,1,1,1,1,1},
+	{1,1,1,1,1,1,1,1,1,1},
+	{1,1,1,1,1,1,1,1,1,1}
+};
+
 extern const u16 portraitMaskTiki[9][10];
 extern const u16 portraitMaskSharon[9][10];
 extern const u16 portraitMaskTikiF[9][10];
 
 const u16* const portraitMaskTable[] = {
-	portraitMaskCommon,
-	portraitMaskTiki,
-	portraitMaskSharon,
-	portraitMaskTikiF
+	portraitMaskCommon, // 0
+	portraitMaskTiki, // 1
+	portraitMaskSharon, // 2
+	portraitMaskTikiF, // 3
+	portraitMaskAll // 4
 };
