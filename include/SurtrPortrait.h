@@ -5,6 +5,8 @@
 
 #include "FE7JPortrait.h"
 
+#include "FE7JStructDef.h"
+
 extern const unsigned short SurtrPortraitPal[16];
 extern const struct EyeFrameInfo SurtrEyeFrameInfoL;
 extern const struct EyeFrameInfo SurtrEyeFrameInfoR;

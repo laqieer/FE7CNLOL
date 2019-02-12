@@ -1,6 +1,7 @@
 // 结构体定义
 // by laqieer
 // 2018-04-21
+#pragma once
 
 #include "AgbTypes.h"
 

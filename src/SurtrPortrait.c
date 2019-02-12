@@ -4,6 +4,10 @@
 
 #include "SurtrPortrait.h"
 
+// 用巴塔的头像位置做测试
+__attribute__((section(".BattaPortraitID")))
+const PortraitID BattaPortraitID = 0x103;
+
 const unsigned short SurtrPortraitPal[16] __attribute__((aligned(4)))=
 {
 	0x3FCB,0x0000,0x040B,0x0423,0x3FCB,0x32E9,0x2609,0x5FDF,

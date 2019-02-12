@@ -3,6 +3,7 @@
 // 插入的文本
 
 #pragma once
+
 #include "portraitID.h"
 
 // 用字符数组赋值的方式要求:
@@ -22,7 +23,18 @@ const char* const text[]=
 				clearFace	*/
 /*	[0x0835] = talk(\x20,Right,	"你好，" endl
 								"我是琪琪" pushA)	*/
-	[0x0835] = sbsaysth(pTikiF,Right,"你好，" endl
-									"我是小琪琪。" pushA)
+/*	[0x0835] = sbsaysth(pSharon,Right,"你好，" endl
+									"我是夏蓉。" pushA)	*/
+/*	[0x0835] = openFarLeft loadFace pOswin openLeft loadFace pHector openFarRight loadFace pSurtrR openRight loadFace pSurtrL
+				"就你们这小身板" endl
+				"也叫重甲?" pushA
+				clearFace openFarRight clearFace,	*/
+	[0x0835] = openFarLeft loadFace pOswin
+				"前面有座山" pushA
+				openLeft loadFace pHectorNoble
+				"不那是个人" pushA
+				openFarRight loadFace pSurtrR
+				"呵呵" pushA
+				openRight loadFace pSurtrL
+				"一群战五渣" pushA,
 };
-

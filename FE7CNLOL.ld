@@ -14,6 +14,8 @@ SECTIONS
 	.fireAnimationID : {*.o(.fireAnimationID)}
 	. = 0x8D61ACC;
 	.NosferatuAnimationID : {*.o(.NosferatuAnimationID)}
+	. = 0x8C4C158 + 52 * (0x87 - 1) + 6;
+	.BattaPortraitID : {*.o(.BattaPortraitID)}
 	. = 0x8007774;	
 	.callBlink : {*.o(.callBlink)}
 	. = 0x80077E8;
@@ -29,7 +31,7 @@ SECTIONS
 	. = 0x800749C;
 	.callMouthAnimation : {*.o(.callMouthAnimation)}
 	. = 0x80069B0;
-	.callGetPortrait : {*.o(.callGetPortrait)}
+	.callGetPortrait : {*.o(.callGetPortrait)}	
 /*	. = 0x8D5E23C + 28 * 0x16;
 	.LynPortraitH : {*.o(.LynPortraitH)}	
 	. = 0x8D5E23C + 28 * 0x16;

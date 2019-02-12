@@ -13,10 +13,14 @@ const PTRFUN blinkOrWink[3] =
 };
 
 // 序号FF以后的头像单独设一个指针表,从0x100开始
+// longcall, Os, C直接调用一般要占0x18个字节, 小函数要注意不要复写到下一个函数的区域
+// 用汇编写是为了减小体积, 只占0xC个字节
 __attribute__((section(".callGetPortrait")))
 struct Portrait *callGetPortrait(int portraitIndex)
 {
-	return GetPortrait(portraitIndex);
+	//return GetPortrait(portraitIndex);
+
+	asm("ldr r1,=GetPortrait\nbx r1");
 }
 
 struct Portrait *GetPortrait(int portraitIndex)
@@ -43,7 +47,7 @@ void blinkOrWink1(u32 *mempool, int eyeStatus)
 		eyeShape = 0;
 	changeTiles(portrait->ce.eyeFrameInfo->eyeFrame[eyeShape],32 * ((*(s16 *)((int)data + 60) + 28 + 32 * 2) & 0x3FF) + 0x6010000,4,2);
 	// 写OAM(在这里考虑考虑使眼色)
-	x = 4 - portrait->eyePositionX;
+	x = 4 - portrait->x.eyePositionX;
 	if(winkFlag)
 		x += 2;
 	if(!portrait->eyeMouthPositionAlignmentFlag)
@@ -53,7 +57,7 @@ void blinkOrWink1(u32 *mempool, int eyeStatus)
 	x = 0x1FF & (x + *(s16 *)((int)data + 52) - 16);
 	if(checkPortraitInvert(data))
 		LOWORD(x) = x + 0x1000;
-	y = portrait->eyePositionY;
+	y = portrait->y.eyePositionY;
 	if(!portrait->eyeMouthPositionAlignmentFlag)
 		y = 8 * y;
 	y = ((y + *(s16 *)((int)data + 54)) & 0xFF) + (0x400 & (-(0x400 & getPortraitControlFlag(data)) >> 31));
@@ -357,7 +361,7 @@ void blinkOrWink0(int *mempool, int eyeStatus)
 	eyeTileIndexDelta = 88 - (eyeStatus & 1)*(88 - 24);
 	data = (int *)mempool[11];
 	portrait = data[11];
-	x = 4 - portrait->eyePositionX;
+	x = 4 - portrait->x.eyePositionX;
 	if(!checkPortraitInvert(data))
 		x = -x;
 	x = (8 * x * (1-portrait->eyeMouthPositionAlignmentFlag) + x * portrait->eyeMouthPositionAlignmentFlag + (s16)data[13] - 16) & 0x1FF;
@@ -365,7 +369,7 @@ void blinkOrWink0(int *mempool, int eyeStatus)
 	if(checkPortraitInvert(data))
 		LOWORD(x) = x + 0x1000;
 //		x = (((x & 0xFFFF) + 0x1000) & 0xFFFF)|(x & 0xFFFF0000);
-	y = ((-(getPortraitControlFlag(data) & 0x400)>>31) & 0x400) + ((*(u16 *)((int)data + 54) + 8 * portrait->eyePositionY * (1 - portrait->eyeMouthPositionAlignmentFlag) + portrait->eyePositionY * portrait->eyeMouthPositionAlignmentFlag) & 0xFF);
+	y = ((-(getPortraitControlFlag(data) & 0x400)>>31) & 0x400) + ((*(u16 *)((int)data + 54) + 8 * portrait->y.eyePositionY * (1 - portrait->eyeMouthPositionAlignmentFlag) + portrait->y.eyePositionY * portrait->eyeMouthPositionAlignmentFlag) & 0xFF);
 	if(winkFlag)
 	{
 		if(!checkPortraitInvert(data))

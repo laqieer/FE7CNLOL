@@ -50,8 +50,16 @@ struct Portrait{
 	} ce;
 	s8 mouthPositionX;	// 嘴部帧横位置
 	s8 mouthPositionY;	// 嘴部帧纵位置
-	s8 eyePositionX;		// 眼睛帧横位置
-	s8 eyePositionY;		// 眼睛帧纵位置
+	union
+	{
+		s8 eyePositionX;		// 眼睛帧横位置
+		s8 offsetX;			//TODO eyeControlFlag=3时为头像整体水平位移
+	} x;
+	union
+	{
+		s8 eyePositionY;		// 眼睛帧纵位置
+		s8 offsetY;			//TODO eyeControlFlag=3时为头像整体垂直位移
+	} y;
 	s8 eyeControlFlag;	// 眼睛控制标识,眨眼方式
 	s8 portraitTemplatePair;	// 对话大头像模板对序号
 	s8 portraitTemplateInBox;	// 人物数据界面头像框模板序号

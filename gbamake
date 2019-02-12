@@ -47,7 +47,7 @@ ARCH	:=	-mcpu=arm7tdmi -mthumb -mthumb-interwork
 # -ffast-math 浮点优化选项,极大地提高浮点运算速度
 # -fno-toplevel-reorder 保持输入文件中的次序,以某些优化作为代价
 # -nostdinc 不在标准系统目录中搜索头文件，只在-I指定的目录中搜索
-CFLAGS	:=	$(ARCH) -g -O2 -Wall -fomit-frame-pointer -ffast-math -fno-toplevel-reorder -nostdinc
+CFLAGS	:=	$(ARCH) -g -Os -Wall -fomit-frame-pointer -ffast-math -fno-toplevel-reorder -nostdinc
 # debug信息会导致VBAM加载ELF卡死，可以不带-g选项生成release版，或者从debug版里strip（推荐）
 #CFLAGS	:=	$(ARCH) -O2 -Wall -fomit-frame-pointer -ffast-math -fno-toplevel-reorder -nostdinc
 

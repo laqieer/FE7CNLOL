@@ -8,8 +8,8 @@
 // 第二个头像指针表,起始序号0x100
 const struct Portrait portraitTableNew[] = {
 		{NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 0x100 空白
-		{SurtrPortraitMainL, SurtrPortraitMini, SurtrPortraitPal, SurtrMouthFrameL, {&SurtrEyeFrameInfoL}, 6, 4, 0, 0, 3, 5, 0, 0, 0}, // 0x101 斯尔特左半身
-		{SurtrPortraitMainR, SurtrPortraitMini, SurtrPortraitPal, SurtrMouthFrameR, {&SurtrEyeFrameInfoR}, 0, 4, 0, 0, 3, 5, 0, 0, 0}, // 0x102 斯尔特右半身
+		{SurtrPortraitMainL, SurtrPortraitMini, SurtrPortraitPal, SurtrMouthFrameL, {&SurtrEyeFrameInfoL}, 7 - 6, 2, 0, 0, 3, 11, 0, 0, 0}, // 0x101 斯尔特左半身
+		{SurtrPortraitMainR, SurtrPortraitMini, SurtrPortraitPal, SurtrMouthFrameR, {&SurtrEyeFrameInfoR}, 1 - 2, 2, 0, 0, 3, 10, 0, 0, 0}, // 0x102 斯尔特右半身
 		{SurtrPortraitMainS, SurtrPortraitMini, SurtrPortraitPal, NULL, NULL, 0, 0, 0, 0, 0, 0, 21, 4, 0}, // 0x103 斯尔特人物框
 };
 
@@ -86,7 +86,6 @@ const u16 newPortraitTemplateRightV[1 + 3 * 7] =
 	getObjectAttribute1(1,16 + 32), getObjectAttribute2(3,1,40 - 64), getObjectAttribute3(8 + 2 + 8 + 2),							// 5
 	getObjectAttribute1(0,16 + 32), getObjectAttribute2(1,1,-40), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2),			// 6
 	getObjectAttribute1(0,16 + 32 + 16), getObjectAttribute2(1,1,-40), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2 + 2)	// 7
-
 };
 
 // 新模板，头像在右侧，面向左侧 (立式)
@@ -100,6 +99,60 @@ const u16 newPortraitTemplateLeftV[1 + 3 * 7] =
 	getObjectAttribute1(1,16 + 32), getObjectAttribute2(3,0,-40), getObjectAttribute3(8 + 2 + 8 + 2),							// 5
 	getObjectAttribute1(0,16 + 32), getObjectAttribute2(1,0,40 - 16), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2),			// 6
 	getObjectAttribute1(0,16 + 32 + 16), getObjectAttribute2(1,0,40 - 16), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2 + 2)	// 7
+};
+
+// 新模板，头像在左侧，面向右侧 (立式), 右移2格(16像素)
+const u16 newPortraitTemplateRightVR2[1 + 3 * 7] =
+{
+	7,	// 精灵数量
+	// 每个精灵3个word (3个OAM属性，求或的基础值)
+	getObjectAttribute1(1,-16), getObjectAttribute2(3,1,40 - 64 + 16), getObjectAttribute3(0),											// 1
+	getObjectAttribute1(2,-16), getObjectAttribute2(2,1,-40 + 16), getObjectAttribute3(8),										// 2
+	getObjectAttribute1(1,16), getObjectAttribute2(3,1,40 - 64 + 16), getObjectAttribute3(8 + 2),										// 3
+	getObjectAttribute1(2,16), getObjectAttribute2(2,1,-40 + 16), getObjectAttribute3(8 + 2 + 8),								// 4
+	getObjectAttribute1(1,16 + 32), getObjectAttribute2(3,1,40 - 64 + 16), getObjectAttribute3(8 + 2 + 8 + 2),							// 5
+	getObjectAttribute1(0,16 + 32), getObjectAttribute2(1,1,-40 + 16), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2),			// 6
+	getObjectAttribute1(0,16 + 32 + 16), getObjectAttribute2(1,1,-40 + 16), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2 + 2)	// 7
+};
+
+// 新模板，头像在右侧，面向左侧 (立式), 左移2格(16像素)
+const u16 newPortraitTemplateLeftVL2[1 + 3 * 7] =
+{
+	7,
+	getObjectAttribute1(1,-16), getObjectAttribute2(3,0,-40 - 16), getObjectAttribute3(0),											// 1
+	getObjectAttribute1(2,-16), getObjectAttribute2(2,0,40 - 16 - 16), getObjectAttribute3(8),										// 2
+	getObjectAttribute1(1,16), getObjectAttribute2(3,0,-40 - 16), getObjectAttribute3(8 + 2),										// 3
+	getObjectAttribute1(2,16), getObjectAttribute2(2,0,40 - 16 - 16), getObjectAttribute3(8 + 2 + 8),								// 4
+	getObjectAttribute1(1,16 + 32), getObjectAttribute2(3,0,-40 - 16), getObjectAttribute3(8 + 2 + 8 + 2),							// 5
+	getObjectAttribute1(0,16 + 32), getObjectAttribute2(1,0,40 - 16 - 16), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2),			// 6
+	getObjectAttribute1(0,16 + 32 + 16), getObjectAttribute2(1,0,40 - 16 - 16), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2 + 2)	// 7
+};
+
+// 新模板，头像在左侧，面向右侧 (立式), 右移6格(48像素)
+const u16 newPortraitTemplateRightVR6[1 + 3 * 7] =
+{
+	7,	// 精灵数量
+	// 每个精灵3个word (3个OAM属性，求或的基础值)
+	getObjectAttribute1(1,-16), getObjectAttribute2(3,1,40 - 64 + 48), getObjectAttribute3(0),											// 1
+	getObjectAttribute1(2,-16), getObjectAttribute2(2,1,-40 + 48), getObjectAttribute3(8),										// 2
+	getObjectAttribute1(1,16), getObjectAttribute2(3,1,40 - 64 + 48), getObjectAttribute3(8 + 2),										// 3
+	getObjectAttribute1(2,16), getObjectAttribute2(2,1,-40 + 48), getObjectAttribute3(8 + 2 + 8),								// 4
+	getObjectAttribute1(1,16 + 32), getObjectAttribute2(3,1,40 - 64 + 48), getObjectAttribute3(8 + 2 + 8 + 2),							// 5
+	getObjectAttribute1(0,16 + 32), getObjectAttribute2(1,1,-40 + 48), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2),			// 6
+	getObjectAttribute1(0,16 + 32 + 16), getObjectAttribute2(1,1,-40 + 48), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2 + 2)	// 7
+};
+
+// 新模板，头像在右侧，面向左侧 (立式), 左移6格(48像素)
+const u16 newPortraitTemplateLeftVL6[1 + 3 * 7] =
+{
+	7,
+	getObjectAttribute1(1,-16), getObjectAttribute2(3,0,-40 - 48), getObjectAttribute3(0),											// 1
+	getObjectAttribute1(2,-16), getObjectAttribute2(2,0,40 - 16 - 48), getObjectAttribute3(8),										// 2
+	getObjectAttribute1(1,16), getObjectAttribute2(3,0,-40 - 48), getObjectAttribute3(8 + 2),										// 3
+	getObjectAttribute1(2,16), getObjectAttribute2(2,0,40 - 16 - 48), getObjectAttribute3(8 + 2 + 8),								// 4
+	getObjectAttribute1(1,16 + 32), getObjectAttribute2(3,0,-40 - 48), getObjectAttribute3(8 + 2 + 8 + 2),							// 5
+	getObjectAttribute1(0,16 + 32), getObjectAttribute2(1,0,40 - 16 - 48), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2),			// 6
+	getObjectAttribute1(0,16 + 32 + 16), getObjectAttribute2(1,0,40 - 16 - 48), getObjectAttribute3(8 + 2 + 8 + 2 + 8 + 32 * 2 + 2)	// 7
 };
 
 extern const u16 TikiPortraitTemplateLeft[1 + 3 * 13];
@@ -123,7 +176,9 @@ const u32 portraitTemplatePairTable[][2] =
 		{TikiPortraitTemplateLeft, TikiPortraitTemplateRight},	// 6
 		{SharonPortraitTemplateLeft,SharonPortraitTemplateRight},	// 7
 		{TikiFPortraitTemplateLeft,TikiFPortraitTemplateRight},	// 8
-		{newPortraitTemplateLeftHS, newPortraitTemplateRightHS}	// 9
+		{newPortraitTemplateLeftHS, newPortraitTemplateRightHS},	// 9
+		{newPortraitTemplateLeftVL2, newPortraitTemplateRightVR2},	// 10
+		{newPortraitTemplateLeftVL6, newPortraitTemplateRightVR6},	// 11
 };
 
 // 人物详细界面头像框内TSA模板
