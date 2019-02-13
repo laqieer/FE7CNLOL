@@ -3,7 +3,10 @@
 // 2019-2-9
 
 #include "FE7JPortrait.h"
+
 #include "SurtrPortrait.h"
+#include "BlackKnightPortrait.h"
+
 
 // 第二个头像指针表,起始序号0x100
 const struct Portrait portraitTableNew[] = {
@@ -11,6 +14,10 @@ const struct Portrait portraitTableNew[] = {
 		{SurtrPortraitMainL, SurtrPortraitMini, SurtrPortraitPal, SurtrMouthFrameL, {&SurtrEyeFrameInfoL}, 7 - 6, 2, 0, 0, 3, 11, 0, 0, 0}, // 0x101 斯尔特左半身
 		{SurtrPortraitMainR, SurtrPortraitMini, SurtrPortraitPal, SurtrMouthFrameR, {&SurtrEyeFrameInfoR}, 1 - 2, 2, 0, 0, 3, 10, 0, 0, 0}, // 0x102 斯尔特右半身
 		{SurtrPortraitMainS, SurtrPortraitMini, SurtrPortraitPal, NULL, NULL, 0, 0, 0, 0, 0, 0, 21, 4, 0}, // 0x103 斯尔特人物框
+		{BlackKnightPortraitMainL, BlackKnightPortraitMini, BlackKnightPortraitPal, BlackKnightMouthFrameL, NULL, 6 + 1- 6, 7 - 2, 0, 0, 4, 11, 0, 0, 0}, // 0x104 漆黑的骑士左半身
+		{BlackKnightPortraitMainR, BlackKnightPortraitMini, BlackKnightPortraitPal, BlackKnightMouthFrameR, NULL, 10 - 10 + 1 - 2, 7 - 2, 0, 0, 4, 10, 0, 0, 0}, // 0x105 漆黑的骑士右半身
+		{BlackKnightPortraitMainS, BlackKnightPortraitMini, BlackKnightPortraitPal, NULL, NULL, 0, 0, 0, 0, 0, 0, 21, 4, 0}, // 0x106 漆黑的骑士人物框
+		{BlackKnightPortraitMainM, BlackKnightPortraitMini, BlackKnightPortraitPal, BlackKnightMouthFrameM, NULL, 3, 7, 0, 0, 4, 9, 16, 4, 0}, // 0x107 漆黑的骑士中间 96x80
 };
 
 // 大头像精灵组合模板

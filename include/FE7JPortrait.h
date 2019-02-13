@@ -60,7 +60,7 @@ struct Portrait{
 		s8 eyePositionY;		// 眼睛帧纵位置
 		s8 offsetY;			//TODO eyeControlFlag=3时为头像整体垂直位移
 	} y;
-	s8 eyeControlFlag;	// 眼睛控制标识,眨眼方式
+	s8 eyeControlFlag;	// 眼睛控制标识,眨眼方式 1=原来的(长条里有2帧) 2=还是独立的精灵(长条里有1帧) 3=实时改写图像数据(长条里没有眼睛帧了) 4=一直睁眼(没有眼睛帧,不眨眼) 6=一直闭眼(还是原版的) 
 	s8 portraitTemplatePair;	// 对话大头像模板对序号
 	s8 portraitTemplateInBox;	// 人物数据界面头像框模板序号
 	s8 portraitMaskInBox:7;	// 人物数据界面头像框蒙版序号
@@ -112,6 +112,9 @@ void blinkOrWink1(u32 *mempool, int eyeStatus);
 
 // 新的眨眼/使眼色(眨半边眼)函数,直接实时覆写VRAM中的Tile数据，支持自定义形状尺寸
 void blinkOrWink2(u32 *mempool, int eyeStatus);
+
+// 不需要眼睛帧的头像就什么都不做，比如像黑骑士带个头盔这种
+void blinkOrWink3(u32 *mempool, int eyeStatus);
 
 // 调用不同的眨眼/使眼色函数
 void callBlinkOrWink(u32 *mempool, int eyeStatus);

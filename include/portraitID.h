@@ -8,3 +8,6 @@
 #define pSharon	"\x20\x1"
 #define pSurtrL "\x1\x2"
 #define pSurtrR "\x2\x2"
+#define pBlackKnightL "\x4\x2"
+#define pBlackKnightR "\x5\x2"
+

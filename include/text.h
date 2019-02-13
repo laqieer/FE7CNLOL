@@ -34,7 +34,10 @@ const char* const text[]=
 				openLeft loadFace pHectorNoble
 				"不那是个人" pushA
 				openFarRight loadFace pSurtrR
-				"呵呵" pushA
 				openRight loadFace pSurtrL
-				"一群战五渣" pushA,
+				"一群战五渣" pushA
+				clearFace openLeft clearFace openFarLeft clearFace
+				openFarRight clearFace loadFace pBlackKnightR
+				openRight loadFace pBlackKnightL
+				"绿茶辛苦了" pushA
 };

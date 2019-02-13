@@ -14,6 +14,8 @@ SECTIONS
 	.fireAnimationID : {*.o(.fireAnimationID)}
 	. = 0x8D61ACC;
 	.NosferatuAnimationID : {*.o(.NosferatuAnimationID)}
+	. = 0x8C4C158 + 52 * (3 - 1) + 6;
+	.LynTutPortraitID : {*.o(.LynTutPortraitID)}
 	. = 0x8C4C158 + 52 * (0x87 - 1) + 6;
 	.BattaPortraitID : {*.o(.BattaPortraitID)}
 	. = 0x8007774;	

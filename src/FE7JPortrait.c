@@ -5,11 +5,12 @@
 #include "FE7JPortrait.h"
 
 // 眨眼/使眼色的函数指针表
-const PTRFUN blinkOrWink[3] = 
+const PTRFUN blinkOrWink[] = 
 {
 	blinkOrWink0,
 	blinkOrWink1,
-	blinkOrWink2
+	blinkOrWink2,
+	blinkOrWink3
 };
 
 // 序号FF以后的头像单独设一个指针表,从0x100开始
@@ -26,6 +27,12 @@ struct Portrait *callGetPortrait(int portraitIndex)
 struct Portrait *GetPortrait(int portraitIndex)
 {
   return (portraitIndex > 0xFF) ? &portraitTableNew[portraitIndex - 0x100] : &portraitTableOriginal[portraitIndex];
+}
+
+// 不需要眼睛帧的头像就什么都不做
+void blinkOrWink3(u32 *mempool, int eyeStatus)
+{
+
 }
 
 // 眨眼和使眼色，新增一个精灵，然后实时覆写VRAM中的Tile数据，支持非8像素对齐
