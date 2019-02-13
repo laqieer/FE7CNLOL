@@ -131,3 +131,8 @@ enum TileTransferType{
 // 游戏时间
 #define playtime		(*(int *)0x3000010)
 
+// 左侧人物数据指针
+#define	pUnitLeft	(*(Unit **)0x203E06C)
+// 右侧人物数据指针
+#define	pUnitRight	(*(Unit **)0x203E070)
+

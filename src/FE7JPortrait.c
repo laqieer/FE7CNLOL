@@ -55,7 +55,6 @@ PortraitID GetUnitPortraitID(Unit *pUnit)
 }
 
 // 扩展人物上位职业头像
-//TODO 转职动画加点时候也加载上位头像
 PortraitID GetUnitPortraitIDEx(Unit *pUnit)
 {
   int portraitIndex;
@@ -74,6 +73,76 @@ PortraitID GetUnitPortraitIDEx(Unit *pUnit)
       portraitIndex = NULL;
   }
   return portraitIndex;
+}
+
+__attribute__((section(".playClassChangePortraitAnimationFunc")))
+// const PTRFUN playClassChangePortraitAnimationFunc = playClassChangePortraitAnimation;
+const PTRFUN playClassChangePortraitAnimationFunc = playClassChangePortraitAnimationEx;
+
+// 转职加点时显示头像的动画
+void playClassChangePortraitAnimation(struct context *ctx)
+{
+  AnimationInterpreter *AIS; // r6
+  Unit *pCurrentUnit; // r1
+  int portraitIndex; // r4
+  int src; // [sp+8h] [bp-20h]
+
+  AIS = *(AnimationInterpreter **)&ctx->userSpace[51];
+  FE7JLZ77UnCompWram(0x81E0C60, 0x2017784);
+  FE7JLZ77UnCompWram(0x81E0EAC, 0x2019784);
+  sub(80672B8)(0x2019784, &((u16 *)BG1MapBuffer)[192], 0x20u, 0x14u, 1, 0x100);
+  TileTransferInfoAdd(0x2017784, 0x6002000, 0x400);
+  FE7JCPUFastSet(0x81E0FA8, &BGPaletteBuffer[16], 8u);
+  FE7JLZ77UnCompWram(0x81E0FC8, 0x201A784);
+  TileTransferInfoAdd(0x201A784, 0x6011400, 0xC00);
+  FE7JCPUFastSet(0x81E11DC, &OBJPaletteBuffer[16], 8u);
+  EnablePaletteSync();
+  *(_WORD *)&ctx->userSpace[3] = 80;
+  if ( isUnitAtRightOrLeft(AIS) )
+    pCurrentUnit = pUnitRight;
+  else
+    pCurrentUnit = pUnitLeft;
+  portraitIndex = pCurrentUnit->character->portrait;
+  SetupFaceGfxData(0x8C4A8E8);
+  ShowFace(0, portraitIndex, 188, 80, 0x1042);
+  *(_WORD *)(paFaceProcs[0] + 54) = 160;
+  src = 0;
+  FE7JCPUFastSet(&src, BG2MapBuffer, 0x1000200u);
+  sub(8069314)(ctx);
+  breakLoop(ctx);
+}
+
+// 加入转职时显示上位头像
+void playClassChangePortraitAnimationEx(struct context *ctx)
+{
+  AnimationInterpreter *AIS; // r6
+  Unit *pCurrentUnit; // r1
+  int portraitIndex; // r4
+  int src; // [sp+8h] [bp-20h]
+
+  AIS = *(AnimationInterpreter **)&ctx->userSpace[51];
+  FE7JLZ77UnCompWram(0x81E0C60, 0x2017784);
+  FE7JLZ77UnCompWram(0x81E0EAC, 0x2019784);
+  sub(80672B8)(0x2019784, &((u16 *)BG1MapBuffer)[192], 0x20u, 0x14u, 1, 0x100);
+  TileTransferInfoAdd(0x2017784, 0x6002000, 0x400);
+  FE7JCPUFastSet(0x81E0FA8, &BGPaletteBuffer[16], 8u);
+  FE7JLZ77UnCompWram(0x81E0FC8, 0x201A784);
+  TileTransferInfoAdd(0x201A784, 0x6011400, 0xC00);
+  FE7JCPUFastSet(0x81E11DC, &OBJPaletteBuffer[16], 8u);
+  EnablePaletteSync();
+  *(_WORD *)&ctx->userSpace[3] = 80;
+  if ( isUnitAtRightOrLeft(AIS) )
+    pCurrentUnit = pUnitRight;
+  else
+    pCurrentUnit = pUnitLeft;
+  portraitIndex = promotedUnitPortraitID[pCurrentUnit->character->id] ? promotedUnitPortraitID[pCurrentUnit->character->id] : pCurrentUnit->character->portrait;
+  SetupFaceGfxData(0x8C4A8E8);
+  ShowFace(0, portraitIndex, 188, 80, 0x1042);
+  *(_WORD *)(paFaceProcs[0] + 54) = 160;
+  src = 0;
+  FE7JCPUFastSet(&src, BG2MapBuffer, 0x1000200u);
+  sub(8069314)(ctx);
+  breakLoop(ctx);
 }
 
 // 不需要眼睛帧的头像就什么都不做

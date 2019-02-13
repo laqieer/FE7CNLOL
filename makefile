@@ -25,7 +25,8 @@ GFXLIBS     ?= libgfx.a
 # 函数库路径
 LIBRARIES	:=	lib/libfe lib/libmy lib/libagb lib/libtonc
 # 链接的函数库
-LIBS        := -nostdlib -lgfx -ltonc
+# LIBS        := -nostdlib -lgfx -ltonc
+LIBS        := -lgfx -ltonc
 # LIBS        := -lgfx -
 # makefile本身(修改了makefile就应该先make clean再重新make)
 # MAKEFILES	:= makefile gbamake

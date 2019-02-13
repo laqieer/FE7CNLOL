@@ -32,6 +32,8 @@ SECTIONS
 	.callDrawPortraitInBox : {*.o(.callDrawPortraitInBox)}
 	. = 0x800749C;
 	.callMouthAnimation : {*.o(.callMouthAnimation)}
+	. = 0x8C4A92C;
+	.playClassChangePortraitAnimationFunc : {*.o(.playClassChangePortraitAnimationFunc)}	
 	. = 0x8018FC8;
 	.callGetUnitPortraitID : {*.o(.callGetUnitPortraitID)}	
 	. = 0x80069B0;

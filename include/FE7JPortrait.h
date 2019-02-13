@@ -8,6 +8,9 @@
 #include "FE7JFunc.h"
 #include "IDAPro.h"
 #include "FE7JStructDef.h"
+#include "FE7JCoroutine.h"
+#include "FE7JMemoryMap.h"
+#include "FE7JBattleAnimation.h"
 
 /*
 // 原来的头像指针结构体
@@ -244,3 +247,22 @@ extern const struct Portrait portraitTableNew[];
 
 // 人物上位职业头像表
 extern const PortraitID promotedUnitPortraitID[];
+
+#define	paFaceProcs	((int *)0x30040E0)
+
+// int SetupFaceGfxData(int *a1);
+#define SetupFaceGfxData	sub(80069E0)
+
+// 显示头像
+// _DWORD *ShowFace(int faceId, int portraitId, int x, int y, int dispType);
+#define ShowFace	sub(8006AC4)
+
+// 消除头像
+// void DeleteFaceByIndex(int faceIndex);
+#define DeleteFaceByIndex	sub(8006BE0)
+
+// 转职加点时显示头像的动画
+void playClassChangePortraitAnimation(struct context *ctx);
+
+// 加入转职时加载上位头像
+void playClassChangePortraitAnimationEx(struct context *ctx);
