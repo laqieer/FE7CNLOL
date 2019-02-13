@@ -32,6 +32,8 @@ SECTIONS
 	.callDrawPortraitInBox : {*.o(.callDrawPortraitInBox)}
 	. = 0x800749C;
 	.callMouthAnimation : {*.o(.callMouthAnimation)}
+	. = 0x8018FC8;
+	.callGetUnitPortraitID : {*.o(.callGetUnitPortraitID)}	
 	. = 0x80069B0;
 	.callGetPortrait : {*.o(.callGetPortrait)}	
 /*	. = 0x8D5E23C + 28 * 0x16;
@@ -39,13 +41,13 @@ SECTIONS
 	. = 0x8D5E23C + 28 * 0x16;
 	.LynPortraitV : {*.o(.LynPortraitV)}	
 	. = 0x8D5E23C + 28 * 0x16;
-	.TikiPortrait : {*.o(.TikiPortrait)}	*/
+	.TikiPortrait : {*.o(.TikiPortrait)}	
 	. = 0x8D5E23C + 28 * 0x20;
 	.SharonPortrait : {*.o(.SharonPortrait)}	
 	. = 0x8D5E23C + 28 * 0xC;
 	.TikiFPortrait : {*.o(.TikiFPortrait)}		
 	. = 0x8D5E23C + 28 * 0x1B;
-	.HuajiPortrait : {*.o(.HuajiPortrait)}	
+	.HuajiPortrait : {*.o(.HuajiPortrait)}	*/
 	. = 0x8013318;
 	.callDecodeText : {*.o(.callDecodeText)}
 	. = 0x80056D8;

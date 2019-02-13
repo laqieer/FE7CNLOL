@@ -29,6 +29,53 @@ struct Portrait *GetPortrait(int portraitIndex)
   return (portraitIndex > 0xFF) ? &portraitTableNew[portraitIndex - 0x100] : &portraitTableOriginal[portraitIndex];
 }
 
+__attribute__((section(".callGetUnitPortraitID")))
+PortraitID callGetUnitPortraitID(Unit *pUnit)
+{
+//	return GetUnitPortraitID(pUnit);
+	return GetUnitPortraitIDEx(pUnit);
+}
+
+// 原版的读取人物头像id的函数
+PortraitID GetUnitPortraitID(Unit *pUnit)
+{
+  int portraitIndex;
+  Class *pClass;
+
+  portraitIndex = pUnit->character->portrait;
+  if ( !portraitIndex )
+  {
+    pClass = pUnit->m_class;
+    if ( pClass->classCard )
+      portraitIndex = pClass->classCard;
+    else
+      portraitIndex = 0;
+  }
+  return portraitIndex;
+}
+
+// 扩展人物上位职业头像
+//TODO 转职动画加点时候也加载上位头像
+PortraitID GetUnitPortraitIDEx(Unit *pUnit)
+{
+  int portraitIndex;
+  Class *pClass;
+
+  pClass = pUnit->m_class;
+  if( pClass->ability_promoted && promotedUnitPortraitID[pUnit->character->id] )
+  	portraitIndex = promotedUnitPortraitID[pUnit->character->id];
+  else
+  	portraitIndex = pUnit->character->portrait;
+  if ( !portraitIndex )
+  {
+    if ( pClass->classCard )
+      portraitIndex = pClass->classCard;
+    else
+      portraitIndex = NULL;
+  }
+  return portraitIndex;
+}
+
 // 不需要眼睛帧的头像就什么都不做
 void blinkOrWink3(u32 *mempool, int eyeStatus)
 {

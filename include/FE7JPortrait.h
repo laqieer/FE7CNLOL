@@ -7,6 +7,7 @@
 #include "AgbTypes.h"
 #include "FE7JFunc.h"
 #include "IDAPro.h"
+#include "FE7JStructDef.h"
 
 /*
 // 原来的头像指针结构体
@@ -158,6 +159,14 @@ void chooseMainPortraitSpriteTemplate(u32 *mempool);
 // 新的选择大头像精灵组合模板函数的接口
 void callChooseMainPortraitSpriteTemplate(s16 *mempool);
 
+// 扩展人物上位职业头像
+#pragma long_calls
+PortraitID GetUnitPortraitID(Unit *pUnit);
+PortraitID GetUnitPortraitIDEx(Unit *pUnit);
+#pragma long_calls_off
+
+PortraitID callGetUnitPortraitID(Unit *pUnit);
+
 // 头像指针表扩展到0x100之后
 #pragma long_calls
 struct Portrait *GetPortrait(int portraitIndex);
@@ -232,3 +241,6 @@ extern const u32 portraitTemplatePairTable[][2];
 
 // 新头像指针表(从0x100开始)
 extern const struct Portrait portraitTableNew[];
+
+// 人物上位职业头像表
+extern const PortraitID promotedUnitPortraitID[];
