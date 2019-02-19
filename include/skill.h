@@ -56,6 +56,7 @@ typedef struct SkillAttack
 {
 	const char * name;
 	const char * description;
+	int count; // cd
 	StatType stat_type;
 	StatCalcType stat_calc_type;
 	int stat_calc_coefficient;
@@ -70,6 +71,7 @@ typedef struct SkillDefend
 {
 	const char * name;
 	const char * description;
+	int count; // cd
 	const u8 *weapon_type_list;
 	int damage_cut_coefficient;
 	int damage_cut_fixed;
@@ -83,6 +85,7 @@ typedef struct SkillHeal
 {
 	const char * name;
 	const char * description;
+	int count; // cd
 	int hp_heal_coefficient_target;
 	int hp_heal_fixed_target;
 	int hp_heal_coefficient_self;
