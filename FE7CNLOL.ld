@@ -9,6 +9,7 @@ SECTIONS
 	.rom : {*.o(.rom)}
 	.text : {*(.text)}
 	.rodata : {*(.rodata) . = ALIGN(4);}
+	INCLUDE Memory.ld
 	/DISCARD/ : { *(.data) *(.bss) }	
 	INCLUDE Hook.ld
 	INCLUDE Data.ld
