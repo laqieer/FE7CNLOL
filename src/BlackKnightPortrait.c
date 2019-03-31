@@ -4,7 +4,7 @@
 
 #include "BlackKnightPortrait.h"
 
-// 用巴塔的头像位置做测试
+// 用琳篇琳的头像位置做测试
 __attribute__((section(".LynTutPortraitID")))
 const PortraitID LynTutPortraitID = 0x107;
 

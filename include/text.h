@@ -39,5 +39,24 @@ const char* const text[]=
 				clearFace openLeft clearFace openFarLeft clearFace
 				openFarRight clearFace loadFace pBlackKnightR
 				openRight loadFace pBlackKnightL
-				"ÂÌ²èĞÁ¿àÁË" pushA
+				"ÂÌ²èĞÁ¿àÁË" pushA,
+	[0x0836] = openFarLeft loadFace pZelgius
+				openLeft loadFace pZelgius
+				openRight loadFace pZelgius
+				openFarRight loadFace pZelgius
+				//"ÂÌ²èÊ²Ã´Ê±ºò»­" endl
+				//"ÑÛ¾¦ºÍ×ìµÄ¶¯×÷" pushA,
+				toggleMouthMove
+				"×ì²¿¶¯»­²âÊÔ" endl pushA
+				toggleMouthMove
+				toggleSmile
+				"Î¢Ğ¦²âÊÔ" endl pushA
+				toggleMouthMove
+				"Î¢Ğ¦×ì²¿¶¯»­²âÊÔ" endl pushA
+				toggleMouthMove
+				toggleSmile
+				closeEyes "±ÕÑÛ²âÊÔ" endl pushA
+				openEyes halfCloseEyes "°ë±ÕÑÛ²âÊÔ" endl pushA
+				openEyes wink "Ê¹ÑÛÉ«²âÊÔ" endl pushA
+				openEyes "ÕöÑÛ" endl pushA
 };

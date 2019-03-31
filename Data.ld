@@ -14,6 +14,8 @@
 	.LynTutPortraitID : {*.o(.LynTutPortraitID)}
 	. = 0x8C4C158 + 52 * (0x87 - 1) + 6;
 	.BattaPortraitID : {*.o(.BattaPortraitID)}
+	. = 0x8C4C158 + 52 * (0xF7 - 1) + 6;
+	.UhaiMorphPortraitID : {*.o(.UhaiMorphPortraitID)}
 	. = 0x8D61A1C;
 	.fireAnimationID : {*.o(.fireAnimationID)}
 	. = 0x8D61ACC;

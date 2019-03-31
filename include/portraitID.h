@@ -10,4 +10,5 @@
 #define pSurtrR "\x2\x2"
 #define pBlackKnightL "\x4\x2"
 #define pBlackKnightR "\x5\x2"
+#define pZelgius "\x8\x2"
 

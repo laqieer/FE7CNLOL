@@ -6,6 +6,7 @@
 
 #include "SurtrPortrait.h"
 #include "BlackKnightPortrait.h"
+#include "ZelgiusPortrait.h"
 
 
 // 第二个头像指针表,起始序号0x100
@@ -18,6 +19,7 @@ const struct Portrait portraitTableNew[] = {
 		{BlackKnightPortraitMainR, BlackKnightPortraitMini, BlackKnightPortraitPal, BlackKnightMouthFrameR, NULL, 10 - 10 + 1 - 2, 7 - 2, 0, 0, 4, 10, 0, 0, 0}, // 0x105 漆黑的骑士右半身
 		{BlackKnightPortraitMainS, BlackKnightPortraitMini, BlackKnightPortraitPal, NULL, NULL, 0, 0, 0, 0, 0, 0, 21, 4, 0}, // 0x106 漆黑的骑士人物框
 		{BlackKnightPortraitMainM, BlackKnightPortraitMini, BlackKnightPortraitPal, BlackKnightMouthFrameM, NULL, 3, 7, 0, 0, 4, 9, 16, 4, 0}, // 0x107 漆黑的骑士中间 96x80
+		{ZelgiusPortraitMain, ZelgiusPortraitMini, ZelgiusPortraitPal, ZelgiusMouthFrame, {&ZelgiusEyeFrameInfo}, 40 - 136 / 2 + 20, 40, 0, 0, 3, 12, 22, 5, 1}, // 0x108 塞尔基乌斯
 };
 
 // 大头像精灵组合模板
@@ -186,6 +188,7 @@ const u32 portraitTemplatePairTable[][2] =
 		{newPortraitTemplateLeftHS, newPortraitTemplateRightHS},	// 9
 		{newPortraitTemplateLeftVL2, newPortraitTemplateRightVR2},	// 10
 		{newPortraitTemplateLeftVL6, newPortraitTemplateRightVR6},	// 11
+		{ZelgiusPortraitTemplateLeft, ZelgiusPortraitTemplateRight},	// 12
 };
 
 // 人物详细界面头像框内TSA模板
@@ -494,6 +497,7 @@ const void * const portraitInBoxTemplateTable[] =
 	newPortraitInBoxTemplateHS,		// 19
 	newPortraitInBoxTemplateRHS,	// 20
 	PurePortraitInBoxTemplate,		// 21 纯头像框(最简)
+	ZelgiusPortraitInBoxTemplate,		// 22 成年琪琪
 };
 
 
@@ -530,5 +534,6 @@ const u16* const portraitMaskTable[] = {
 	portraitMaskTiki, // 1
 	portraitMaskSharon, // 2
 	portraitMaskTikiF, // 3
-	portraitMaskAll // 4
+	portraitMaskAll, // 4
+	portraitMaskZelgius, // 5
 };
