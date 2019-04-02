@@ -13,3 +13,4 @@ trash
 rom
 *.ups
 *tags*
+tool/venv
