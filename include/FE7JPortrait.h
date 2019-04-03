@@ -198,6 +198,9 @@ void callDrawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTi
 // x和y分别是对应Tile在256x32的图中的坐标
 #define	getTileNo(x,y)						((32 * (y) + (x))&1023)
 
+// GBA Text BG Screen (2 bytes per entry)
+#define BGTile(tile_number,palette_number,horizontal_flip,vertical_flip)	(((tile_number)&1023)|(((palette_number)&15)<<12)|(((horizontal_flip)&1)<<10)|(((vertical_flip)&1)<<11))
+
 // 计算无压缩图片数据长度(字节数)作为数据头
 #define getUncompressedImageLength(byteNum)	((byteNum)<<8)
 
