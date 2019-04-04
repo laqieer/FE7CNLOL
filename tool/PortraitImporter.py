@@ -22,9 +22,11 @@ class ImageSizeError(Exception):
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv[1:], "hcbt:n:s:m:",
+        opts, args = getopt.getopt(argv[1:], "hcbt:n:s:m:e:",
                                    ["help", "source", "binary", "transparent=", "name=", "status_screen=",
-                                    "mouth_x=", "mouth_y=", "mouth_frame=", "tileset=", "template="])
+                                    "mouth_x=", "mouth_y=", "mouth_frame=", "tileset=", "template=", "mini=",
+                                    "eye_frame=", "eye_w=", "eye_h=", "eye_map=", "eye_x=", "eye_y=",
+                                    "eye_mode=", "wink_w=", "wink_h="])
     except getopt.GetoptError:
         print("%s -h" % argv[0])
         sys.exit(2)
@@ -38,14 +40,26 @@ def main(argv):
     mouth_frame_file = None
     tileset_file = None
     template_file = None
+    mini_portrait_file = None
+    eye_frame_file = None
+    eye_map_file = None
     mouth_x = -32
     mouth_y = -16
+    eye_width = -8
+    eye_height = -8
+    wink_width = -4
+    wink_height = -8
+    eye_x = None
+    eye_y = None
+    eye_mode = 4
     for opt, arg in opts:
         if opt in ["-h", "--help"]:
             print("Import customized size portrait.")
             print("%s [-h] [-c] [-b] [-t #rrggbb] [-n name] [-s <image_file>]" % argv[0])
-            print("\t[-m <image_sequence>] [--mouth_x mx] [--mouth_y my]")
-            print("[--tileset <tileset_file>] [--template <template_file>]")
+            print("\t[-m <image_file>] [--mouth_x mx] [--mouth_y my] [-e <image_file>] [--eye_w ew] [--eye_h eh] "
+                  "[--wink_w ww] [--wink_h wh]")
+            print("\t[--eye_map <eye_map_file>] [--eye_x ex] [--eye_y ey] [--eye_mode em]")
+            print("\t[--tileset <tileset_file>] [--template <template_file>] [--mini <image_file>]")
             print("--tileset: 256x32 image")
             print("--template: json file to config template")
             print("-h,--help: show help information")
@@ -60,6 +74,19 @@ def main(argv):
                   "\tFrame3: open\n\tFrame4: half open\n\tFrame5: closed")
             print("--mouth_x: x coordinate of mouth frame (base: top-left of the portrait)")
             print("--mouth_y: y coordinate of mouth frame (base: top-left of the portrait)")
+            print("--mini: mini portrait displayed on the map. 32x32 image.")
+            print("-e,--eye_frame: eye animation frame. Customized size image.")
+            print("\tFrame0: open\n\tFrame1: half open half closed\n\tFrame2: closed")
+            print("--eye_w: eye width, (Unit: pixel) Must be a multiple of 8.")
+            print("--eye_h: eye height, (Unit: pixel) Must be a multiple of 8.")
+            print("--wink_w: wink animation width (right eye). (Unit: pixel) Must be a multiple of 8.")
+            print("--wink_h: wink animation height (right eye). (Unit: pixel) Must be a multiple of 8.")
+            print("--eye_map: json file for eye frame tile map")
+            print("--eye_x: X coordinate of eye frame. (Unit: pixel). Needn't be a multiple of 8.")
+            print("--eye_y: Y coordinate of eye frame. (Unit: pixel). Needn't be a multiple of 8.")
+            print("--eye_mode: mode of eye frame. 1-vanilla, 2-object(32x16), 3-tilemap(recommended),"
+                  " 4-no eye animation, 6-always closed.")
+            sys.exit(1)
         elif opt in ["-c", "--source"]:
             output_c = True
         elif opt in ["-b", "--binary"]:
@@ -84,6 +111,36 @@ def main(argv):
             mouth_y = int(arg)
         elif opt in ["-m", "--mouth_frame"]:
             mouth_frame_file = arg
+        elif opt == "--mini":
+            mini_portrait_file = arg
+        elif opt in ["-e", "--eye_frame"]:
+            eye_frame_file = arg
+            eye_mode = 3
+        elif opt == "--eye_x":
+            eye_x = int(arg)
+            eye_mode = 2
+        elif opt == "--eye_y":
+            eye_y = int(arg)
+            eye_mode = 2
+        elif opt == "--eye_w":
+            eye_width = int(arg)
+            eye_mode = 3
+        elif opt == "--eye_h":
+            eye_height = int(arg)
+            eye_mode = 3
+        elif opt == "--wink_w":
+            wink_width = int(arg)
+            eye_mode = 3
+        elif opt == "--wink_h":
+            wink_height = int(arg)
+            eye_mode = 3
+        elif opt == "--eye_map":
+            eye_map_file = arg
+            eye_mode = 3
+        elif opt == "--eye_mode":
+            eye_mode = int(arg)
+    if eye_frame_file is None:
+        eye_mode = 4
     if tileset_file is not None:
         im_tileset = Image.open(tileset_file)
         if file_base is None:
@@ -127,6 +184,49 @@ def main(argv):
         mouth_animation = GBAImage.AnimationFrames(mouth_frame_file, 32, 16, 6, im_tileset.getpalette())
         im_tileset.paste(mouth_animation.image_list[5], (256 - 32, 0, 256, 16))
         tileset = GBAImage.TileSet(im_tileset)
+    if mini_portrait_file is not None:
+        im_mini = Image.open(mini_portrait_file)
+        if im_mini.width != 32 or im_mini.height != 32:
+            raise ImageSizeError(im_mini.width, im_mini.height)
+        im_mini = GBAImage.reset_palette(im_mini, im_tileset.getpalette())
+        mini_portrait = GBAImage.TileSet(im_mini)
+    if eye_frame_file is not None:
+        im_eye = Image.open(eye_frame_file)
+        if im_eye.width % 8 != 0 or im_eye.height % 24 != 0:
+            raise ImageSizeError(im_eye.width, im_eye.height)
+        eye_tilemap = None
+        if eye_map_file is not None:
+            with open(eye_map_file, 'r') as f:
+                eye_template = json.load(f)
+                if "mode" in eye_template:
+                    eye_mode = eye_template["mode"]
+                if "width" in eye_template:
+                    eye_width = eye_template["width"]
+                if "height" in eye_template:
+                    eye_height = eye_template["height"]
+                if "wink_width" in eye_template:
+                    wink_width = eye_template["wink_width"]
+                if "wink_height" in eye_template:
+                    wink_height = eye_template["wink_height"]
+                if "map" in eye_template:
+                    eye_tilemap = [([0] * (eye_width // 8)) for i in range(eye_height // 8)]
+                    for y in range(eye_height // 8):
+                        for x in range(eye_width // 8):
+                            eye_tilemap[y][x] = eye_template["map"][(eye_width // 8) * y + x][0] \
+                                                + (256 // 8) * eye_template["map"][(eye_width // 8) * y + x][1]
+        if eye_width == -8:
+            eye_width = im_eye.width
+        if eye_height == -8:
+            eye_height = im_eye.height // 3
+        if wink_width == -4:
+            wink_width = eye_width // 2
+            wink_width -= wink_width % 8
+        if wink_height == -8:
+            wink_height = eye_height
+        eye_animation = GBAImage.AnimationFrames(eye_frame_file, eye_width, eye_height, 3, im_tileset.getpalette())
+        if eye_tilemap is None:
+            # fixme the tilemap generated automatically seems to lose some tiles
+            eye_tilemap_auto = GBAImage.BGMap(eye_animation.image_list[0], im_tileset.getpalette(), tileset)
     # parse template
     portrait_width = template["width"]
     portrait_height = template["height"]
@@ -145,15 +245,39 @@ def main(argv):
     # output C source
     if output_c:
         comment = "// This file is generated by " + os.path.split(argv[0])[1] + " automatically. Don't edit it.\n"
+        portrait = "// {%s_portrait_tileset, " % portrait_name
+        if mini_portrait_file is None:
+            portrait += "0, "
+        else:
+            portrait += "%s_portrait_mini, " % portrait_name
+        portrait += "%s_portrait_palette, " % portrait_name
+        portrait += "%s_portrait_mouth_frame, " % portrait_name
+        if eye_frame_file is None:
+            portrait += "0, "
+        else:
+            portrait += "{&%s_eye_frame_info}, " % portrait_name
+        # fixme the x coordinate calculation may be wrong
+        portrait += "%d, %d, " % (mouth_x - (portrait_width - 96) // 2 - 28, mouth_y - (portrait_height - 80))
+        if eye_x is None:
+            eye_x_coordinate = 0
+        else:
+            eye_x_coordinate = eye_x - (portrait_width - 96) // 2 - 28
+        if eye_y is None:
+            eye_y_coordinate = 0
+        else:
+            eye_y_coordinate = eye_y - (portrait_height - 80)
+        portrait += "%d, %d, " % (eye_x_coordinate, eye_y_coordinate)
+        portrait += "%d, oam_id, tsa_id, mask_id, 1}, // %s\n" % (eye_mode, portrait_name)
+
         header_file = file_base + ".h"
         with open(header_file, 'w') as f:
             f.write(comment)
+            f.write(portrait)
             f.write("""
 #pragma once
 
 #include "FE7JPortrait.h"
 #include "FE7JStructDef.h"
-#include "Gba_video.h"
 
 """)
             f.write("extern const unsigned short %s_portrait_palette[];\n" % portrait_name)
@@ -164,28 +288,36 @@ def main(argv):
                 f.write("extern const unsigned short %s_portrait_in_status_screen_tsa[];\n" % portrait_name)
                 f.write("extern const unsigned short %s_portrait_in_status_screen_mask[][10];\n" % portrait_name)
             f.write("extern const unsigned char %s_portrait_mouth_frame[][32 * 16 / 2];\n" % portrait_name)
+            if mini_portrait_file is not None:
+                f.write("extern const unsigned char %s_portrait_mini[];\n" % portrait_name)
+            if eye_frame_file is not None:
+                f.write("extern const struct EyeFrameInfo %s_eye_frame_info;\n" % portrait_name)
         source_file = file_base + ".c"
         with open(source_file, 'w') as f:
             f.write(comment)
             f.write("\n#include \"%s.h\"\n" % portrait_name)
-            f.write("\nconst unsigned short %s_portrait_palette[] = " % portrait_name)
+            f.write("\nconst unsigned short %s_portrait_palette[] __attribute__((aligned(4)))= " % portrait_name)
             f.write(palette.tostring() + ";\n")
-            f.write("\nconst unsigned char %s_portrait_tileset[] = " % portrait_name)
+            f.write("\nconst unsigned char %s_portrait_tileset[] __attribute__((aligned(4)))= " % portrait_name)
             f.write(tileset.tostring().replace("{", "{0x0,0x4,0x10,0x0,", 1) + ";\n")
-            f.write("\nconst unsigned short %s_portrait_oam_right[] = {%d, " % (portrait_name, len(oam_right)))
+            f.write("\nconst unsigned short %s_portrait_oam_left[] __attribute__((aligned(4)))= {%d, "
+                    % (portrait_name, len(oam_right)))
             for i in oam_right:
                 f.write(i.tostring() + ", ")
             f.write("};\n")
-            f.write("\nconst unsigned short %s_portrait_oam_left[] = {%d, " % (portrait_name, len(oam_left)))
+            f.write("\nconst unsigned short %s_portrait_oam_right[] __attribute__((aligned(4)))= {%d, "
+                    % (portrait_name, len(oam_left)))
             for i in oam_left:
                 f.write(i.tostring() + ", ")
             f.write("};\n")
             if portrait_in_status_screen_file is not None:
-                f.write("\nconst unsigned short %s_portrait_in_status_screen_tsa[] = " % portrait_name)
+                f.write("\nconst unsigned short %s_portrait_in_status_screen_tsa[] __attribute__((aligned(4)))= "
+                        % portrait_name)
                 f.write(status_screen_portrait_map.tostring_reverse() + ";\n")
                 f.write("\nconst unsigned short %s_portrait_in_status_screen_mask[9][10] = " % portrait_name)
                 f.write(status_screen_portrait_map.tostring_mask() + ";\n")
-            f.write("extern const unsigned char %s_portrait_mouth_frame[6][32 * 16 / 2] = " % portrait_name)
+            f.write("\nconst unsigned char %s_portrait_mouth_frame[6][32 * 16 / 2] __attribute__((aligned(4)))= "
+                    % portrait_name)
             if mouth_frame_file is None:
                 f.write("{")
                 for i in range(6):
@@ -193,6 +325,28 @@ def main(argv):
                 f.write("};\n")
             else:
                 f.write(mouth_animation.tostring() + ";\n")
+            if mini_portrait_file is not None:
+                f.write("\nconst unsigned char %s_portrait_mini[] __attribute__((aligned(4)))= " % portrait_name)
+                f.write(mini_portrait.tostring().replace("{", "{0x0,0x0,0x2,0x0,", 1) + ";\n")
+            if eye_frame_file is not None:
+                f.write("\nconst unsigned char %s_eye_frame[3][%d * %d / 2] __attribute__((aligned(4)))= "
+                        % (portrait_name, eye_width, eye_height))
+                f.write(eye_animation.tostring() + ";\n")
+                f.write("\nconst short %s_eye_frame_map[] = " % portrait_name)
+                if eye_tilemap is not None:
+                    f.write("{")
+                    for y in range(eye_height // 8):
+                        for x in range(eye_width // 8):
+                            f.write("0x%X," % eye_tilemap[y][x])
+                    f.write("};\n")
+                else:
+                    f.write(eye_tilemap_auto.tostring() + ";\n")
+                f.write("\nconst struct EyeFrameInfo %s_eye_frame_info = {%d,%d,%d,%d,"
+                        % (portrait_name, eye_width // 8, eye_height // 8, wink_width // 8, wink_height // 8))
+                f.write("{%s_eye_frame," % portrait_name)
+                f.write("&%s_eye_frame[1]," % portrait_name)
+                f.write("&%s_eye_frame[2]}," % portrait_name)
+                f.write("%s_eye_frame_map};\n" % portrait_name)
     # todo output binary
     if output_bin:
         pass

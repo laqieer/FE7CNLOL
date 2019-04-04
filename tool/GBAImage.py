@@ -362,8 +362,8 @@ class OBJAttribute:
                  rotation_scaling_parameter_number=0, double_size=0, disable=0, palette256=0):
         self.tile_number = tile_number & 1023
         self.palette_number = palette_number & 15
-        self.x_coordinate = x_coordinate & 255
-        self.y_coordinate = y_coordinate & 511
+        self.x_coordinate = x_coordinate & 511
+        self.y_coordinate = y_coordinate & 255
         self.width = width
         self.height = height
         try:
@@ -413,16 +413,16 @@ class OBJAttribute:
         self.double_size = double_size & 1
         self.disable = disable & 1
         self.palette256 = palette256 & 1
-        self.OBJAttribute0 = (y_coordinate | rotation_scaling << 8 | mode << 10 | mosaic << 12 | palette256 << 13
-                              | self.shape << 14) & 0xFFFF
-        self.OBJAttribute1 = x_coordinate | self.size << 14
-        if rotation_scaling == 1:
-            self.OBJAttribute1 = self.OBJAttribute1 | rotation_scaling_parameter_number << 9
+        self.OBJAttribute0 = (self.y_coordinate | (self.rotation_scaling << 8) | (self.mode << 10) |
+                              (self.mosaic << 12) | (self.palette256 << 13) | (self.shape << 14)) & 0xFFFF
+        self.OBJAttribute1 = self.x_coordinate | (self.size << 14)
+        if self.rotation_scaling == 1:
+            self.OBJAttribute1 = self.OBJAttribute1 | (self.rotation_scaling_parameter_number << 9)
         else:
-            self.OBJAttribute1 = self.OBJAttribute1 | horizontal_flip << 12
-            self.OBJAttribute1 = self.OBJAttribute1 | vertical_flip << 13
+            self.OBJAttribute1 = self.OBJAttribute1 | (self.horizontal_flip << 12)
+            self.OBJAttribute1 = self.OBJAttribute1 | (self.vertical_flip << 13)
         self.OBJAttribute1 = self.OBJAttribute1 & 0xFFFF
-        self.OBJAttribute2 = (tile_number | priority << 10 | palette_number << 12) & 0xFFFF
+        self.OBJAttribute2 = (self.tile_number | (self.priority << 10) | (self.palette_number << 12)) & 0xFFFF
 
     def to_bytes(self):
         return struct.pack('HHH', self.OBJAttribute0, self.OBJAttribute1, self.OBJAttribute2)

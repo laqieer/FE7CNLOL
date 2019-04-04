@@ -7,6 +7,7 @@
 #include "SurtrPortrait.h"
 #include "BlackKnightPortrait.h"
 #include "ZelgiusPortrait.h"
+#include "Fenrir.h"
 
 
 // 第二个头像指针表,起始序号0x100
@@ -20,6 +21,7 @@ const struct Portrait portraitTableNew[] = {
 		{BlackKnightPortraitMainS, BlackKnightPortraitMini, BlackKnightPortraitPal, NULL, NULL, 0, 0, 0, 0, 0, 0, 21, 4, 0}, // 0x106 漆黑的骑士人物框
 		{BlackKnightPortraitMainM, BlackKnightPortraitMini, BlackKnightPortraitPal, BlackKnightMouthFrameM, NULL, 3, 7, 0, 0, 4, 9, 16, 4, 0}, // 0x107 漆黑的骑士中间 96x80
 		{ZelgiusPortraitMain, ZelgiusPortraitMini, ZelgiusPortraitPal, ZelgiusMouthFrame, {&ZelgiusEyeFrameInfo}, 40 - 136 / 2 + 20, 40, 0, 0, 3, 12, 22, 5, 1}, // 0x108 塞尔基乌斯
+		{Fenrir_portrait_tileset, Fenrir_portrait_mini, Fenrir_portrait_palette, Fenrir_portrait_mouth_frame, {&Fenrir_eye_frame_info}, 8, 56, 0, 0, 3, 13, 23, 6, 1}, // 0x109 Fenrir
 };
 
 // 大头像精灵组合模板
@@ -189,6 +191,7 @@ const u32 portraitTemplatePairTable[][2] =
 		{newPortraitTemplateLeftVL2, newPortraitTemplateRightVR2},	// 10
 		{newPortraitTemplateLeftVL6, newPortraitTemplateRightVR6},	// 11
 		{ZelgiusPortraitTemplateLeft, ZelgiusPortraitTemplateRight},	// 12
+		{Fenrir_portrait_oam_left, Fenrir_portrait_oam_right},	// 13
 };
 
 // 人物详细界面头像框内TSA模板
@@ -498,6 +501,7 @@ const void * const portraitInBoxTemplateTable[] =
 	newPortraitInBoxTemplateRHS,	// 20
 	PurePortraitInBoxTemplate,		// 21 纯头像框(最简)
 	ZelgiusPortraitInBoxTemplate,		// 22 成年琪琪
+	Fenrir_portrait_in_status_screen_tsa, // 23 神兽芬利厄
 };
 
 
@@ -536,4 +540,5 @@ const u16* const portraitMaskTable[] = {
 	portraitMaskTikiF, // 3
 	portraitMaskAll, // 4
 	portraitMaskZelgius, // 5
+	Fenrir_portrait_in_status_screen_mask, // 6
 };

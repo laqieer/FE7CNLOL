@@ -11,4 +11,5 @@
 #define pBlackKnightL "\x4\x2"
 #define pBlackKnightR "\x5\x2"
 #define pZelgius "\x8\x2"
+#define pFenrir "\x9\x2"
 

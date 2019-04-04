@@ -201,6 +201,9 @@ void callDrawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTi
 // GBA Text BG Screen (2 bytes per entry)
 #define BGTile(tile_number,palette_number,horizontal_flip,vertical_flip)	(((tile_number)&1023)|(((palette_number)&15)<<12)|(((horizontal_flip)&1)<<10)|(((vertical_flip)&1)<<11))
 
+// GBA Color RGB555
+#define RGB5(red,green,blue)	(((red)&31)|(((green)&31)<<5)|(((blue)&31)<<10))
+
 // 计算无压缩图片数据长度(字节数)作为数据头
 #define getUncompressedImageLength(byteNum)	((byteNum)<<8)
 

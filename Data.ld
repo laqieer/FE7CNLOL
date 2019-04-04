@@ -16,6 +16,8 @@
 	.BattaPortraitID : {*.o(.BattaPortraitID)}
 	. = 0x8C4C158 + 52 * (0xF7 - 1) + 6;
 	.UhaiMorphPortraitID : {*.o(.UhaiMorphPortraitID)}
+	. = 0x8C4C158 + 52 * (0xF9 - 1) + 6;
+	.KennethMorphPortraitID : {*.o(.KennethMorphPortraitID)}
 	. = 0x8D61A1C;
 	.fireAnimationID : {*.o(.fireAnimationID)}
 	. = 0x8D61ACC;

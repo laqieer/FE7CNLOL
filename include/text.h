@@ -58,5 +58,11 @@ const char* const text[]=
 				closeEyes "±ÕÑÛ²âÊÔ" endl pushA
 				openEyes halfCloseEyes "°ë±ÕÑÛ²âÊÔ" endl pushA
 				openEyes wink "Ê¹ÑÛÉ«²âÊÔ" endl pushA
-				openEyes "ÕöÑÛ" endl pushA
+				openEyes "ÕöÑÛ" endl pushA,
+	[0x837] = openLeft loadFace pFenrir
+				openFarLeft loadFace pFenrir
+				openRight loadFace pFenrir
+				openFarRight loadFace pFenrir
+				"ÉñÊŞ·ÒÀû¶òÍ·Ïñ²âÊÔ" pushA
+				clearFace,
 };

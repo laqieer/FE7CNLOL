@@ -14,12 +14,14 @@ TARGET	:=	$(shell basename $(CURDIR))
 BUILD	:=	build
 # 章节事件的目录
 EVENTS	:=	event
+# 生成头像的目录
+PORTRAITS := portrait
 # 源文件的目录
-SOURCES	:=	src sound $(EVENTS)
+SOURCES	:=	src sound $(EVENTS) $(PORTRAITS)
 # 二进制数据的目录
 DATA	:=	data
 # 头文件
-HEADERS	:=	include
+HEADERS	:=	include $(PORTRAITS)
 # Create a gfx library variable
 GFXLIBS     ?= libgfx.a
 # 函数库路径
