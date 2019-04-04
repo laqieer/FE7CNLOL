@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5ce0588a-ba4f-4c2c-8f85-fce88cf38960" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../FE7CNLOL.WK3" beforeDir="false" afterPath="$PROJECT_DIR$/../FE7CNLOL.WK3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../include/FE7JPortrait.h" beforeDir="false" afterPath="$PROJECT_DIR$/../include/FE7JPortrait.h" afterDir="false" />
+    <list default="true" id="5ce0588a-ba4f-4c2c-8f85-fce88cf38960" name="Default Changelist" comment="customized template portrait importer">
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GBAImage.py" beforeDir="false" afterPath="$PROJECT_DIR$/GBAImage.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,7 +22,8 @@
           <entry key="project.open.time.271" value="1" />
           <entry key="project.open.time.28" value="1" />
           <entry key="project.open.time.382" value="1" />
-          <entry key="project.opened" value="4" />
+          <entry key="project.open.time.96" value="1" />
+          <entry key="project.opened" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -40,10 +39,12 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="py" value="10552" />
+          <entry key="txt" value="61" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
+          <entry key="PLAIN_TEXT" value="61" />
           <entry key="Python" value="10552" />
         </counts>
       </usages-collector>
@@ -54,7 +55,7 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/GBAImage.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="271">
+            <state relative-caret-position="-2574">
               <caret line="239" column="81" selection-start-line="239" selection-start-column="81" selection-end-line="239" selection-end-column="81" />
               <folding>
                 <element signature="e#45#66#0" expanded="true" />
@@ -86,6 +87,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="SIGN_OFF_COMMIT" value="true" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -101,7 +103,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="-8" />
     <option name="y" value="-8" />
     <option name="width" value="1346" />
@@ -113,8 +115,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -169,6 +171,14 @@
       <option name="presentableId" value="Default" />
       <updated>1554106458066</updated>
     </task>
+    <task id="LOCAL-00001" summary="customized template portrait importer">
+      <created>1554311431988</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1554311431988</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -204,6 +214,10 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="customized template portrait importer" />
+    <option name="LAST_COMMIT_MESSAGE" value="customized template portrait importer" />
+  </component>
   <component name="editorHistoryManager">
     <entry file="file://E:/Python36/Lib/ntpath.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -219,22 +233,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/PortraitImporter.py">
+    <entry file="file://$PROJECT_DIR$/GBAImage.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="128">
-          <caret line="91" column="60" selection-start-line="91" selection-start-column="60" selection-end-line="91" selection-end-column="60" />
+        <state relative-caret-position="-2574">
+          <caret line="239" column="81" selection-start-line="239" selection-start-column="81" selection-end-line="239" selection-end-column="81" />
           <folding>
-            <element signature="e#59#74#0" expanded="true" />
+            <element signature="e#45#66#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/GBAImage.py">
+    <entry file="file://$PROJECT_DIR$/PortraitImporter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="271">
-          <caret line="239" column="81" lean-forward="true" selection-start-line="239" selection-start-column="81" selection-end-line="239" selection-end-column="81" />
+        <state relative-caret-position="1615">
+          <caret line="91" column="60" selection-start-line="91" selection-start-column="60" selection-end-line="91" selection-end-column="60" />
           <folding>
-            <element signature="e#45#66#0" expanded="true" />
+            <element signature="e#59#74#0" expanded="true" />
           </folding>
         </state>
       </provider>

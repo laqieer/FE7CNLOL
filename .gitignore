@@ -14,3 +14,4 @@ rom
 *.ups
 *tags*
 tool/venv
+*.SearchResults
