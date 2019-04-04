@@ -2,8 +2,29 @@
 # by laqieer
 # 2019/4/1
 
-from PIL import Image
+from PIL import Image, ImageSequence
 import struct
+
+
+def reset_palette(image, palette=None):
+    """reset image palette"""
+    if image.mode != "P":
+        if palette is None:
+            image = image.convert("P", palette=Image.ADAPTIVE, colors=256)
+        else:
+            image = image.convert("P", palette=Image.ADAPTIVE, colors=len(palette)//3)
+    if palette is None:
+        return image
+    else:
+        source_palette = Palette(image.getpalette())
+        dest_palette = Palette(palette)
+        dest_map = [0] * dest_palette.color_number
+        for j in range(dest_palette.color_number):
+            for i in range(source_palette.color_number):
+                if source_palette.color_list[i] == dest_palette.color_list[j]:
+                    dest_map[j] = i
+                    break
+        return image.remap_palette(dest_map)
 
 
 class Error(Exception):
@@ -24,6 +45,24 @@ class OBJSizeError(Error):
         self.width = width
         self.height = height
         self.message = message
+
+
+class FrameInsufficientError(Error):
+    """
+    Frame number is insufficient.
+    """
+    def __init__(self, frame_number):
+        self.frame_number = frame_number
+
+
+class FrameSizeError(Error):
+    """
+    Frame size is wrong.
+    """
+    def __init__(self, frame_id, frame_width, frame_height):
+        self.frame_id = frame_id
+        self.frame_width = frame_width
+        self.frame_height = frame_height
 
 
 class Color:
@@ -227,26 +266,18 @@ class BGMap:
     BG Map. It is also called TSA.
     """
     def __init__(self, image, palette, tileset):
-        source_palette = Palette(image.getpalette())
-        dest_palette = Palette(palette)
-        dest_map = [0] * dest_palette.color_number
-        for j in range(dest_palette.color_number):
-            for i in range(source_palette.color_number):
-                if source_palette.color_list[i] == dest_palette.color_list[j]:
-                    dest_map[j] = i
-                    break
-        self.image = image.remap_palette(dest_map)
+        self.image = reset_palette(image, palette)
         self.tiles = TileSet(self.image)
-        self.alpha = [([0] * self.tiles.width) for i in range(self.tiles.height)]
+        self.mask = [([0] * self.tiles.width) for i in range(self.tiles.height)]
         self.map = [([0] * self.tiles.width) for i in range(self.tiles.height)]
         for y in range(self.tiles.height):
             for x in range(self.tiles.width):
                 if self.tiles.tile_matrix[y][x].is_transparent() or tileset.find_tile(
                         self.tiles.tile_matrix[y][x]) is None:
-                    self.alpha[y][x] = 0
+                    self.mask[y][x] = 0
                     self.map[y][x] = BGTile(0)
                 else:
-                    self.alpha[y][x] = 1
+                    self.mask[y][x] = 1
                     self.map[y][x] = tileset.find_tile(self.tiles.tile_matrix[y][x])
 
     def tostring(self):
@@ -292,21 +323,21 @@ class BGMap:
                 s += struct.pack('H', self.map[y][x].to_short())
         return s
 
-    def tostring_alpha(self):
+    def tostring_mask(self):
         s = "{\n"
         for y in range(self.tiles.height):
             s += "\t{"
             for x in range(self.tiles.width):
-                s += "%d," % self.alpha[y][x]
+                s += "%d," % self.mask[y][x]
             s += '},\n'
         s += '}'
         return s
 
-    def to_bytes_alpha(self):
+    def to_bytes_mask(self):
         s = bytes()
         for y in range(self.tiles.height):
             for x in range(self.tiles.width):
-                s += struct.pack('H', self.alpha[y][x])
+                s += struct.pack('H', self.mask[y][x])
         return s
 
 
@@ -398,3 +429,72 @@ class OBJAttribute:
 
     def tostring(self):
         return "0x%X,0x%X,0x%X" % (self.OBJAttribute0, self.OBJAttribute1, self.OBJAttribute2)
+
+
+class AnimationFrames:
+    """
+    Animation frames including several Tileset objects in the same size and palette
+    Support a simple animation sheet, dynamic image such as gif and several frame images ended with _number.
+    """
+    def __init__(self, image_file, frame_width, frame_height, frame_number, palette=None):
+        self.frame_number = frame_number
+        self.frame_width = frame_width
+        self.frame_height = frame_height
+        self.image_list = [0] * frame_number
+        try:
+            self.image_sheet = Image.open(image_file)
+            try:
+                # fixme gif cannot be dealt with correctly
+                self.image_sheet.seek(1)
+            except EOFError:
+                self.image_sheet_row_number = self.image_sheet.height // self.frame_height
+                self.image_sheet_column_number = self.image_sheet.width // self.frame_width
+                if self.image_sheet_row_number * self.image_sheet_column_number < frame_number:
+                    raise FrameInsufficientError(self.image_sheet_row_number * self.image_sheet_column_number)
+                self.image_sheet = reset_palette(self.image_sheet, palette)
+                for i in range(frame_number):
+                    frame_x = i % self.image_sheet_column_number
+                    frame_y = i // self.image_sheet_column_number
+                    if frame_y >= self.image_sheet_row_number:
+                        raise FrameInsufficientError(self.image_sheet_column_number * self.image_sheet_row_number)
+                    self.image_list[i] = self.image_sheet.crop(
+                        (frame_width * frame_x, frame_height * frame_y,
+                         frame_width * (frame_x + 1), frame_height * (frame_y + 1)))
+            else:
+                if self.image_sheet.width != self.frame_width or self.image_sheet.height != self.frame_height:
+                    raise FrameSizeError("All", self.image_sheet.width, self.image_sheet.height)
+                self.image_sheet = reset_palette(self.image_sheet, palette)
+                index = 0
+                for frame in ImageSequence.Iterator(self.image_sheet):
+                    self.image_list[index] = frame
+                    index += 1
+                if index <= frame_number - 1:
+                    raise FrameInsufficientError(index + 1)
+        except IOError:
+            for i in range(frame_number):
+                try:
+                    self.image_list[i] = Image.open(image_file.replace("_.", "_%d." % i, 1))
+                except IOError:
+                    if i == 0:
+                        raise IOError
+                    else:
+                        raise FrameInsufficientError(i)
+                if self.image_list[i].width != frame_width or self.image_list[i].height != frame_height:
+                    raise FrameSizeError(i, self.image_list[i].width, self.image_list[i].height)
+                self.image_list[i] = reset_palette(self.image_list[i], palette)
+        self.frame_list = [0] * frame_number
+        for i in range(frame_number):
+            self.frame_list[i] = TileSet(self.image_list[i])
+
+    def tostring(self):
+        s = "{"
+        for i in range(self.frame_number):
+            s += self.frame_list[i].tostring() + ",\n"
+        s += "}"
+        return s
+
+    def to_bytes(self):
+        s = bytes()
+        for i in range(self.frame_number):
+            s += self.frame_list[i].to_bytes()
+        return s
