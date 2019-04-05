@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5ce0588a-ba4f-4c2c-8f85-fce88cf38960" name="Default Changelist" comment="add mouth animation import">
-      <change beforePath="$PROJECT_DIR$/../portrait/Fenrir.c" beforeDir="false" afterPath="$PROJECT_DIR$/../portrait/Fenrir.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../portrait/Fenrir.h" beforeDir="false" afterPath="$PROJECT_DIR$/../portrait/Fenrir.h" afterDir="false" />
+    <list default="true" id="5ce0588a-ba4f-4c2c-8f85-fce88cf38960" name="Default Changelist" comment="complete the basic portrait import function and test it with Fenrir">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GBAImage.py" beforeDir="false" afterPath="$PROJECT_DIR$/GBAImage.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PortraitImporter.py" beforeDir="false" afterPath="$PROJECT_DIR$/PortraitImporter.py" afterDir="false" />
@@ -15,18 +13,20 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/tool$PortraitImporter.coverage" NAME="PortraitImporter Coverage Results" MODIFIED="1554399182696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/tool$PortraitImporter.coverage" NAME="PortraitImporter Coverage Results" MODIFIED="1554446746923" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="-364378327">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="5" />
+          <entry key="project.closed" value="7" />
+          <entry key="project.open.time.17" value="1" />
           <entry key="project.open.time.271" value="1" />
           <entry key="project.open.time.28" value="1" />
           <entry key="project.open.time.382" value="1" />
+          <entry key="project.open.time.54" value="1" />
           <entry key="project.open.time.96" value="1" />
-          <entry key="project.opened" value="5" />
+          <entry key="project.opened" value="7" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -41,25 +41,25 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="17968" />
-          <entry key="txt" value="150" />
+          <entry key="py" value="20419" />
+          <entry key="txt" value="245" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="150" />
-          <entry key="Python" value="17968" />
+          <entry key="PLAIN_TEXT" value="245" />
+          <entry key="Python" value="20419" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/GBAImage.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1639">
-              <caret line="365" column="46" selection-start-line="365" selection-start-column="46" selection-end-line="365" selection-end-column="46" />
+            <state relative-caret-position="119">
+              <caret line="485" column="26" lean-forward="true" selection-start-line="485" selection-start-column="26" selection-end-line="485" selection-end-column="26" />
               <folding>
                 <element signature="e#45#81#0" expanded="true" />
               </folding>
@@ -67,11 +67,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/PortraitImporter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="257">
-              <caret line="344" column="108" selection-start-line="344" selection-start-column="108" selection-end-line="344" selection-end-column="108" />
+            <state relative-caret-position="190">
+              <caret line="253" column="78" lean-forward="true" selection-start-line="253" selection-start-column="78" selection-end-line="253" selection-end-column="78" />
               <folding>
                 <element signature="e#59#74#0" expanded="true" />
               </folding>
@@ -106,8 +106,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/GBAImage.py" />
         <option value="$PROJECT_DIR$/PortraitImporter.py" />
+        <option value="$PROJECT_DIR$/GBAImage.py" />
       </list>
     </option>
   </component>
@@ -129,8 +129,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane" />
       <pane id="Scope" />
+      <pane id="ProjectPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -165,7 +165,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/PortraitImporter.py" />
-      <option name="PARAMETERS" value="--tileset ../portrait/FenrirTileset.png --template ../portrait/FenrirTemplate.json -t #a2ca9b -c -n Fenrir -s ../portrait/FenrirStatusScreen.png --mouth_x 48 --mouth_y 80 --mini ../portrait/FenrirMini.png -e ../portrait/FenrirEyeAnimation.png --eye_map ../portrait/FenrirEye.json" />
+      <option name="PARAMETERS" value="--tileset ../portrait/FenrirTileset.png --template ../portrait/FenrirTemplate.json -t #a2ca9b -n Fenrir -s ../portrait/FenrirStatusScreen.png --mouth_x 48 --mouth_y 80 --mini ../portrait/FenrirMini.png -e ../portrait/FenrirEyeAnimation.png --eye_map ../portrait/FenrirEye.json --save_dialogue_portrait ../portrait/FenrirDialogue.png" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -206,13 +206,20 @@
       <option name="project" value="LOCAL" />
       <updated>1554364077885</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="complete the basic portrait import function and test it with Fenrir">
+      <created>1554400580318</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1554400580318</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2579425" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2655068" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -256,7 +263,8 @@
     <MESSAGE value="customized template portrait importer" />
     <MESSAGE value="exclude search result file generated by Source Insight" />
     <MESSAGE value="add mouth animation import" />
-    <option name="LAST_COMMIT_MESSAGE" value="add mouth animation import" />
+    <MESSAGE value="complete the basic portrait import function and test it with Fenrir" />
+    <option name="LAST_COMMIT_MESSAGE" value="complete the basic portrait import function and test it with Fenrir" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://E:/Python36/Lib/ntpath.py">
@@ -273,22 +281,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/GBAImage.py">
+    <entry file="file://$PROJECT_DIR$/PortraitImporter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1639">
-          <caret line="365" column="46" selection-start-line="365" selection-start-column="46" selection-end-line="365" selection-end-column="46" />
+        <state relative-caret-position="190">
+          <caret line="253" column="78" lean-forward="true" selection-start-line="253" selection-start-column="78" selection-end-line="253" selection-end-column="78" />
           <folding>
-            <element signature="e#45#81#0" expanded="true" />
+            <element signature="e#59#74#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/PortraitImporter.py">
+    <entry file="file://$PROJECT_DIR$/GBAImage.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="257">
-          <caret line="344" column="108" selection-start-line="344" selection-start-column="108" selection-end-line="344" selection-end-column="108" />
+        <state relative-caret-position="119">
+          <caret line="485" column="26" lean-forward="true" selection-start-line="485" selection-start-column="26" selection-end-line="485" selection-end-column="26" />
           <folding>
-            <element signature="e#59#74#0" expanded="true" />
+            <element signature="e#45#81#0" expanded="true" />
           </folding>
         </state>
       </provider>

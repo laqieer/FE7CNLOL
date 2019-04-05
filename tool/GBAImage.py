@@ -47,6 +47,14 @@ class OBJSizeError(Error):
         self.message = message
 
 
+class InvalidTileNumberError(Error):
+    """
+    Exception raised for invalid tile number
+    """
+    def __init__(self, tile_number):
+        self.tile_number = tile_number
+
+
 class FrameInsufficientError(Error):
     """
     Frame number is insufficient.
@@ -362,6 +370,8 @@ class OBJAttribute:
                  rotation_scaling_parameter_number=0, double_size=0, disable=0, palette256=0):
         self.tile_number = tile_number & 1023
         self.palette_number = palette_number & 15
+        self.x_coordinate_real = x_coordinate
+        self.y_coordinate_real = y_coordinate
         self.x_coordinate = x_coordinate & 511
         self.y_coordinate = y_coordinate & 255
         self.width = width
@@ -429,6 +439,77 @@ class OBJAttribute:
 
     def tostring(self):
         return "0x%X,0x%X,0x%X" % (self.OBJAttribute0, self.OBJAttribute1, self.OBJAttribute2)
+
+    # todo the add operator can be improved
+    def __add__(self, other):
+        result = OBJAttribute(0)
+        result.OBJAttribute0 = self.OBJAttribute0 | other.OBJAttribute0
+        result.OBJAttribute1 = self.OBJAttribute1 | other.OBJAttribute1
+        result.OBJAttribute2 = self.OBJAttribute2 | other.OBJAttribute2
+        result.tile_number = self.tile_number + other.tile_number
+        result.x_coordinate_real = self.x_coordinate_real + other.x_coordinate_real
+        result.y_coordinate_real = self.y_coordinate_real + other.y_coordinate_real
+        result.x_coordinate = result.x_coordinate_real & 511
+        result.y_coordinate = result.y_coordinate_real & 255
+        result.width = self.width
+        result.height = self.height
+        if self.horizontal_flip == other.horizontal_flip:
+            result.horizontal_flip = 0
+        else:
+            result.horizontal_flip = 1
+        if self.vertical_flip == other.vertical_flip:
+            result.vertical_flip = 0
+        else:
+            result.vertical_flip = 1
+        result.palette_number = self.palette_number + other.palette_number
+        result.priority = self.priority + other.priority
+        result.mode = self.mode | other.mode
+        result.mosaic = self.mosaic | other.mosaic
+        result.shape = self.shape
+        result.size = self.size
+        result.rotation_scaling = self.rotation_scaling | other.rotation_scaling
+        result.rotation_scaling_parameter_number = self.rotation_scaling_parameter_number \
+                                                   + other.rotation_scaling_parameter_number
+        result.double_size = self.double_size | other.double_size
+        result.disable = self.disable | other.disable
+        result.palette256 = self.palette256 | other.palette256
+        return result
+
+
+class OBJSet:
+    """
+    Object set consisting of several objects
+    """
+    def __init__(self, tileset, oam_list, width=240, height=160, oam_base=OBJAttribute(0)):
+        self.tileset = tileset
+        self.oam_list = oam_list
+        self.width = width
+        self.height = height
+        self.oam_base = oam_base
+        self.image = Image.new("P", (self.width, self.height))
+        self.image.putpalette(self.tileset.image.getpalette())
+        for i in self.oam_list:
+            i += self.oam_base
+            tileset_y = i.tile_number // self.tileset.width
+            if tileset_y >= self.tileset.height:
+                raise InvalidTileNumberError(i.tile_number)
+            tileset_x = i.tile_number % self.tileset.width
+            object_image = self.tileset.image.crop((tileset_x * 8, tileset_y * 8,
+                                                    tileset_x * 8 + i.width, tileset_y * 8 + i.height))
+            # todo support rotation and scaling
+            if i.rotation_scaling == 0:
+                if i.horizontal_flip == 1:
+                    object_image = object_image.transpose(Image.FLIP_LEFT_RIGHT)
+                if i.vertical_flip == 1:
+                    object_image = object_image.transpose(Image.FLIP_TOP_BOTTOM)
+            # object_image.show()
+            self.image.paste(object_image, (i.x_coordinate_real, i.y_coordinate_real))
+
+    def show(self):
+        self.image.show()
+
+    def save(self, fp):
+        self.image.save(fp)
 
 
 class AnimationFrames:
