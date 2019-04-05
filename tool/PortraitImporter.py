@@ -47,7 +47,8 @@ def main(argv):
                                     "mouth_x=", "mouth_y=", "mouth_frame=", "tileset=", "template=", "mini=",
                                     "eye_frame=", "eye_w=", "eye_h=", "eye_map=", "eye_x=", "eye_y=",
                                     "eye_mode=", "wink_w=", "wink_h=", "save_dialogue_portrait=", "save_tileset=",
-                                    "load_dialogue_portrait="])
+                                    "load_dialogue_portrait=", "save_mouth_animation_sheet=",
+                                    "save_eye_animation_sheet="])
     except getopt.GetoptError:
         print("%s -h" % argv[0])
         sys.exit(2)
@@ -67,6 +68,8 @@ def main(argv):
     save_dialogue_portrait_file = None
     save_tileset_file = None
     dialogue_portrait_file = None
+    save_mouth_animation_sheet_file = None
+    save_eye_animation_sheet_file = None
     mouth_x = -32
     mouth_y = -16
     eye_width = -8
@@ -85,7 +88,8 @@ def main(argv):
             print("\t[--eye_map <eye_map_file>] [--eye_x ex] [--eye_y ey] [--eye_mode em]")
             print("\t[--tileset <tileset_file>] [--template <template_file>] [--mini <image_file>]")
             print("\t[--save_dialogue_portrait <image_file>] [--save_tileset <image_file>]")
-            print("\t[--load_dialogue_portrait <image_file>]")
+            print("\t[--load_dialogue_portrait <image_file>] [--save_mouth_animation_sheet <image_file>]")
+            print("\t[--save_eye_animation_sheet <image_file>]")
             print("--tileset: 256x32 image")
             print("--template: json file to config template")
             print("-h,--help: show help information")
@@ -115,6 +119,8 @@ def main(argv):
             print("--save_dialogue_portrait: save dialogue portrait to an image file")
             print("-p,--load_dialogue_portrait: load the dialogue portrait image")
             print("--save_tileset: save tileset to an image file")
+            print("--save_mouth_animation_sheet: save mouth animation to a sheet")
+            print("--save_eye_animation_sheet: save eye animation to a sheet")
             sys.exit(1)
         elif opt in ["-c", "--source"]:
             output_c = True
@@ -174,6 +180,10 @@ def main(argv):
             save_tileset_file = arg
         elif opt in ["-p", "--load_dialogue_portrait"]:
             dialogue_portrait_file = arg
+        elif opt == "--save_mouth_animation_sheet":
+            save_mouth_animation_sheet_file = arg
+        elif opt == "--save_eye_animation_sheet":
+            save_eye_animation_sheet_file = arg
     if eye_frame_file is None:
         eye_mode = 4
     if portrait_name is not None:
@@ -314,6 +324,66 @@ def main(argv):
     if save_tileset_file is not None:
         # tileset.image.save(save_tileset_file)
         im_tileset.save(save_tileset_file)
+    # save mouth and eye animation sheet
+    if save_mouth_animation_sheet_file is not None or save_eye_animation_sheet_file is not None:
+        if dialogue_portrait_file is not None:
+            im_base = im_dialogue_portrait
+        else:
+            im_base = GBAImage.OBJSet(
+                tileset, oam_right, portrait_width, portrait_height,
+                GBAImage.OBJAttribute(0, x_coordinate=portrait_width // 2, y_coordinate=portrait_height - 80)).image
+        if save_mouth_animation_sheet_file is not None:
+            # 2 rows 3 columns
+            if mouth_frame_file is None:
+                print("Mouth animation doesn't exist.")
+            im_save_mouth_animation_sheet = Image.new("P", (im_base.width * 3, im_base.height * 2))
+            im_save_mouth_animation_sheet.putpalette(im_base.getpalette())
+            for y in range(2):
+                for x in range(3):
+                    im_save_mouth_animation_sheet.paste(im_base, (im_base.width * x, im_base.height * y))
+                    im_save_mouth_animation_sheet.paste(
+                        mouth_animation.image_list[3 * y + 2],
+                        (im_base.width * x + mouth_x, im_base.height * y + mouth_y))
+            im_save_mouth_animation_sheet.save(save_mouth_animation_sheet_file)
+        if save_eye_animation_sheet_file is not None:
+            # 1 row 3 columns
+            if eye_frame_file is None:
+                print("Eye animation doesn't exist.")
+            if eye_mode == 4:
+                print("Eye animation is disabled (eye_mode = 4).")
+            im_save_eye_animation_sheet = Image.new("P", (im_base.width * 3, im_base.height))
+            im_save_eye_animation_sheet.putpalette(im_base.getpalette())
+            for i in range(3):
+                im_save_eye_animation_sheet.paste(im_base, (im_base.width * i, 0))
+                if eye_x is not None and eye_y is not None:
+                    im_save_eye_animation_sheet.paste(
+                        eye_animation.image_list[i], (im_base.width * i + eye_x, eye_y))
+                elif eye_tilemap is not None:
+                    im_tileset_eye_tiles_changed = im_tileset.copy()
+                    im_tileset_eye_tiles_changed.paste(
+                        eye_animation.image_list[i],
+                        ((eye_tilemap[0][0] % 32) * 8, (eye_tilemap[0][0] // 32) * 8))
+                    tileset_eye_tiles_changed = GBAImage.TileSet(im_tileset_eye_tiles_changed)
+                    im_base_eye_tiles_changed = GBAImage.OBJSet(
+                        tileset_eye_tiles_changed, oam_right, portrait_width, portrait_height,
+                        GBAImage.OBJAttribute(0, x_coordinate=portrait_width // 2, y_coordinate=portrait_height - 80)
+                    ).image
+                    im_base_eye_tiles_changed = GBAImage.reset_palette(im_base_eye_tiles_changed, im_base.getpalette())
+                    im_save_eye_animation_sheet.paste(im_base_eye_tiles_changed, (im_base.width * i, 0))
+                elif eye_tilemap_auto is not None:
+                    im_tileset_eye_tiles_changed = im_tileset.copy()
+                    im_tileset_eye_tiles_changed.paste(
+                        eye_animation.image_list[i],
+                        (((eye_tilemap_auto.map[0][0] & 1023) % 32) * 8,
+                         ((eye_tilemap_auto.map[0][0] & 1023) // 32) * 8))
+                    tileset_eye_tiles_changed = GBAImage.TileSet(im_tileset_eye_tiles_changed)
+                    im_base_eye_tiles_changed = GBAImage.OBJSet(
+                        tileset_eye_tiles_changed, oam_right, portrait_width, portrait_height,
+                        GBAImage.OBJAttribute(0, x_coordinate=portrait_width // 2, y_coordinate=portrait_height - 80)
+                    ).image
+                    im_base_eye_tiles_changed = GBAImage.reset_palette(im_base_eye_tiles_changed, im_base.getpalette())
+                    im_save_eye_animation_sheet.paste(im_base_eye_tiles_changed, (im_base.width * i, 0))
+            im_save_eye_animation_sheet.save(save_eye_animation_sheet_file)
     # output C source
     if output_c:
         comment = "// This file is generated by " + os.path.split(argv[0])[1] + " automatically. Don't edit it.\n"
