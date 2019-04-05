@@ -48,7 +48,7 @@ def main(argv):
                                     "eye_frame=", "eye_w=", "eye_h=", "eye_map=", "eye_x=", "eye_y=",
                                     "eye_mode=", "wink_w=", "wink_h=", "save_dialogue_portrait=", "save_tileset=",
                                     "load_dialogue_portrait=", "save_mouth_animation_sheet=",
-                                    "save_eye_animation_sheet="])
+                                    "save_eye_animation_sheet=", "x_offset=", "x0="])
     except getopt.GetoptError:
         print("%s -h" % argv[0])
         sys.exit(2)
@@ -76,6 +76,8 @@ def main(argv):
     eye_height = -8
     wink_width = -4
     wink_height = -8
+    x_offset = 0
+    x0 = "middle"
     eye_x = None
     eye_y = None
     eye_mode = 4
@@ -89,7 +91,7 @@ def main(argv):
             print("\t[--tileset <tileset_file>] [--template <template_file>] [--mini <image_file>]")
             print("\t[--save_dialogue_portrait <image_file>] [--save_tileset <image_file>]")
             print("\t[--load_dialogue_portrait <image_file>] [--save_mouth_animation_sheet <image_file>]")
-            print("\t[--save_eye_animation_sheet <image_file>]")
+            print("\t[--save_eye_animation_sheet <image_file>] [--x_offset pixel_number] [--x0 type/pixel_number]")
             print("--tileset: 256x32 image")
             print("--template: json file to config template")
             print("-h,--help: show help information")
@@ -121,6 +123,8 @@ def main(argv):
             print("--save_tileset: save tileset to an image file")
             print("--save_mouth_animation_sheet: save mouth animation to a sheet")
             print("--save_eye_animation_sheet: save eye animation to a sheet")
+            print("--x0: the position of x-coordinate 0. middle(default)/left/right/pixel_number_from_left")
+            print("--x_offset: the x offset of the whole portrait. pixel_number_from_x0")
             sys.exit(1)
         elif opt in ["-c", "--source"]:
             output_c = True
@@ -184,6 +188,10 @@ def main(argv):
             save_mouth_animation_sheet_file = arg
         elif opt == "--save_eye_animation_sheet":
             save_eye_animation_sheet_file = arg
+        elif opt == "--x0":
+            x0 = arg
+        elif opt == "--x_offset":
+            x_offset = int(arg)
     if eye_frame_file is None:
         eye_mode = 4
     if portrait_name is not None:
@@ -304,10 +312,18 @@ def main(argv):
     portrait_height = template["height"]
     oam_right = []
     oam_left = []
+    if x0 == "middle":
+        x0 = portrait_width // 2
+    elif x0 == "left":
+        x0 = 0
+    elif x0 == "right":
+        x0 = portrait_width
+    else:
+        x0 = int(x0)
     for obj in template["OBJ"]:
         width = obj["width"]
         height = obj["height"]
-        x_coordinate = obj["x"] - portrait_width // 2
+        x_coordinate = obj["x"] - x0 + x_offset
         y_coordinate = obj["y"] - portrait_height + 80
         tile_number = 32 * obj["tile_y"] + obj["tile_x"]
         oam_right.append(GBAImage.OBJAttribute(tile_number, x_coordinate, y_coordinate, width, height))
@@ -399,11 +415,14 @@ def main(argv):
         else:
             portrait += "{&%s_eye_frame_info}, " % portrait_name
         # fixme the x coordinate calculation may be wrong
-        portrait += "%d, %d, " % (mouth_x - (portrait_width - 96) // 2 - 28, mouth_y - (portrait_height - 80))
+        # portrait += "%d, %d, " % (mouth_x - (portrait_width - 96) // 2 - 28, mouth_y - (portrait_height - 80))
+        portrait += "%d, " % (mouth_x - (x0 - 48) - 28)
+        portrait += "%d, " % (mouth_y - (portrait_height - 80))
         if eye_x is None:
             eye_x_coordinate = 0
         else:
-            eye_x_coordinate = eye_x - (portrait_width - 96) // 2 - 28
+            # eye_x_coordinate = eye_x - (portrait_width - 96) // 2 - 28
+            eye_x_coordinate = eye_x - (x0 - 48) - 28
         if eye_y is None:
             eye_y_coordinate = 0
         else:

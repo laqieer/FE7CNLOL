@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5ce0588a-ba4f-4c2c-8f85-fce88cf38960" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="5ce0588a-ba4f-4c2c-8f85-fce88cf38960" name="Default Changelist" comment="support to save eye and mouth animation to sheet">
       <change beforePath="$PROJECT_DIR$/PortraitImporter.py" beforeDir="false" afterPath="$PROJECT_DIR$/PortraitImporter.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -12,22 +11,23 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/tool$PortraitImporter.coverage" NAME="PortraitImporter Coverage Results" MODIFIED="1554466200119" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/tool$PortraitImporter.coverage" NAME="PortraitImporter Coverage Results" MODIFIED="1554469742074" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="-364378327">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="9" />
+          <entry key="project.closed" value="10" />
           <entry key="project.open.time.16" value="1" />
           <entry key="project.open.time.17" value="1" />
           <entry key="project.open.time.19" value="1" />
+          <entry key="project.open.time.21" value="1" />
           <entry key="project.open.time.271" value="1" />
           <entry key="project.open.time.28" value="1" />
           <entry key="project.open.time.382" value="1" />
           <entry key="project.open.time.54" value="1" />
           <entry key="project.open.time.96" value="1" />
-          <entry key="project.opened" value="9" />
+          <entry key="project.opened" value="10" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -42,24 +42,24 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="23311" />
-          <entry key="txt" value="366" />
+          <entry key="py" value="23902" />
+          <entry key="txt" value="421" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="366" />
-          <entry key="Python" value="23311" />
+          <entry key="PLAIN_TEXT" value="421" />
+          <entry key="Python" value="23902" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/GBAImage.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="793">
+            <state relative-caret-position="9158">
               <caret line="482" column="30" selection-start-line="482" selection-start-column="23" selection-end-line="482" selection-end-column="30" />
               <folding>
                 <element signature="e#45#81#0" expanded="true" />
@@ -68,11 +68,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/PortraitImporter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="299">
-              <caret line="383" column="119" selection-start-line="383" selection-start-column="119" selection-end-line="383" selection-end-column="119" />
+            <state relative-caret-position="171">
+              <caret line="321" column="20" selection-start-line="321" selection-start-column="20" selection-end-line="321" selection-end-column="20" />
               <folding>
                 <element signature="e#59#74#0" expanded="true" />
               </folding>
@@ -166,7 +166,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/PortraitImporter.py" />
-      <option name="PARAMETERS" value="--template ../portrait/FenrirTemplate.json -t #a2ca9b -n Fenrir -s ../portrait/FenrirStatusScreen.png --mouth_x 48 --mouth_y 80 --mini ../portrait/FenrirMini.png -e ../portrait/FenrirEyeAnimation.png --eye_map ../portrait/FenrirEye.json --save_dialogue_portrait ../portrait/FenrirDialogueSaved.png --save_tileset ../portrait/FenrirTilesetSaved.png -p ../portrait/Fenrir.png -m ../portrait/FenrirMouthAnimation.png --tileset ../portrait/FenrirTileset.png --save_mouth_animation_sheet ../portrait/FenrirMouthAnimationSaved.png --save_eye_animation_sheet ../portrait/FenrirEyeAnimationSaved.png" />
+      <option name="PARAMETERS" value="--template ../portrait/FenrirTemplate.json -t #a2ca9b -n Fenrir -s ../portrait/FenrirStatusScreen.png --mouth_x 48 --mouth_y 80 --mini ../portrait/FenrirMini.png -e ../portrait/FenrirEyeAnimation.png --eye_map ../portrait/FenrirEye.json --save_dialogue_portrait ../portrait/FenrirDialogueSaved.png --save_tileset ../portrait/FenrirTilesetSaved.png -p ../portrait/Fenrir.png -m ../portrait/FenrirMouthAnimation.png --tileset ../portrait/FenrirTileset.png --save_mouth_animation_sheet ../portrait/FenrirMouthAnimationSaved.png --save_eye_animation_sheet ../portrait/FenrirEyeAnimationSaved.png -c --x0 70" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -228,13 +228,20 @@
       <option name="project" value="LOCAL" />
       <updated>1554460947843</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="support to save eye and mouth animation to sheet">
+      <created>1554466421384</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1554466421384</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2730711" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.27760968" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -281,7 +288,8 @@
     <MESSAGE value="complete the basic portrait import function and test it with Fenrir" />
     <MESSAGE value="save dialogue portrait as image" />
     <MESSAGE value="1. support to save tileset as image&#10;2. support to make tileset from dialogue portrait image and template" />
-    <option name="LAST_COMMIT_MESSAGE" value="1. support to save tileset as image&#10;2. support to make tileset from dialogue portrait image and template" />
+    <MESSAGE value="support to save eye and mouth animation to sheet" />
+    <option name="LAST_COMMIT_MESSAGE" value="support to save eye and mouth animation to sheet" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://E:/Python36/Lib/ntpath.py">
@@ -298,22 +306,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/GBAImage.py">
+    <entry file="file://$PROJECT_DIR$/PortraitImporter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="793">
-          <caret line="482" column="30" selection-start-line="482" selection-start-column="23" selection-end-line="482" selection-end-column="30" />
+        <state relative-caret-position="171">
+          <caret line="321" column="20" selection-start-line="321" selection-start-column="20" selection-end-line="321" selection-end-column="20" />
           <folding>
-            <element signature="e#45#81#0" expanded="true" />
+            <element signature="e#59#74#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/PortraitImporter.py">
+    <entry file="file://$PROJECT_DIR$/GBAImage.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="383" column="119" selection-start-line="383" selection-start-column="119" selection-end-line="383" selection-end-column="119" />
+        <state relative-caret-position="9158">
+          <caret line="482" column="30" selection-start-line="482" selection-start-column="23" selection-end-line="482" selection-end-column="30" />
           <folding>
-            <element signature="e#59#74#0" expanded="true" />
+            <element signature="e#45#81#0" expanded="true" />
           </folding>
         </state>
       </provider>
