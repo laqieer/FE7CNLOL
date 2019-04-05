@@ -20,13 +20,34 @@ class ImageSizeError(Exception):
         return "Wrong image size: %dx%d" % (self.width, self.height)
 
 
+def create_tileset_image(dest_image, template, tileset_width=256, tileset_height=32):
+    """
+    Create tileset image.
+    :param dest_image: image display on GBA screen. Image object.
+    :param template: includes width, height and oam data. Dictionary.
+    :param tileset_width: width of the tileset image. Unit: pixel.
+    :param tileset_height: height of the tileset image. Unit: pixel.
+    :return: tileset image. Image object.
+    """
+    if dest_image.width != template["width"] or dest_image.height != template["height"]:
+        raise ImageSizeError(dest_image.width, dest_image.height)
+    image = Image.new("P", (tileset_width, tileset_height))
+    image.putpalette(dest_image.getpalette())
+    for i in template["OBJ"]:
+        obj_image = dest_image.crop((i["x"], i["y"],
+                                     i["x"] + i["width"], i["y"] + i["height"]))
+        image.paste(obj_image, (i["tile_x"] * 8, i["tile_y"] * 8))
+    return image
+
+
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv[1:], "hcbt:n:s:m:e:",
+        opts, args = getopt.getopt(argv[1:], "hcbt:n:s:m:e:p:",
                                    ["help", "source", "binary", "transparent=", "name=", "status_screen=",
                                     "mouth_x=", "mouth_y=", "mouth_frame=", "tileset=", "template=", "mini=",
                                     "eye_frame=", "eye_w=", "eye_h=", "eye_map=", "eye_x=", "eye_y=",
-                                    "eye_mode=", "wink_w=", "wink_h=", "save_dialogue_portrait="])
+                                    "eye_mode=", "wink_w=", "wink_h=", "save_dialogue_portrait=", "save_tileset=",
+                                    "load_dialogue_portrait="])
     except getopt.GetoptError:
         print("%s -h" % argv[0])
         sys.exit(2)
@@ -44,6 +65,8 @@ def main(argv):
     eye_frame_file = None
     eye_map_file = None
     save_dialogue_portrait_file = None
+    save_tileset_file = None
+    dialogue_portrait_file = None
     mouth_x = -32
     mouth_y = -16
     eye_width = -8
@@ -58,10 +81,11 @@ def main(argv):
             print("Import customized size portrait.")
             print("%s [-h] [-c] [-b] [-t #rrggbb] [-n name] [-s <image_file>]" % argv[0])
             print("\t[-m <image_file>] [--mouth_x mx] [--mouth_y my] [-e <image_file>] [--eye_w ew] [--eye_h eh] "
-                  "[--wink_w ww] [--wink_h wh]")
+                  "[--wink_w ww] [--wink_h wh] [-p <image_file>]")
             print("\t[--eye_map <eye_map_file>] [--eye_x ex] [--eye_y ey] [--eye_mode em]")
             print("\t[--tileset <tileset_file>] [--template <template_file>] [--mini <image_file>]")
-            print("\t[--save_dialogue_portrait <image_file>]")
+            print("\t[--save_dialogue_portrait <image_file>] [--save_tileset <image_file>]")
+            print("\t[--load_dialogue_portrait <image_file>]")
             print("--tileset: 256x32 image")
             print("--template: json file to config template")
             print("-h,--help: show help information")
@@ -89,6 +113,8 @@ def main(argv):
             print("--eye_mode: mode of eye frame. 1-vanilla, 2-object(32x16), 3-tilemap(recommended),"
                   " 4-no eye animation, 6-always closed.")
             print("--save_dialogue_portrait: save dialogue portrait to an image file")
+            print("-p,--load_dialogue_portrait: load the dialogue portrait image")
+            print("--save_tileset: save tileset to an image file")
             sys.exit(1)
         elif opt in ["-c", "--source"]:
             output_c = True
@@ -105,7 +131,7 @@ def main(argv):
                 transparent_color = ImageColor.getrgb(arg)
         elif opt in ["-n", "--name"]:
             portrait_name = arg
-            file_base = os.path.join(os.path.split(tileset_file)[0], portrait_name)
+        #            file_base = os.path.join(os.path.split(tileset_file)[0], portrait_name)
         elif opt in ["-s", "--status_screen"]:
             portrait_in_status_screen_file = arg
         elif opt == "--mouth_x":
@@ -144,14 +170,48 @@ def main(argv):
             eye_mode = int(arg)
         elif opt == "--save_dialogue_portrait":
             save_dialogue_portrait_file = arg
+        elif opt == "--save_tileset":
+            save_tileset_file = arg
+        elif opt in ["-p", "--load_dialogue_portrait"]:
+            dialogue_portrait_file = arg
     if eye_frame_file is None:
         eye_mode = 4
+    if portrait_name is not None:
+        if dialogue_portrait_file is not None:
+            file_base = os.path.join(os.path.split(dialogue_portrait_file)[0], portrait_name)
+        elif tileset_file is not None:
+            file_base = os.path.join(os.path.split(tileset_file)[0], portrait_name)
+    if dialogue_portrait_file is not None:
+        im_dialogue_portrait = Image.open(dialogue_portrait_file)
+        if file_base is None:
+            file_base = os.path.splitext(dialogue_portrait_file)[0]
+        if im_dialogue_portrait.mode != "P":
+            im_dialogue_portrait = im_dialogue_portrait.convert("P", palette=Image.ADAPTIVE, colors=16)
+        if len(im_dialogue_portrait.getpalette()) > 16 * 3:
+            im_dialogue_portrait = im_dialogue_portrait.quantize(16)
+        if (not no_check_transparent_color) and (
+                not operator.eq(transparent_color, tuple(im_dialogue_portrait.getpalette()[:3]))):
+            for i in range(16):
+                if operator.eq(transparent_color, tuple(im_dialogue_portrait.getpalette()[3 * i: 3 * i + 3])):
+                    dest_map = [i]
+                    for j in range(i):
+                        dest_map.append(j)
+                    for j in range(i + 1, 16):
+                        dest_map.append(j)
+                    im_dialogue_portrait = im_dialogue_portrait.remap_palette(dest_map)
+                    break
     if tileset_file is not None:
         im_tileset = Image.open(tileset_file)
         if file_base is None:
             file_base = os.path.splitext(tileset_file)[0]
-        if portrait_name is None:
-            portrait_name = os.path.split(file_base)[1]
+    if portrait_name is None:
+        portrait_name = os.path.split(file_base)[1]
+    # create tileset with dialogue portrait and template
+    if template_file is not None:
+        with open(template_file, 'r') as f:
+            template = json.load(f)
+    if dialogue_portrait_file is not None and tileset_file is None and template_file is not None:
+        im_tileset = create_tileset_image(im_dialogue_portrait, template)
     if not operator.eq(im_tileset.size, (256, 32)):
         raise ImageSizeError(im_tileset.width, im_tileset.height)
     if im_tileset.mode != "P":
@@ -171,9 +231,6 @@ def main(argv):
     palette = GBAImage.Palette(im_tileset.getpalette())
     palette.resize(16)
     tileset = GBAImage.TileSet(im_tileset)
-    if template_file is not None:
-        with open(template_file, 'r') as f:
-            template = json.load(f)
     if portrait_in_status_screen_file is not None:
         im_ss = Image.open(portrait_in_status_screen_file)
         if not operator.eq(im_ss.size, (80, 72)):
@@ -250,9 +307,13 @@ def main(argv):
     # save the dialogue portrait to image
     if save_dialogue_portrait_file is not None:
         GBAImage.OBJSet(tileset, oam_right, portrait_width, portrait_height,
-                        GBAImage.OBJAttribute(0, x_coordinate=portrait_width//2,
-                                              y_coordinate=portrait_height-80)
+                        GBAImage.OBJAttribute(0, x_coordinate=portrait_width // 2,
+                                              y_coordinate=portrait_height - 80)
                         ).save(save_dialogue_portrait_file)
+    # save the tileset to image
+    if save_tileset_file is not None:
+        # tileset.image.save(save_tileset_file)
+        im_tileset.save(save_tileset_file)
     # output C source
     if output_c:
         comment = "// This file is generated by " + os.path.split(argv[0])[1] + " automatically. Don't edit it.\n"
