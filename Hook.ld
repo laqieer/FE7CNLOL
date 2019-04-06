@@ -14,6 +14,8 @@
 	.callDrawPortraitInBox : {*.o(.callDrawPortraitInBox)}
 	. = 0x800749C;
 	.callMouthAnimation : {*.o(.callMouthAnimation)}
+	. = 0x8BFFA74;
+	.playMouthAnimation : {*.o(.playMouthAnimation)}
 	. = 0x8C4A92C;
 	.playClassChangePortraitAnimationFunc : {*.o(.playClassChangePortraitAnimationFunc)}	
 	. = 0x8018FC8;

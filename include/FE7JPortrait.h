@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "AgbDefine.h"
 #include "AgbTypes.h"
 #include "FE7JFunc.h"
 #include "IDAPro.h"
@@ -205,8 +206,12 @@ void blinkOrWink2(u32 *mempool, int eyeStatus);
 // 不需要眼睛帧的头像就什么都不做，比如像黑骑士带个头盔这种
 void blinkOrWink3(u32 *mempool, int eyeStatus);
 
+void blinkOrWinkNew(u32 *mempool, int eyeStatus);
+
 // 调用不同的眨眼/使眼色函数
 void callBlinkOrWink(u32 *mempool, int eyeStatus);
+
+void callBlinkOrWinkNew(u32 *mempool, int eyeStatus);
 
 // 眨眼/使眼色函数接口
 void callCallBlinkOrWink(u32 *mempool, int eyeStatus);
@@ -244,6 +249,8 @@ void callWink(s16 *mempool);
 // 选择大头像精灵组合模板
 void chooseMainPortraitSpriteTemplate(u32 *mempool);
 
+void chooseDialoguePortraitOAM(u32 *mempool);
+
 // 新的选择大头像精灵组合模板函数的接口
 void callChooseMainPortraitSpriteTemplate(s16 *mempool);
 
@@ -258,6 +265,7 @@ PortraitID callGetUnitPortraitID(Unit *pUnit);
 // 头像指针表扩展到0x100之后
 #pragma long_calls
 struct Portrait *GetPortrait(int portraitIndex);
+pPortraitNew GetPortraitNew(int portraitIndex);
 #pragma long_calls_off
 
 // 头像指针表扩展函数的接口
@@ -269,6 +277,8 @@ struct Portrait *callGetPortrait(int portraitIndex);
 
 // 新的人物详情界面头像框绘制函数，支持自定义模板
 void drawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIndex, int presentBGPaletteIndex);
+
+void showStatusScreenPortrait(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIndex, int presentBGPaletteIndex);
 
 // 新的人物详情界面头像框绘制函数的接口
 void callDrawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIndex, int presentBGPaletteIndex);
@@ -316,6 +326,7 @@ void blinkOrWink0(int *mempool, int eyeStatus);
 // 嘴部动画函数
 #pragma long_calls
 void mouthAnimation(int *mempool);
+void playMouthAnimation(int *mempool);
 #pragma long_calls_off
 
 // 嘴巴精灵属性
@@ -335,6 +346,9 @@ extern const u32 portraitTemplatePairTable[][2];
 
 // 新头像指针表(从0x100开始)
 extern const struct Portrait portraitTableNew[];
+
+// 新扩展头像指针表(从0x200开始)
+extern const pPortraitNew portraitTableNewExtension[];
 
 // 人物上位职业头像表
 extern const PortraitID promotedUnitPortraitID[];
@@ -357,3 +371,6 @@ void playClassChangePortraitAnimation(struct context *ctx);
 
 // 加入转职时加载上位头像
 void playClassChangePortraitAnimationEx(struct context *ctx);
+
+// 判断是否是新扩展头像格式
+bool isNewPortraitExtension(pPortraitNew portrait);

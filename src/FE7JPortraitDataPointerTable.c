@@ -10,7 +10,7 @@
 #include "Fenrir.h"
 
 
-// 第二个头像指针表,起始序号0x100
+// 第二个头像指针表,起始序号0x100,旧扩展格式
 const struct Portrait portraitTableNew[] = {
 		{NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 0x100 空白
 		{SurtrPortraitMainL, SurtrPortraitMini, SurtrPortraitPal, SurtrMouthFrameL, {&SurtrEyeFrameInfoL}, 7 - 6, 2, 0, 0, 3, 11, 0, 0, 0}, // 0x101 斯尔特左半身
@@ -22,6 +22,11 @@ const struct Portrait portraitTableNew[] = {
 		{BlackKnightPortraitMainM, BlackKnightPortraitMini, BlackKnightPortraitPal, BlackKnightMouthFrameM, NULL, 3, 7, 0, 0, 4, 9, 16, 4, 0}, // 0x107 漆黑的骑士中间 96x80
 		{ZelgiusPortraitMain, ZelgiusPortraitMini, ZelgiusPortraitPal, ZelgiusMouthFrame, {&ZelgiusEyeFrameInfo}, 40 - 136 / 2 + 20, 40, 0, 0, 3, 12, 22, 5, 1}, // 0x108 塞尔基乌斯
 		{Fenrir_portrait_tileset, Fenrir_portrait_mini, Fenrir_portrait_palette, Fenrir_portrait_mouth_frame, {&Fenrir_eye_frame_info}, -2, 56, 0, 0, 3, 13, 23, 6, 1}, // 0x109 Fenrir
+};
+
+// 第三个头像指针表,起始序号0x200,新扩展格式
+const pPortraitNew portraitTableNewExtension[] = {
+	NULL,
 };
 
 // 大头像精灵组合模板

@@ -21,12 +21,20 @@ struct Portrait *callGetPortrait(int portraitIndex)
 {
 	//return GetPortrait(portraitIndex);
 
-	asm("ldr r1,=GetPortrait\nbx r1");
+	//asm("ldr r1,=GetPortrait\nbx r1");
+	asm("ldr r1,=GetPortraitNew\nbx r1");
 }
 
 struct Portrait *GetPortrait(int portraitIndex)
 {
   return (portraitIndex > 0xFF) ? &portraitTableNew[portraitIndex - 0x100] : &portraitTableOriginal[portraitIndex];
+}
+
+pPortraitNew GetPortraitNew(int portraitIndex)
+{
+	if(portraitIndex >= 0x200)
+		return portraitTableNewExtension[portraitIndex - 0x200];
+	return GetPortrait(portraitIndex);
 }
 
 __attribute__((section(".callGetUnitPortraitID")))
@@ -231,6 +239,33 @@ void blinkOrWink2(u32 *mempool, int eyeStatus)
 		changeTiles(portrait->ce.eyeFrameInfo->eyeFrame[eyeShape], 0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->ce.eyeFrameInfo->blinkTemplate[0]) & 0x3FF), portrait->ce.eyeFrameInfo->width, portrait->ce.eyeFrameInfo->height);
 }
 
+void blinkOrWinkNew(u32 *mempool, int eyeStatus)
+{
+	int *data;
+	pPortraitNew portrait;
+	int frameNum;
+	int tileNumOffset;
+	int tileNumFrame;
+
+	data = mempool[11];
+	portrait = data[11];
+
+	if(portrait->extra->eye->frame && portrait->extra->eye->width && portrait->extra->eye->height)
+	{
+		tileNumFrame = (portrait->extra->eye->width / 8) * (portrait->extra->eye->height / 8);
+		if(eyeStatus & (~0x81))
+			frameNum = 0;
+		else
+			frameNum = 2 - (eyeStatus & 1);
+		if(eyeStatus & 0x80)
+			// wink
+			changeTiles(&portrait->extra->eye->frame[tileNumFrame * frameNum] + 32 * ((portrait->extra->eye->width / 8) * ((portrait->extra->eye->height / 8) - (portrait->extra->eye->heightBottom / 8)) + ((portrait->extra->eye->width / 8) - (portrait->extra->eye->widthRight/ 8))), 0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->extra->eye->tileNo + 32 * ((portrait->extra->eye->height / 8) - (portrait->extra->eye->heightBottom / 8)) + (portrait->extra->eye->width / 8) - (portrait->extra->eye->widthRight/ 8)) & 0x3FF), portrait->extra->eye->widthRight/ 8, portrait->extra->eye->heightBottom / 8);
+		else
+			// blink
+			changeTiles(&portrait->extra->eye->frame[tileNumFrame * frameNum], 0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->extra->eye->tileNo) & 0x3FF), portrait->extra->eye->width / 8, portrait->extra->eye->height / 8);
+	}
+};
+
 // 根据新老格式的不同调用相应的眨眼/使眼色函数
 void callBlinkOrWink(u32 *mempool, int eyeStatus)
 {
@@ -240,10 +275,25 @@ void callBlinkOrWink(u32 *mempool, int eyeStatus)
 	blinkOrWink[portrait->eyeControlFlag - 1](mempool,eyeStatus);
 }
 
+void callBlinkOrWinkNew(u32 *mempool, int eyeStatus)
+{
+	int *data;
+	pPortraitNew portrait;	// 头像
+
+	data = mempool[11];
+	portrait = data[11];
+
+	if(isNewPortraitExtension(portrait))
+		blinkOrWinkNew(mempool,eyeStatus);
+	else
+		callBlinkOrWink(mempool,eyeStatus);
+}
+
 // 眨眼/使眼色函数接口
 void callCallBlinkOrWink(u32 *mempool, int eyeStatus)
 {
-	callBlinkOrWink(mempool,eyeStatus);
+	//callBlinkOrWink(mempool,eyeStatus);
+	callBlinkOrWinkNew(mempool,eyeStatus);
 }
 
 // 调用到BlinkOrWink的函数1
@@ -423,11 +473,59 @@ LABEL_2:
 															 + delta;
 }
 
+void chooseDialoguePortraitOAM(u32 *mempool)
+{
+	pPortraitNew portrait;
+	bool atLeft;
+	u32 flag2;
+	s16 delta;
+
+	portrait = (pPortraitNew)mempool[11];
+	if(isNewPortraitExtension(portrait))
+	{
+		atLeft = mempool[12] & 1;
+		if(atLeft)
+			mempool[14] = portrait->extra->obj->oamR; // face to right
+		else
+			mempool[14] = portrait->extra->obj->oamL; // face to left
+
+		flag2 = mempool[12] & 0x3C0;
+		if ( flag2 == 0x80 )
+		{
+			delta = 0x400;
+		}
+		else if ( flag2 > 0x80 )
+		{
+			if ( flag2 != 0x200 )
+				goto LABEL_1;
+			delta = 0xC00;
+		}
+		else
+		{
+			if ( flag2 != 0x40 )
+			{
+LABEL_1:
+				delta = 0x800;
+				goto LABEL_2;
+			}
+			delta = 0;
+	}
+LABEL_2:
+	*((s16 *)mempool + 30) = (*(s32 *)(8 * *((s8 *)mempool + 64) + 0x202A580) >> 5)
+															 + ((*(s16 *)(8 * *((s8 *)mempool + 64) + 0x202A584) & 0xF) << 12)
+															 + delta;
+	}
+	else
+		chooseMainPortraitSpriteTemplate(mempool);
+}
+
+
 // 新的选择大头像精灵组合模板函数的接口
 __attribute__((section(".callChooseMainPortraitSpriteTemplate")))
 void callChooseMainPortraitSpriteTemplate(s16 *mempool)
 {
-	chooseMainPortraitSpriteTemplate((u32 *)mempool);
+	//chooseMainPortraitSpriteTemplate((u32 *)mempool);
+	chooseDialoguePortraitOAM((u32 *)mempool);
 }
 
 // 新的人物详情界面头像框绘制函数
@@ -461,11 +559,46 @@ void drawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIn
 	}
 }
 
+void showStatusScreenPortrait(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIndex, int presentBGPaletteIndex)
+{
+	pPortraitNew portrait;
+	int i, j;
+
+	if(portraitID == NULL)
+		return;
+	portrait = (pPortraitNew)GetPortrait(portraitID);
+	if(isNewPortraitExtension(portrait) == FALSE)
+	{
+		drawPortraitInBox(TSABufferInWRAM, portraitID, presentBGTileIndex, presentBGPaletteIndex);
+		return;
+	}
+	if(portrait->card)
+	{
+		AutoCopyOrDecompressImageToVRAM(portrait->card, 32 * presentBGTileIndex + 0x6000000);
+		writePlainTSA(TSABufferInWRAM, (presentBGPaletteIndex << 12) + (presentBGTileIndex & 0x3FF), 10, 9);
+		return;
+	}
+	if(portrait->tileset && portrait->extra->bg->tsa)
+	{
+		AutoCopyOrDecompressImageToVRAM(portrait->tileset, 32 * presentBGTileIndex + 0x6000000);
+		OutputToBGPaletteBuffer(portrait->palette, 32 * presentBGPaletteIndex, 32);
+		writeTemplateTSA(TSABufferInWRAM, portrait->extra->bg->tsa, ((presentBGPaletteIndex & 0xF)<< 12) + (presentBGTileIndex & 0x3FF));
+		if(portrait->extra->bg->mask)
+		{
+			for(i = 0; i < 9; i++)
+				for(j = 0; j < 10; j++)
+					TSABufferInWRAM[32 * i + j] &= - portrait->extra->bg->mask[10 * i + j];
+		}
+	}
+}
+
+
 // 新的人物详情界面头像框绘制函数的接口
 __attribute__((section(".callDrawPortraitInBox")))
 void callDrawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIndex, int presentBGPaletteIndex)
 {
-	drawPortraitInBox(TSABufferInWRAM, portraitID, presentBGTileIndex, presentBGPaletteIndex);
+	// drawPortraitInBox(TSABufferInWRAM, portraitID, presentBGTileIndex, presentBGPaletteIndex);
+	showStatusScreenPortrait(TSABufferInWRAM,portraitID,presentBGTileIndex,presentBGPaletteIndex);
 }
 
 // 新的支持非8像素对齐的眨眼/使眼色函数
@@ -559,6 +692,59 @@ LABEL_3:
 __attribute__((section(".callMouthAnimation")))
 void callMouthAnimation(int *mempool)
 {
-	mouthAnimation(mempool);
+	//mouthAnimation(mempool);
+	playMouthAnimation(mempool);
 };
 
+void playMouthAnimation(int *mempool)
+{
+	int *data;
+	pPortraitNew portrait;
+	bool smile; // 是否微笑
+	int tileNumOffset;
+	int tileNumFrame; // 一帧的tile数
+
+	if(isNewPortraitExtension(portrait))
+	{
+		if(portrait->extra->mouth->frame && portrait->extra->mouth->width && portrait->extra->mouth->height)
+		{
+			data = mempool[11];
+			portrait = data[11];
+
+			smile = FALSE;
+			tileNumFrame = (portrait->extra->mouth->width / 8) * (portrait->extra->mouth->height / 8);
+			if(getPortraitControlFlag(data) & 8)
+				smile = TRUE;
+			if(smile)
+				tileNumOffset = 0;
+			else
+				tileNumOffset = tileNumFrame * 3;
+			if(getPortraitControlFlag(data) & 0x30 && (--*((s16 *)mempool + 25) & 0x8000))
+			{
+				*((s16 *)mempool + 25) = ((sub(8000EB4)() >> 16) & 7) + 1;
+				*((s16 *)mempool + 24) = (*((s16 *)mempool + 24) + 1) & 3;
+				if(*((s16 *)mempool + 24) == 1 || *((s16 *)mempool + 24) == 3)
+					tileNumOffset += tileNumFrame;
+				if(*((s16 *)mempool + 24) == 2)
+					tileNumOffset += tileNumFrame * 2;
+				changeTiles(portrait->extra->mouth->frame + 32 * tileNumOffset, 32 * ((*(s16 *)((int)data + 60) + portrait->extra->mouth->tileNo) & 0x3FF) + 0x6010000, portrait->extra->mouth->width / 8, portrait->extra->mouth->height / 8);
+
+			}
+			else
+				changeTiles(portrait->extra->mouth->frame + 32 * (tileNumOffset + tileNumFrame * 2), 32 * ((*(s16 *)((int)data + 60) + portrait->extra->mouth->tileNo) & 0x3FF) + 0x6010000, portrait->extra->mouth->width / 8, portrait->extra->mouth->height / 8);
+		}
+	}
+	else
+		mouthAnimation(mempool);
+};
+
+__attribute__((section(".playMouthAnimation")))
+void (* const pPlayMouthAnimation)(int *) = playMouthAnimation;
+
+// 判断是否是新扩展头像格式
+bool isNewPortraitExtension(pPortraitNew portrait)
+{
+	if(portrait->newFlag == -1)
+		return TRUE;
+	return FALSE;
+}
