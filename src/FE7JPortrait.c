@@ -329,8 +329,8 @@ void blink(s16 *mempool)
 		}
 	}
 	callCallBlinkOrWink((u32 *)mempool,eyeStatus);
-	//++mempool[26];
-	++*(_WORD *)((char *)mempool + 52);
+	++mempool[26];
+	//++*(_WORD *)((char *)mempool + 52);
 }
 
 // 调用到BlinkOrWink的函数1接口
