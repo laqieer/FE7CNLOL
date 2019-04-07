@@ -33,6 +33,7 @@ struct Portrait *GetPortrait(int portraitIndex)
 pPortraitNew GetPortraitNew(int portraitIndex)
 {
 	if(portraitIndex >= 0x200)
+		// return &portraitTableNewExtension[portraitIndex - 0x200];
 		return portraitTableNewExtension[portraitIndex - 0x200];
 	return GetPortrait(portraitIndex);
 }
@@ -473,23 +474,26 @@ LABEL_2:
 															 + delta;
 }
 
-void chooseDialoguePortraitOAM(u32 *mempool)
+void chooseDialoguePortraitOAM(u32 *data)
 {
 	pPortraitNew portrait;
-	bool atLeft;
+	u32 flag1;
 	u32 flag2;
 	s16 delta;
 
-	portrait = (pPortraitNew)mempool[11];
+	portrait = (pPortraitNew)data[11];
+	flag1 = data[12] & 0x807;
 	if(isNewPortraitExtension(portrait))
 	{
-		atLeft = mempool[12] & 1;
-		if(atLeft)
-			mempool[14] = portrait->extra->obj->oamR; // face to right
-		else
-			mempool[14] = portrait->extra->obj->oamL; // face to left
+		if(flag1 == 0x800 || flag1 == 0x801 || flag1 <= 5)
+		{
+			if(flag1 & 1)
+				data[14] = portrait->extra->obj->oamR; // face to right
+			else
+				data[14] = portrait->extra->obj->oamL; // face to left
+		}
 
-		flag2 = mempool[12] & 0x3C0;
+		flag2 = data[12] & 0x3C0;
 		if ( flag2 == 0x80 )
 		{
 			delta = 0x400;
@@ -497,26 +501,26 @@ void chooseDialoguePortraitOAM(u32 *mempool)
 		else if ( flag2 > 0x80 )
 		{
 			if ( flag2 != 0x200 )
-				goto LABEL_1;
+				goto LABEL_4;
 			delta = 0xC00;
 		}
 		else
 		{
 			if ( flag2 != 0x40 )
 			{
-LABEL_1:
+LABEL_4:
 				delta = 0x800;
-				goto LABEL_2;
+				goto LABEL_5;
 			}
 			delta = 0;
 	}
-LABEL_2:
-	*((s16 *)mempool + 30) = (*(s32 *)(8 * *((s8 *)mempool + 64) + 0x202A580) >> 5)
-															 + ((*(s16 *)(8 * *((s8 *)mempool + 64) + 0x202A584) & 0xF) << 12)
+LABEL_5:
+	*((s16 *)data + 30) = (*(s32 *)(8 * *((s8 *)data + 64) + 0x202A580) >> 5)
+															 + ((*(s16 *)(8 * *((s8 *)data + 64) + 0x202A584) & 0xF) << 12)
 															 + delta;
 	}
 	else
-		chooseMainPortraitSpriteTemplate(mempool);
+		chooseMainPortraitSpriteTemplate(data);
 }
 
 
@@ -537,7 +541,7 @@ void drawPortraitInBox(u16 *TSABufferInWRAM, int portraitID, int presentBGTileIn
 
 	if(!portraitID)
 		return;
-	portrait = GetPortrait(portraitID);
+	portrait = GetPortraitNew(portraitID);
 	OutputToBGPaletteBuffer(portrait->portraitPalette, 32 * presentBGPaletteIndex, 32);
 	if(portrait->mainPortrait)	// 有头像画头像
 	{
@@ -566,7 +570,7 @@ void showStatusScreenPortrait(u16 *TSABufferInWRAM, int portraitID, int presentB
 
 	if(portraitID == NULL)
 		return;
-	portrait = (pPortraitNew)GetPortrait(portraitID);
+	portrait = (pPortraitNew)GetPortraitNew(portraitID);
 	if(isNewPortraitExtension(portrait) == FALSE)
 	{
 		drawPortraitInBox(TSABufferInWRAM, portraitID, presentBGTileIndex, presentBGPaletteIndex);
@@ -704,6 +708,8 @@ void playMouthAnimation(int *mempool)
 	int tileNumOffset;
 	int tileNumFrame; // 一帧的tile数
 
+	data = mempool[11];
+	portrait = data[11];
 	if(isNewPortraitExtension(portrait))
 	{
 		if(portrait->extra->mouth->frame && portrait->extra->mouth->width && portrait->extra->mouth->height)
@@ -744,6 +750,7 @@ void (* const pPlayMouthAnimation)(int *) = playMouthAnimation;
 // 判断是否是新扩展头像格式
 bool isNewPortraitExtension(pPortraitNew portrait)
 {
+	//if(portrait->newFlag == 0xFF)
 	if(portrait->newFlag == -1)
 		return TRUE;
 	return FALSE;

@@ -13,3 +13,4 @@
 #define pZelgius "\x8\x2"
 #define pFenrir "\x9\x2"
 
+#define pCherryBlue "\x1\x3"

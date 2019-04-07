@@ -4,7 +4,7 @@
 
 #include "FE7JStructDef.h"
 
-// 用人造人凯内斯测试神兽芬利厄头像
+// 用人造人凯内斯测试新导入的头像
 __attribute__((section(".KennethMorphPortraitID")))
-const PortraitID KennethMorphPortraitID = 0x109;
+const PortraitID KennethMorphPortraitID = 0x201;
 

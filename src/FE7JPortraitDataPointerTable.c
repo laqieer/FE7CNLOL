@@ -8,7 +8,7 @@
 #include "BlackKnightPortrait.h"
 #include "ZelgiusPortrait.h"
 #include "Fenrir.h"
-
+#include "PortraitCherryBlue.h"
 
 // 第二个头像指针表,起始序号0x100,旧扩展格式
 const struct Portrait portraitTableNew[] = {
@@ -26,7 +26,10 @@ const struct Portrait portraitTableNew[] = {
 
 // 第三个头像指针表,起始序号0x200,新扩展格式
 const pPortraitNew portraitTableNewExtension[] = {
-	NULL,
+	//{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, -1, 0x200}, // 0x200, 0标识文本结束, 所以不能用在剧情对话里
+	NULL, // 0x200
+	//{&CherryBlue_portrait_tileset, &CherryBlue_portrait_mini, &CherryBlue_portrait_palette, &CherryBlue_portrait_extra_info, NULL, NULL, NULL, NULL, NULL, 1, 0xFF, 0x201}, // 0x201 Cherry (Blue)
+	&CherryBlue_portrait, // 0x201
 };
 
 // 大头像精灵组合模板
