@@ -205,5 +205,5 @@ const char CherryBlue_portrait_name[] = "CherryBlue";
 
 const PortraitExtra CherryBlue_portrait_extra_info = {&CherryBlue_portrait_obj, &CherryBlue_portrait_bg, &CherryBlue_portrait_eye, &CherryBlue_portrait_mouth, &CherryBlue_portrait_name};
 
-const PortraitNew CherryBlue_portrait = {&CherryBlue_portrait_tileset, &CherryBlue_portrait_mini, &CherryBlue_portrait_palette, &CherryBlue_portrait_extra_info, NULL, NULL, NULL, NULL, NULL, 1, -1, 0x201};
+const PortraitNew CherryBlue_portrait = {&CherryBlue_portrait_tileset, &CherryBlue_portrait_mini, &CherryBlue_portrait_palette, &CherryBlue_portrait_extra_info, NULL, 1, -1, 0x201};
 

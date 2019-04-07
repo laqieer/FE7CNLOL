@@ -148,10 +148,10 @@ typedef struct PortraitInfoNew
 	u16 *palette; // palette. 调色板.
 	pPortraitExtra extra; // extra portrait info. 附加头像信息.
 	u8 *card; // class card. 职业卡牌.
-	s8 mouthX; // useless. 废弃.
+/*	s8 mouthX; // useless. 废弃.
 	s8 mouthY; // useless. 废弃.
 	s8 eyeX; // useless. 废弃.
-	s8 eyeY; // useless. 废弃.
+	s8 eyeY; // useless. 废弃.	*/
 	u8 eyeFlag; // eye control flag. 1-Normal. 6-always closed.
 	s8 newFlag; // new portrait struct format flag (should be set to -1). 新头像信息格式标识, 设为-1.
 	PortraitID id; // self id. 头像序号.
