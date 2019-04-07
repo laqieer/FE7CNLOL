@@ -216,9 +216,10 @@ void blinkOrWink2(u32 *mempool, int eyeStatus)
 	portrait = (struct Portrait *)(*(u32 *)(mempool[11] + 44));
 	if(eyeStatus & (~0x81))
 	{
-		for(i = 0;i < portrait->ce.eyeFrameInfo->height;i++)
+		/*for(i = 0;i < portrait->ce.eyeFrameInfo->height;i++)
 			for(j = 0;j < portrait->ce.eyeFrameInfo->width;j++)
-				changeTiles((int)portrait->ce.eyeFrameInfo->eyeFrame[0] + 32 * (portrait->ce.eyeFrameInfo->width * i + j),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->ce.eyeFrameInfo->blinkTemplate[portrait->ce.eyeFrameInfo->width * i + j]) & 0x3FF),1,1);
+				changeTiles((int)portrait->ce.eyeFrameInfo->eyeFrame[0] + 32 * (portrait->ce.eyeFrameInfo->width * i + j),0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->ce.eyeFrameInfo->blinkTemplate[portrait->ce.eyeFrameInfo->width * i + j]) & 0x3FF),1,1);*/
+		changeTiles(portrait->ce.eyeFrameInfo->eyeFrame[0], 0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->ce.eyeFrameInfo->blinkTemplate[0]) & 0x3FF), portrait->ce.eyeFrameInfo->width, portrait->ce.eyeFrameInfo->height);
 		return;
 	}
 	winkFlag = eyeStatus & 0x80;
@@ -245,7 +246,6 @@ void blinkOrWinkNew(u32 *mempool, int eyeStatus)
 	int *data;
 	pPortraitNew portrait;
 	int frameNum;
-	int tileNumOffset;
 	int tileNumFrame;
 
 	data = mempool[11];
@@ -260,10 +260,10 @@ void blinkOrWinkNew(u32 *mempool, int eyeStatus)
 			frameNum = 2 - (eyeStatus & 1);
 		if(eyeStatus & 0x80)
 			// wink
-			changeTiles(&portrait->extra->eye->frame[tileNumFrame * frameNum] + 32 * ((portrait->extra->eye->width / 8) * ((portrait->extra->eye->height / 8) - (portrait->extra->eye->heightBottom / 8)) + ((portrait->extra->eye->width / 8) - (portrait->extra->eye->widthRight/ 8))), 0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->extra->eye->tileNo + 32 * ((portrait->extra->eye->height / 8) - (portrait->extra->eye->heightBottom / 8)) + (portrait->extra->eye->width / 8) - (portrait->extra->eye->widthRight/ 8)) & 0x3FF), portrait->extra->eye->widthRight/ 8, portrait->extra->eye->heightBottom / 8);
+			changeTiles(&portrait->extra->eye->frame[32 * tileNumFrame * frameNum] + 32 * ((portrait->extra->eye->width / 8) * ((portrait->extra->eye->height / 8) - (portrait->extra->eye->heightBottom / 8)) + ((portrait->extra->eye->width / 8) - (portrait->extra->eye->widthRight/ 8))), 0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->extra->eye->tileNo + 32 * ((portrait->extra->eye->height / 8) - (portrait->extra->eye->heightBottom / 8)) + (portrait->extra->eye->width / 8) - (portrait->extra->eye->widthRight/ 8)) & 0x3FF), portrait->extra->eye->widthRight / 8, portrait->extra->eye->heightBottom / 8);
 		else
 			// blink
-			changeTiles(&portrait->extra->eye->frame[tileNumFrame * frameNum], 0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->extra->eye->tileNo) & 0x3FF), portrait->extra->eye->width / 8, portrait->extra->eye->height / 8);
+			changeTiles(&portrait->extra->eye->frame[32 * tileNumFrame * frameNum], 0x6010000 + 32 * ((*(u16 *)(mempool[11] + 60) + portrait->extra->eye->tileNo) & 0x3FF), portrait->extra->eye->width / 8, portrait->extra->eye->height / 8);
 	}
 };
 

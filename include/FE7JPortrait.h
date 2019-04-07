@@ -152,6 +152,7 @@ typedef struct PortraitInfoNew
 	s8 mouthY; // useless. 废弃.
 	s8 eyeX; // useless. 废弃.
 	s8 eyeY; // useless. 废弃.	*/
+	u32 preserve; // preserve for future extension. 保留, 为了保持eyeFlag的偏移不变(因为没有修改eyeFlag的读取函数).
 	u8 eyeFlag; // eye control flag. 1-Normal. 6-always closed.
 	s8 newFlag; // new portrait struct format flag (should be set to -1). 新头像信息格式标识, 设为-1.
 	PortraitID id; // self id. 头像序号.
