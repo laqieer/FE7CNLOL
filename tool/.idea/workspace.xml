@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5ce0588a-ba4f-4c2c-8f85-fce88cf38960" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/IntegratedGUITool.py" afterDir="false" />
+    <list default="true" id="5ce0588a-ba4f-4c2c-8f85-fce88cf38960" name="Default Changelist" comment="load image">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IntegratedGUITool.py" beforeDir="false" afterPath="$PROJECT_DIR$/IntegratedGUITool.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,7 +12,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/tool$IntegratedGUITool.coverage" NAME="IntegratedGUITool Coverage Results" MODIFIED="1554702980090" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/tool$IntegratedGUITool.coverage" NAME="IntegratedGUITool Coverage Results" MODIFIED="1554735973972" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/tool$PortraitImporter.coverage" NAME="PortraitImporter Coverage Results" MODIFIED="1554518603421" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/tool$PortraitCherryBlue.coverage" NAME="PortraitCherryBlue Coverage Results" MODIFIED="1554617159657" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
@@ -20,7 +20,7 @@
     <session id="-364378327">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="15" />
+          <entry key="project.closed" value="16" />
           <entry key="project.open.time.143" value="1" />
           <entry key="project.open.time.16" value="1" />
           <entry key="project.open.time.17" value="1" />
@@ -40,24 +40,24 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="5" />
+          <entry key="py" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="5" />
+          <entry key="Python" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="25428" />
-          <entry key="txt" value="514" />
+          <entry key="py" value="31173" />
+          <entry key="txt" value="577" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="514" />
-          <entry key="Python" value="25428" />
+          <entry key="PLAIN_TEXT" value="577" />
+          <entry key="Python" value="31173" />
         </counts>
       </usages-collector>
     </session>
@@ -67,7 +67,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/GBAImage.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="8835">
+            <state relative-caret-position="7980">
               <caret line="465" column="44" selection-start-line="465" selection-start-column="44" selection-end-line="465" selection-end-column="44" />
               <folding>
                 <element signature="e#45#81#0" expanded="true" />
@@ -79,11 +79,21 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IntegratedGUITool.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="166">
-              <caret line="27" column="7" lean-forward="true" selection-start-line="27" selection-start-column="7" selection-end-line="27" selection-end-column="7" />
+            <state relative-caret-position="266">
+              <caret line="302" column="46" lean-forward="true" selection-start-line="302" selection-start-column="46" selection-end-line="302" selection-end-column="46" />
               <folding>
-                <element signature="e#105#125#0" expanded="true" />
+                <element signature="e#105#115#0" expanded="true" />
+                <element signature="e#7674#7827#0" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/venv373/Lib/site-packages/PIL/Image.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="138">
+              <caret line="1093" selection-start-line="1093" selection-end-line="1093" />
             </state>
           </provider>
         </entry>
@@ -91,8 +101,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/PortraitImporter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="42" column="15" lean-forward="true" selection-start-line="42" selection-start-column="8" selection-end-line="42" selection-end-column="15" />
+            <state relative-caret-position="-741">
+              <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
               <folding>
                 <element signature="e#59#74#0" expanded="true" />
               </folding>
@@ -114,10 +124,15 @@
       <find>(256 - 32,</find>
       <find>alpha</find>
       <find>mouse</find>
+      <find>eye</find>
+      <find>dialogue_template</find>
+      <find>tileset</find>
     </findStrings>
     <replaceStrings>
       <replace>mask</replace>
       <replace>mouth</replace>
+      <replace>dialogue_template_tileset</replace>
+      <replace>mouth_animation</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -139,9 +154,9 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="89" />
-    <option name="y" value="68" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="32" />
+    <option name="y" value="88" />
     <option name="width" value="1346" />
     <option name="height" value="768" />
   </component>
@@ -319,19 +334,32 @@
       <option name="project" value="LOCAL" />
       <updated>1554692121737</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="make welcome window">
+      <created>1554703247895</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1554703247895</updated>
+    </task>
+    <task id="LOCAL-00011" summary="load image">
+      <created>1554727830460</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1554727830460</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="89" y="68" width="1346" height="768" extended-state="0" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.31337482" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.30484116" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.328594" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32049307" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3990755" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -376,7 +404,9 @@
     <MESSAGE value="support to save eye and mouth animation to sheet" />
     <MESSAGE value="support customized x coordinate and whole x offset" />
     <MESSAGE value="update python version from 3.6.4 to 3.7.3" />
-    <option name="LAST_COMMIT_MESSAGE" value="update python version from 3.6.4 to 3.7.3" />
+    <MESSAGE value="make welcome window" />
+    <MESSAGE value="load image" />
+    <option name="LAST_COMMIT_MESSAGE" value="load image" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://E:/Python36/Lib/ntpath.py">
@@ -395,7 +425,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/GBAImage.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8835">
+        <state relative-caret-position="7980">
           <caret line="465" column="44" selection-start-line="465" selection-start-column="44" selection-end-line="465" selection-end-column="44" />
           <folding>
             <element signature="e#45#81#0" expanded="true" />
@@ -405,20 +435,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/PortraitImporter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="42" column="15" lean-forward="true" selection-start-line="42" selection-start-column="8" selection-end-line="42" selection-end-column="15" />
+        <state relative-caret-position="-741">
+          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
           <folding>
             <element signature="e#59#74#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/venv373/Lib/site-packages/PIL/Image.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="138">
+          <caret line="1093" selection-start-line="1093" selection-end-line="1093" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/IntegratedGUITool.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="166">
-          <caret line="27" column="7" lean-forward="true" selection-start-line="27" selection-start-column="7" selection-end-line="27" selection-end-column="7" />
+        <state relative-caret-position="266">
+          <caret line="302" column="46" lean-forward="true" selection-start-line="302" selection-start-column="46" selection-end-line="302" selection-end-column="46" />
           <folding>
-            <element signature="e#105#125#0" expanded="true" />
+            <element signature="e#105#115#0" expanded="true" />
+            <element signature="e#7674#7827#0" />
           </folding>
         </state>
       </provider>

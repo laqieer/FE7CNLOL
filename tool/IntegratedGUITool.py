@@ -3,6 +3,8 @@
 # 2019/4/8
 
 import sys
+import os
+import json
 import tkinter as tk
 import tkinter.messagebox
 from tkinter import filedialog
@@ -84,6 +86,31 @@ def ask_and_open_image(width=0, height=0, color_number=0, palette: Image=None):
         return image
 
 
+def ask_and_open_json():
+    """
+    Ask users for a json file and read from it
+    :return: Dictionary
+    """
+    json_file = filedialog.askopenfilename(title='Open Template', filetypes=[('JSON', '*.json'), ('All Files', '*')])
+    if json_file is not None:
+        with open(json_file, 'r') as f:
+            return json.load(f)
+
+
+def ask_and_save_image(image):
+    """
+    Ask user and save image.
+    :return:None 
+    """
+    if image is None:
+        tk.messagebox.showerror(title='Error', message='Nothing to save.')
+    else:
+        image_file = filedialog.asksaveasfilename(title='Save Image',
+                                                  filetypes=[('PNG', '*.png'), ('All Files', '*')])
+        if image is not None:
+            image.save(image_file)
+
+
 def show_main_window():
     """
     Show main window.
@@ -121,6 +148,9 @@ def show_main_window():
         img_mini = None
         img_eye_animation = None
         img_mouth_animation = None
+        dict_dialogue_template = None
+        img_dialogue_template = None
+        img_dialogue_template_tileset = None
 
         def load_portrait_dialogue():
             """
@@ -203,15 +233,202 @@ def show_main_window():
                                          image=ph_mouth_animation)
                 l_mouth_animation.image = ph_mouth_animation  # keep a reference!
 
+        def load_dialogue_template():
+            """
+            Load dialogue portrait template.
+            :return: None
+            """
+            nonlocal dict_dialogue_template
+            nonlocal img_dialogue_template
+            nonlocal img_dialogue_template_tileset
+            dict_dialogue_template = ask_and_open_json()
+            if dict_dialogue_template is not None:
+                img_dialogue_template = Image.new("RGBA", 
+                                                  (dict_dialogue_template['width'], dict_dialogue_template['height']))
+                img_dialogue_template_tileset = Image.new("RGBA", (256, 32))
+                draw_template = ImageDraw.Draw(img_dialogue_template)
+                draw_template_tileset = ImageDraw.Draw(img_dialogue_template_tileset)
+                palette_template = ['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque',
+                                    'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue',
+                                    'chartreuse', 'chocolate', 'coral', 'cornflowerblue', 'cornsilk', 'crimson',
+                                    'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen',
+                                    'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred']
+                for i, obj in enumerate(dict_dialogue_template['OBJ']):
+                    x = obj['x']
+                    y = obj['y']
+                    w = obj['width']
+                    h = obj['height']
+                    tx = 8 * obj['tile_x']
+                    ty = 8 * obj['tile_y']
+                    color = palette_template[i]
+                    draw_template.rectangle([(x, y), (x + w, y + h)], fill=color)
+                    draw_template_tileset.rectangle([(tx, ty), (tx + w, ty + h)], fill=color)
+                ph_dialogue_template = ImageTk.PhotoImage(img_dialogue_template)
+                l_dialogue_template.config(image=ph_dialogue_template)
+                l_dialogue_template.image = ph_dialogue_template  # keep a reference!
+                ph_dialogue_template_tileset = ImageTk.PhotoImage(img_dialogue_template_tileset)
+                l_dialogue_template_tileset.config(image=ph_dialogue_template_tileset)
+                l_dialogue_template_tileset.image = ph_dialogue_template_tileset  # keep a reference!
+
+        def make_portrait_tileset():
+            """
+            Make tileset from dialogue portrait and template.
+            :return: None
+            """
+            nonlocal img_tileset
+            nonlocal img_dialogue
+            nonlocal dict_dialogue_template
+            if img_dialogue is None:
+                tk.messagebox.showerror(title='Error', message='No dialogue portrait.')
+            elif img_dialogue_template is None:
+                tk.messagebox.showerror(title='Error', message='No portrait template.')
+            else:
+                img_tileset = Image.new("P", (256, 32))
+                img_tileset.putpalette(img_dialogue.getpalette())
+                for obj in dict_dialogue_template['OBJ']:
+                    x = obj['x']
+                    y = obj['y']
+                    w = obj['width']
+                    h = obj['height']
+                    tx = 8 * obj['tile_x']
+                    ty = 8 * obj['tile_y']
+                    obj_image = img_dialogue.crop((x, y, x + w, y + h))
+                    img_tileset.paste(obj_image, (tx, ty, tx + w, ty + h))
+            ph_tileset = ImageTk.PhotoImage(img_tileset)
+            l_tileset.config(image=ph_tileset)
+            l_tileset.image = ph_tileset
+            nonlocal img_palette
+            img_palette = convert_palette_to_image(img_tileset, color_number=16, pixel_size=8)
+            ph_palette = ImageTk.PhotoImage(img_palette)
+            l_palette.config(image=ph_palette)
+            l_palette.image = ph_palette  # keep a reference!
+
+        def make_portrait_dialogue():
+            """
+            Make dialogue portrait from tileset and template.
+            :return: None
+            """
+            nonlocal img_dialogue
+            nonlocal img_tileset
+            nonlocal dict_dialogue_template
+            if img_tileset is None:
+                tk.messagebox.showerror(title='Error', message='No portrait tileset.')
+            elif img_dialogue_template is None:
+                tk.messagebox.showerror(title='Error', message='No portrait template.')
+            else:
+                img_dialogue = Image.new("P", (dict_dialogue_template['width'], dict_dialogue_template['height']))
+                img_dialogue.putpalette(img_tileset.getpalette())
+                for obj in dict_dialogue_template['OBJ']:
+                    x = obj['x']
+                    y = obj['y']
+                    w = obj['width']
+                    h = obj['height']
+                    tx = 8 * obj['tile_x']
+                    ty = 8 * obj['tile_y']
+                    obj_image = img_tileset.crop((tx, ty, tx + w, ty + h))
+                    img_dialogue.paste(obj_image, (x, y, x + w, y + h))
+            ph_dialogue = ImageTk.PhotoImage(img_dialogue)
+            l_dialogue.config(image=ph_dialogue)
+            l_dialogue.image = ph_dialogue
+
+        def save_portrait_tileset():
+            """
+            Save portrait tileset to image.
+            :return: None.
+            """
+            nonlocal img_tileset
+            ask_and_save_image(img_tileset)
+
+        def save_portrait_dialogue():
+            """
+            Save dialogue portrait to image.
+            :return: None.
+            """
+            nonlocal img_dialogue
+            ask_and_save_image(img_dialogue)
+
+        def save_portrait_status_screen():
+            """
+            Save status screen portrait to image.
+            :return: None.
+            """
+            nonlocal img_status_screen
+            ask_and_save_image(img_status_screen)
+
+        def save_portrait_mini():
+            """
+            Save mini portrait to image.
+            :return: None.
+            """
+            nonlocal img_mini
+            ask_and_save_image(img_mini)
+
+        def save_eye_animation():
+            """
+            Save portrait eye animation to image.
+            :return: None.
+            """
+            nonlocal img_eye_animation
+            ask_and_save_image(img_eye_animation)
+
+        def save_mouth_animation():
+            """
+            Save portrait mouth animation to image.
+            :return: None.
+            """
+            nonlocal img_mouth_animation
+            ask_and_save_image(img_mouth_animation)
+
+        def save_dialogue_template():
+            """
+            Save dialogue portrait template to JSON or image
+            :return: None
+            """
+            nonlocal dict_dialogue_template
+            nonlocal img_dialogue_template
+            nonlocal img_dialogue_template_tileset
+            save_file = tk.filedialog.asksaveasfilename(title='Save Template',
+                                                        filetypes=[('JSON', '*.json'), ('PNG', '*.png'),
+                                                                   ('All Files', '*')])
+            if os.path.splitext(save_file) in ['json', 'JSON']:
+                if dict_dialogue_template is None:
+                    tk.messagebox.showerror(title='Error', message='Nothing to save.')
+                else:
+                    with open(save_file, 'w') as f:
+                        json.dump(dict_dialogue_template, f)
+            else:
+                if img_dialogue_template is None or img_dialogue_template_tileset is None:
+                    tk.messagebox.showerror(title='Error', message='Nothing to save.')
+                else:
+                    img_dialogue_template_merge = Image.new("RGBA", (256, 32 + img_dialogue_template.height))
+                    img_dialogue_template_merge.paste(img_dialogue_template, (0, 0))
+                    img_dialogue_template_merge.paste(img_dialogue_template_tileset, (0, img_dialogue_template.height))
+                    img_dialogue_template_merge.save(save_file)
+
         menu_bar_portrait = tk.Menu(window_portrait)
         menu_load = tk.Menu(menu_bar_portrait, tearoff=0)
+        menu_make = tk.Menu(menu_bar_portrait, tearoff=0)
+        menu_save = tk.Menu(menu_bar_portrait, tearoff=0)
         menu_bar_portrait.add_cascade(label='Load', menu=menu_load)
+        menu_bar_portrait.add_cascade(label='Make', menu=menu_make)
+        menu_bar_portrait.add_cascade(label='Save', menu=menu_save)
         menu_load.add_command(label='Tileset', command=load_portrait_tileset)
         menu_load.add_command(label='Dialogue', command=load_portrait_dialogue)
+        menu_load.add_command(label='Template', command=load_dialogue_template)
         menu_load.add_command(label='Status Screen', command=load_portrait_status_screen)
         menu_load.add_command(label='Mini', command=load_portrait_mini)
         menu_load.add_command(label='Eye Animation', command=load_eye_animation)
         menu_load.add_command(label='Mouth Animation', command=load_mouth_animation)
+        menu_make.add_command(label='Tileset', command=make_portrait_tileset)
+        menu_make.add_command(label='Dialogue', command=make_portrait_dialogue)
+        menu_save.add_command(label='Tileset', command=save_portrait_tileset)
+        menu_save.add_command(label='Dialogue', command=save_portrait_dialogue)
+        menu_save.add_command(label='Template', command=save_dialogue_template)
+        menu_save.add_command(label='Status Screen', command=save_portrait_status_screen)
+        menu_save.add_command(label='Mini', command=save_portrait_mini)
+        menu_save.add_command(label='Eye Animation', command=save_eye_animation)
+        menu_save.add_command(label='Mouth Animation', command=save_mouth_animation)
+        
         window_portrait.config(menu=menu_bar_portrait)
 
         l_palette = tk.Label(window_portrait, text='Palette', compound='bottom')
@@ -222,6 +439,12 @@ def show_main_window():
 
         l_dialogue = tk.Label(window_portrait, text='Dialogue', compound='bottom')
         l_dialogue.pack()
+
+        l_dialogue_template_tileset = tk.Label(window_portrait, text='Template', compound='bottom')
+        l_dialogue_template_tileset.pack()
+
+        l_dialogue_template = tk.Label(window_portrait, compound='bottom')
+        l_dialogue_template.pack()
 
         l_status_screen = tk.Label(window_portrait, text='Status Screen', compound='bottom')
         l_status_screen.pack()
