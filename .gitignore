@@ -13,5 +13,5 @@ trash
 rom
 *.ups
 *tags*
-tool/venv
+tool/venv*
 *.SearchResults
