@@ -49,7 +49,7 @@ def show_about_info():
     ''')
 
 
-def ask_and_open_image(width=0, height=0, color_number=0, palette: Image=None):
+def ask_and_open_image(width=0, height=0, color_number=0, palette: Image = None):
     """
     ask users and open an image.
     :param width: image width.
@@ -244,7 +244,7 @@ def show_main_window():
             nonlocal img_dialogue_template_tileset
             dict_dialogue_template = ask_and_open_json()
             if dict_dialogue_template is not None:
-                img_dialogue_template = Image.new("RGBA", 
+                img_dialogue_template = Image.new("RGBA",
                                                   (dict_dialogue_template['width'], dict_dialogue_template['height']))
                 img_dialogue_template_tileset = Image.new("RGBA", (256, 32))
                 draw_template = ImageDraw.Draw(img_dialogue_template)
@@ -429,7 +429,7 @@ def show_main_window():
         menu_save.add_command(label='Mini', command=save_portrait_mini)
         menu_save.add_command(label='Eye Animation', command=save_eye_animation)
         menu_save.add_command(label='Mouth Animation', command=save_mouth_animation)
-        
+
         window_portrait.config(menu=menu_bar_portrait)
 
         l_palette = tk.Label(window_portrait, text='Palette', compound='bottom')
@@ -466,7 +466,7 @@ def show_main_window():
         """
         window_image = tk.Toplevel(window)
         window_image.title('Image')
-        
+
         palette = [0] * 3 * 356
         img_init: Image = None
         img_palette: Image = None
@@ -492,6 +492,7 @@ def show_main_window():
                 ph_palette = ImageTk.PhotoImage(img_palette)
                 l_palette.config(image=ph_palette)
                 l_palette.image = ph_palette  # keep a reference!
+                size.set('Size: %d x %d' % (img_edit.width, img_edit.height))
 
         def undo():
             """
@@ -653,7 +654,7 @@ def show_main_window():
                 dest_map = list(range(256))
                 dest_map.pop(transparent_index)
                 # for i in range(16):
-                    # dest_map.insert(16 * i, transparent_index)
+                #   dest_map.insert(16 * i, transparent_index)
                 dest_map.insert(0, transparent_index)
                 for i in range(1, 16):
                     dest_map.insert(16 * i, 255)
@@ -710,6 +711,131 @@ def show_main_window():
             img_edit.putpalette(palette)
             refresh()
 
+        def slim():
+            """
+            Slim the image by removing blank border.
+            :return:
+            """
+            nonlocal img_last
+            nonlocal img_edit
+            box = img_edit.getbbox()
+            if box is None:
+                tk.messagebox.showwarning("The image is empty.")
+            else:
+                img_last = img_edit
+                img_edit = img_edit.crop(box)
+            refresh()
+
+        def requantize():
+            """
+            Reduce the color number.
+            :return: None
+            """
+            nonlocal img_last
+            nonlocal img_edit
+            window_requantize = tk.Toplevel(window_image)
+
+            img_reference = None
+
+            def load_palette():
+                """
+                Load palette from image.
+                :return: None.
+                """
+                nonlocal img_reference
+                img_reference = ask_and_open_image()
+                if img_reference is not None:
+                    img_palette_ref = convert_palette_to_image(img_reference)
+                    ph_palette_ref = ImageTk.PhotoImage(img_palette_ref)
+                    l_palette_ref.config(image=ph_palette_ref)
+                    l_palette_ref.image = ph_palette_ref
+
+            btn_load_palette = tk.Button(window_requantize, text='Load palette from image', command=load_palette)
+            btn_load_palette.pack()
+            l_palette_ref = tk.Label(window_requantize)
+            l_palette_ref.pack()
+            l_color_number = tk.Label(window_requantize, text='Color Number')
+            l_color_number.pack()
+            e_color_number = tk.Entry(window_requantize)
+            e_color_number.pack()
+            e_color_number.insert('end', '16')
+            l_kmeans = tk.Label(window_requantize, text='Kmeans')
+            l_kmeans.pack()
+            e_kmeans = tk.Entry(window_requantize)
+            e_kmeans.pack()
+            e_kmeans.insert('end', '0')
+            l_method = tk.Label(window_requantize, text='Method')
+            l_method.pack()
+
+            method = tk.IntVar()
+            method.set(0)
+
+            dither = tk.IntVar()
+            dither.set(1)
+
+            img_temp: Image = None
+
+            def quantize_and_preview():
+                """
+                Quantize image for preview.
+                :return: None
+                """
+                nonlocal img_temp
+                nonlocal img_edit
+                img_temp = img_edit.convert("RGB", palette=Image.ADAPTIVE)
+                img_temp = img_temp.quantize(colors=int(e_color_number.get()), method=method.get(),
+                                             kmeans=int(e_kmeans.get()), palette=img_reference, dither=dither.get())
+                if img_temp is not None:
+                    ph_preview = ImageTk.PhotoImage(img_temp)
+                    l_preview.config(image=ph_preview)
+                    l_preview.image = ph_preview
+
+            def requantize_and_save():
+                """
+                Quantize image and save.
+                :return:
+                """
+                nonlocal img_temp
+                nonlocal img_edit
+                nonlocal img_last
+                img_temp = img_edit.convert("RGB", palette=Image.ADAPTIVE)
+                img_temp = img_temp.quantize(colors=int(e_color_number.get()), method=method.get(),
+                                             kmeans=int(e_kmeans.get()), palette=img_reference, dither=dither.get())
+                if img_temp is not None:
+                    img_last = img_edit
+                    img_edit = img_temp
+                    refresh()
+                    window_requantize.destroy()
+
+            r1_method = tk.Radiobutton(window_requantize, text='median cut', variable=method, value=0,
+                                       command=quantize_and_preview)
+            r1_method.pack()
+            r2_method = tk.Radiobutton(window_requantize, text='maximum coverage ', variable=method, value=1,
+                                       command=quantize_and_preview)
+            r2_method.pack()
+            r3_method = tk.Radiobutton(window_requantize, text='fast octree', variable=method, value=2,
+                                       command=quantize_and_preview)
+            r3_method.pack()
+            # dependency required by this method was not enabled at compile time
+            # r4_method = tk.Radiobutton(window_requantize, text='libimagequant', variable=method, value=3,
+            #                           command=quantize_and_preview)
+            # r4_method.pack()
+
+            c_dither = tk.Checkbutton(window_requantize, text='FLOYDSTEINBERG', variable=dither, onvalue=1, offvalue=0)
+            c_dither.pack()
+
+            l_preview = tk.Label(window_requantize, text='Preview', compound='bottom')
+            l_preview.pack()
+            if img_temp is not None:
+                ph_preview = ImageTk.PhotoImage(img_temp)
+                l_preview.config(image=ph_preview)
+                l_preview.image = ph_preview
+
+            btn_ok = tk.Button(window_requantize, text='OK', command=requantize_and_save)
+            btn_ok.pack()
+
+            pass
+
         menu_bar_image = tk.Menu(window_image)
         menu_load = tk.Menu(menu_bar_image, tearoff=0)
         menu_edit = tk.Menu(menu_bar_image, tearoff=0)
@@ -723,6 +849,9 @@ def show_main_window():
         menu_edit.add_cascade(label='Tranparent Color', menu=submenu_transparent, underline=0)
         submenu_transparent.add_command(label="Index", command=set_transparent_color_index)
         submenu_transparent.add_command(label="Change", command=change_transparent_color)
+        menu_edit.add_command(label="Requantize", command=requantize)
+        menu_edit.add_command(label="Slim", command=slim)
+        menu_edit.add_separator()
         menu_edit.add_command(label="Undo", command=undo)
         menu_edit.add_command(label="Undo All", command=undo_all)
 
