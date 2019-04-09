@@ -4,12 +4,13 @@
 
 import sys
 import os
+import math
 import json
 import tkinter as tk
 import tkinter.messagebox
+import tkinter.colorchooser
 from tkinter import filedialog
 from PIL import Image, ImageTk, ImageDraw
-import math
 
 
 def convert_palette_to_image(image: Image, color_number=256, pixel_size=4):
@@ -141,16 +142,16 @@ def show_main_window():
         window_portrait = tk.Toplevel(window)
         window_portrait.title('Portrait')
 
-        img_palette = None
-        img_dialogue = None
-        img_tileset = None
-        img_status_screen = None
-        img_mini = None
-        img_eye_animation = None
-        img_mouth_animation = None
-        dict_dialogue_template = None
-        img_dialogue_template = None
-        img_dialogue_template_tileset = None
+        img_palette: Image = None
+        img_dialogue: Image = None
+        img_tileset: Image = None
+        img_status_screen: Image = None
+        img_mini: Image = None
+        img_eye_animation: Image = None
+        img_mouth_animation: Image = None
+        dict_dialogue_template: dict = None
+        img_dialogue_template: Image = None
+        img_dialogue_template_tileset: Image = None
 
         def load_portrait_dialogue():
             """
@@ -465,6 +466,276 @@ def show_main_window():
         """
         window_image = tk.Toplevel(window)
         window_image.title('Image')
+        
+        palette = [0] * 3 * 356
+        img_init: Image = None
+        img_palette: Image = None
+        img_edit: Image = None
+        img_last: Image = None
+
+        size = tk.StringVar(window_image, name='Image Size')
+
+        def refresh():
+            """
+            Refresh image and palette.
+            :return: None.
+            """
+            nonlocal img_edit
+            nonlocal img_palette
+            nonlocal palette
+            if img_edit is not None:
+                palette = img_edit.getpalette()
+                ph_edit = ImageTk.PhotoImage(img_edit)
+                l_image.config(image=ph_edit)
+                l_image.image = ph_edit  # keep a reference!
+                img_palette = convert_palette_to_image(img_edit)
+                ph_palette = ImageTk.PhotoImage(img_palette)
+                l_palette.config(image=ph_palette)
+                l_palette.image = ph_palette  # keep a reference!
+
+        def undo():
+            """
+            Undo.
+            :return: None
+            """
+            nonlocal img_last
+            nonlocal img_edit
+            if img_last is not None:
+                img_last, img_edit = img_edit, img_last
+            refresh()
+
+        def undo_all():
+            """
+            Undo.
+            :return: None
+            """
+            nonlocal img_edit
+            nonlocal img_init
+            if img_init is not None:
+                img_edit = img_init
+            refresh()
+
+        def load_image():
+            """
+            Load image.
+            :return: Image object
+            """
+            nonlocal img_init
+            nonlocal img_edit
+            nonlocal img_last
+            nonlocal palette
+            img_init = ask_and_open_image()
+            if img_init.mode != "P":
+                img_init = img_init.convert("P", palette=Image.ADAPTIVE, colors=256)
+            if img_init is not None:
+                ph_load = ImageTk.PhotoImage(img_init)
+                l_image.config(image=ph_load)
+                l_image.image = ph_load  # keep a reference!
+                nonlocal img_palette
+                img_palette = convert_palette_to_image(img_init)
+                ph_palette = ImageTk.PhotoImage(img_palette)
+                l_palette.config(image=ph_palette)
+                l_palette.image = ph_palette  # keep a reference!
+            img_last = img_init.copy()
+            img_edit = img_init.copy()
+            size.set('Size: %d x %d' % (img_edit.width, img_edit.height))
+            palette = img_edit.getpalette()
+
+        def save_image():
+            """
+            Save image.
+            :return: None.
+            """
+            nonlocal img_edit
+            ask_and_save_image(img_edit)
+
+        def edit_palette():
+            """
+            Edit palette.
+            :return:
+            """
+            window_palette = tk.Toplevel(window_image)
+            window_palette.title('Palette')
+
+            '''def slider_update(something):
+                red = round(red_slider.get() * 255 / 31)
+                green = round(green_slider.get() * 255 / 31)
+                blue = round(blue_slider.get() * 255 / 31)
+                colour = "#%02X%02X%02X" % (red, green, blue)
+                canvas.config(bg=colour)
+                hex_text.delete(0, tk.END)
+                hex_text.insert(0, colour)
+
+            def color_set():
+                colour = hex_text.get()
+                canvas.config(bg=colour)
+                red_slider.set(round(int(colour[1:3], 16) * 31 / 255))
+                green_slider.set(round(int(colour[3:5], 16) * 31 / 255))
+                blue_slider.set(round(int(colour[5:7], 16) * 31 / 255))
+
+            color_size = 16
+            canvas = tk.Canvas(window_palette, width=color_size * 16, height=color_size * 16)
+            for i in range(16):
+                for j in range(16):
+                    canvas.create_rectangle(color_size * j, color_size * i, color_size * (j + 1), color_size * (i + 1),
+                                            fill="#%02X%02X%02X"
+                                                 % (palette[3 * (16 * i + j)], palette[3 * (16 * i + j) + 1],
+                                                    palette[3 * (16 * i + j) + 2]))
+            red_slider = tk.Scale(window_palette, from_=0, to=31, command=slider_update)
+            green_slider = tk.Scale(window_palette, from_=0, to=31, command=slider_update)
+            blue_slider = tk.Scale(window_palette, from_=0, to=31, command=slider_update)
+            hex_text = tk.Entry(window_palette, text="#000000")
+            button = tk.Button(window_palette, text="Set", command=color_set)
+            l_red = tk.Label(window_palette, text='R')
+            l_green = tk.Label(window_palette, text='G')
+            l_blue = tk.Label(window_palette, text='B')
+
+            l_red.grid(row=1, column=1)
+            l_green.grid(row=1, column=2)
+            l_blue.grid(row=1, column=3)
+            red_slider.grid(row=2, column=1)
+            green_slider.grid(row=2, column=2)
+            blue_slider.grid(row=2, column=3)
+            canvas.grid(row=3, column=1, columnspan=3)
+            hex_text.grid(row=4, column=1, columnspan=3)
+            button.grid(row=5, column=1, columnspan=3)'''
+
+        def set_transparent_color_index():
+            """
+            Resort palette to make transparent color in the first slot of each row.
+            :return: None
+            """
+            window_transparent_index = tk.Toplevel(window_image)
+            window_transparent_index.title('Index')
+
+            color_size = 32
+
+            def show_color():
+                """
+                Show color from index in palette.
+                :return: None.
+                """
+                nonlocal palette
+                if int(e_index_row.get()) in range(16) and int(e_index_column.get()) in range(16):
+                    color_index = 16 * int(e_index_row.get()) + int(e_index_column.get())
+                    r = palette[3 * color_index]
+                    g = palette[3 * color_index + 1]
+                    b = palette[3 * color_index + 2]
+                    canvas.config(bg='#%02X%02X%02X' % (r, g, b))
+
+            def callback(e):
+                """
+                Refresh shown color.
+                :param e: useless.
+                :return: None.
+                """
+                show_color()
+
+            def sort_palette():
+                """
+                Sort palette to make transparent color in the 1st slot of each row.
+                :return: None
+                """
+                nonlocal palette
+                nonlocal img_last
+                nonlocal img_edit
+                palette = img_edit.getpalette()
+                transparent_index = 16 * int(e_index_row.get()) + int(e_index_column.get())
+                '''r = palette[3 * transparent_index]
+                g = palette[3 * transparent_index + 1]
+                b = palette[3 * transparent_index + 2]
+                for i in range(3):
+                    palette.pop(3 * transparent_index)
+                for i in range(16):
+                    palette.insert(3 * i, r)
+                    palette.insert(3 * i + 1, g)
+                    palette.insert(3 * i + 2, b)'''
+                dest_map = list(range(256))
+                dest_map.pop(transparent_index)
+                # for i in range(16):
+                    # dest_map.insert(16 * i, transparent_index)
+                dest_map.insert(0, transparent_index)
+                for i in range(1, 16):
+                    dest_map.insert(16 * i, 255)
+                img_last = img_edit
+                img_edit = img_edit.remap_palette(dest_map[:256])
+                palette = img_edit.getpalette()
+                for i in range(1, 16):
+                    palette[16 * 3 * i] = palette[0]
+                    palette[16 * 3 * i + 1] = palette[1]
+                    palette[16 * 3 * i + 2] = palette[2]
+                img_edit.putpalette(palette)
+                refresh()
+                window_transparent_index.destroy()
+
+            index_row = tk.StringVar(window_transparent_index)
+            index_row.set('0')
+            l_index_row = tk.Label(window_transparent_index, text='row')
+            e_index_row = tk.Entry(window_transparent_index, textvariable=index_row, width=2)
+            e_index_row.bind('<Return>', (lambda _: callback(e_index_row)))
+            l_index_row.grid(row=1, column=1)
+            e_index_row.grid(row=1, column=2)
+
+            index_column = tk.StringVar(window_transparent_index)
+            index_column.set('0')
+            l_index_column = tk.Label(window_transparent_index, text='column')
+            e_index_column = tk.Entry(window_transparent_index, textvariable=index_column, width=2)
+            e_index_column.bind('<Return>', (lambda _: callback(e_index_column)))
+            l_index_column.grid(row=2, column=1)
+            e_index_column.grid(row=2, column=2)
+
+            canvas = tk.Canvas(window_transparent_index, width=color_size, height=color_size)
+            canvas.grid(row=1, column=3)
+            show_color()
+
+            btn_sort_palette = tk.Button(window_transparent_index, text='Set', command=sort_palette)
+            btn_sort_palette.grid(row=3, column=2)
+
+        def change_transparent_color():
+            """
+            Change tranparent color.
+            :return: None
+            """
+            nonlocal palette
+            nonlocal img_last
+            nonlocal img_edit
+            palette = img_edit.getpalette()
+            color = tk.colorchooser.askcolor()
+            if color is not None:
+                for i in range(16):
+                    palette[16 * 3 * i] = math.floor(color[0][0])
+                    palette[16 * 3 * i + 1] = math.floor(color[0][1])
+                    palette[16 * 3 * i + 2] = math.floor(color[0][2])
+            img_last = img_edit
+            img_edit.putpalette(palette)
+            refresh()
+
+        menu_bar_image = tk.Menu(window_image)
+        menu_load = tk.Menu(menu_bar_image, tearoff=0)
+        menu_edit = tk.Menu(menu_bar_image, tearoff=0)
+        menu_save = tk.Menu(menu_bar_image, tearoff=0)
+        menu_bar_image.add_cascade(label='Load', menu=menu_load)
+        menu_bar_image.add_cascade(label='Edit', menu=menu_edit)
+        menu_bar_image.add_cascade(label='Save', menu=menu_save)
+        menu_load.add_command(label='Image', command=load_image)
+        menu_save.add_command(label='Image', command=save_image)
+        submenu_transparent = tk.Menu(menu_edit, tearoff=0)
+        menu_edit.add_cascade(label='Tranparent Color', menu=submenu_transparent, underline=0)
+        submenu_transparent.add_command(label="Index", command=set_transparent_color_index)
+        submenu_transparent.add_command(label="Change", command=change_transparent_color)
+        menu_edit.add_command(label="Undo", command=undo)
+        menu_edit.add_command(label="Undo All", command=undo_all)
+
+        window_image.config(menu=menu_bar_image)
+
+        l_palette = tk.Label(window_image, text='Palette', compound='bottom')
+        l_palette.pack()
+
+        l_image = tk.Label(window_image, text='Image', compound='bottom')
+        l_image.pack()
+
+        l_size = tk.Label(window_image, textvariable=size)
+        l_size.pack()
 
     def show_battle_animation_window():
         """
