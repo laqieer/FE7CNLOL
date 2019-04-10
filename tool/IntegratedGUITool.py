@@ -11,6 +11,7 @@ import tkinter.messagebox
 import tkinter.colorchooser
 from tkinter import filedialog
 from PIL import Image, ImageTk, ImageDraw
+import GBAImage
 
 
 def convert_palette_to_image(image: Image, color_number=256, pixel_size=4):
@@ -474,6 +475,30 @@ def show_main_window():
         img_last: Image = None
 
         size = tk.StringVar(window_image, name='Image Size')
+        tile_number = tk.StringVar(window_image, name='Tile Number')
+        major_tile_number = tk.StringVar(window_image, name='Important Tile Number')
+
+        def count_major_tile_number(threshold):
+            """
+            Count tiles with more than threshold pixels.
+            :param threshold: pixel number
+            :return:None
+            """
+            nonlocal img_edit
+            if type(threshold) is not int:
+                threshold = int(threshold)
+            tileset = GBAImage.TileSet(img_edit)
+            major_tile_number.set("%d tiles have over %d pixels." %
+                                  (tileset.get_major_tile_number(threshold), threshold))
+
+        def count_tile_number():
+            """
+            Count tiles.
+            :return: None.
+            """
+            nonlocal img_edit
+            tileset = GBAImage.TileSet(img_edit)
+            tile_number.set("%d tiles." % tileset.get_non_blank_tile_number())
 
         def refresh():
             """
@@ -493,6 +518,8 @@ def show_main_window():
                 l_palette.config(image=ph_palette)
                 l_palette.image = ph_palette  # keep a reference!
                 size.set('Size: %d x %d' % (img_edit.width, img_edit.height))
+                count_tile_number()
+                count_major_tile_number(scale_threshold.get())
 
         def undo():
             """
@@ -540,6 +567,10 @@ def show_main_window():
             img_last = img_init.copy()
             img_edit = img_init.copy()
             size.set('Size: %d x %d' % (img_edit.width, img_edit.height))
+            # tileset = GBAImage.TileSet(img_edit)
+            # tile_number.set("%d Tiles" % tileset.get_non_blank_tile_number())
+            count_tile_number()
+            count_major_tile_number(scale_threshold.get())
             palette = img_edit.getpalette()
 
         def save_image():
@@ -726,6 +757,23 @@ def show_main_window():
                 img_edit = img_edit.crop(box)
             refresh()
 
+        def scale(scaling):
+            """
+            Scale the image.
+            :param scaling:
+            :return: None.
+            """
+            if type(scaling) is str:
+                scaling = float(scaling)
+            nonlocal img_last
+            nonlocal img_edit
+            nonlocal img_init
+            width = round(img_init.width * scaling)
+            height = round(img_init.height * scaling)
+            img_last = img_edit
+            img_edit = img_init.resize((width, height))
+            refresh()
+
         def requantize():
             """
             Reduce the color number.
@@ -865,6 +913,20 @@ def show_main_window():
 
         l_size = tk.Label(window_image, textvariable=size)
         l_size.pack()
+
+        l_tile_number = tk.Label(window_image, textvariable=tile_number)
+        l_tile_number.pack()
+
+        l_major_tile_number = tk.Label(window_image, textvariable=major_tile_number)
+        l_major_tile_number.pack()
+
+        scale_threshold = tk.Scale(window_image, label='Threshold', from_=0, to=64, orient=tk.HORIZONTAL, length=320,
+                                   showvalue=1, tickinterval=8, resolution=1, command=count_major_tile_number)
+        scale_threshold.pack()
+
+        scale_scaling = tk.Scale(window_image, label='Scaling', from_=0.1, to=1, orient=tk.HORIZONTAL, length=320,
+                                 showvalue=1, tickinterval=0.1, resolution=0.01, command=scale)
+        scale_scaling.pack()
 
     def show_battle_animation_window():
         """

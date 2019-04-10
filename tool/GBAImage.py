@@ -184,6 +184,13 @@ class Tile:
                 break
         return transparent
 
+    def get_non_transparent_pixel_number(self):
+        """
+        Count pixel number which are not transparent.
+        :return:
+        """
+        return 8 * 8 - self.pixel_list.count(0)
+
     def __eq__(self, other):
         return self.hash == other.hash
 
@@ -248,6 +255,31 @@ class TileSet:
                 elif tile == self.tile_matrix_horizontal_vertical_flip[y][x]:
                     return BGTile(tile_number, palette_number, horizontal_flip=1, vertical_flip=1)
         return None
+
+    def get_non_blank_tile_number(self):
+        """
+        Get tile number which are not blank.
+        :return: tile number
+        """
+        tile_number = 0
+        for y in range(self.height):
+            for x in range(self.width):
+                if not self.tile_matrix[y][x].is_transparent():
+                    tile_number += 1
+        return tile_number
+
+    def get_major_tile_number(self, threshold=3):
+        """
+        Count tile number which has more than threshold non transparent pixels
+        :param threshold:
+        :return: tile number
+        """
+        tile_number = 0
+        for y in range(self.height):
+            for x in range(self.width):
+                if self.tile_matrix[y][x].get_non_transparent_pixel_number() > threshold:
+                    tile_number += 1
+        return tile_number
 
 
 class BGTile:
