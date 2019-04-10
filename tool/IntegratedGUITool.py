@@ -333,6 +333,83 @@ def show_main_window():
             l_dialogue.config(image=ph_dialogue)
             l_dialogue.image = ph_dialogue
 
+        def make_portrait_status_screen():
+            """
+            Make status screen portrait from dialogue portrait.
+            :return: None
+            """
+            nonlocal img_dialogue
+            nonlocal img_status_screen
+            if img_dialogue is None:
+                tk.messagebox.showerror(title='Error', message='No dialogue portrait.')
+            else:
+                window_portrait_status_screen = tk.Toplevel(window_portrait)
+                window_portrait_status_screen.title('Status Screen Portrait')
+
+                cv_status_screen = tk.Canvas(window_portrait_status_screen,
+                                             width=img_dialogue.width, height=img_dialogue.height)
+                cv_status_screen.focus_set()
+                cv_status_screen.pack()
+                ph_dialogue = ImageTk.PhotoImage(img_dialogue)
+                cv_status_screen.create_image(0, 0, anchor='nw', image=ph_dialogue)
+                cv_status_screen.image = ph_dialogue
+
+                rect_status_screen = cv_status_screen.create_rectangle(0, 0, 80, 72, outline='red')
+
+                def move_left(event):
+                    """
+                    Move one tile left.
+                    :param event:
+                    :return:
+                    """
+                    cv_status_screen.move(rect_status_screen, -8, 0)
+
+                def move_right(event):
+                    """
+                    Move one tile right.
+                    :param event:
+                    :return:
+                    """
+                    cv_status_screen.move(rect_status_screen, 8, 0)
+
+                def move_up(event):
+                    """
+                    Move one tile up.
+                    :param event:
+                    :return:
+                    """
+                    cv_status_screen.move(rect_status_screen, 0, -8)
+
+                def move_down(event):
+                    """
+                    Move one tile down.
+                    :param event:
+                    :return:
+                    """
+                    cv_status_screen.move(rect_status_screen, 0, 8)
+
+                cv_status_screen.bind(sequence="<Left>", func=move_left)
+                cv_status_screen.bind(sequence="<Right>", func=move_right)
+                cv_status_screen.bind(sequence="<Up>", func=move_up)
+                cv_status_screen.bind(sequence="<Down>", func=move_down)
+
+                def confirm_portrait_status_screen():
+                    """
+                    Convert the part in the red rectangle to status screen portrait.
+                    :return:
+                    """
+                    nonlocal img_status_screen
+                    nonlocal img_dialogue
+                    img_status_screen = img_dialogue.crop(tuple(cv_status_screen.coords(rect_status_screen)))
+                    hf_status_screen = ImageTk.PhotoImage(img_status_screen)
+                    l_status_screen.config(image=hf_status_screen)
+                    l_status_screen.image = hf_status_screen
+                    window_portrait_status_screen.destroy()
+
+                btn_ok = tk.Button(window_portrait_status_screen, text='OK', command=confirm_portrait_status_screen)
+                btn_ok.pack()
+            pass
+
         def save_portrait_tileset():
             """
             Save portrait tileset to image.
@@ -423,6 +500,7 @@ def show_main_window():
         menu_load.add_command(label='Mouth Animation', command=load_mouth_animation)
         menu_make.add_command(label='Tileset', command=make_portrait_tileset)
         menu_make.add_command(label='Dialogue', command=make_portrait_dialogue)
+        menu_make.add_command(label='Status Screen', command=make_portrait_status_screen)
         menu_save.add_command(label='Tileset', command=save_portrait_tileset)
         menu_save.add_command(label='Dialogue', command=save_portrait_dialogue)
         menu_save.add_command(label='Template', command=save_dialogue_template)
