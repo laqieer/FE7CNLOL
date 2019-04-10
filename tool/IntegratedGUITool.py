@@ -113,7 +113,7 @@ def ask_and_save_image(image):
             image.save(image_file)
 
 
-def show_main_window():
+def show_main_window(argv):
     """
     Show main window.
     :return: process finished with exit code
@@ -153,6 +153,16 @@ def show_main_window():
         dict_dialogue_template: dict = None
         img_dialogue_template: Image = None
         img_dialogue_template_tileset: Image = None
+
+        offset_x = tk.IntVar()
+        offset_x.set(0)
+        offset_y = tk.IntVar()
+        offset_y.set(0)
+
+        wink_width = tk.IntVar()
+        wink_width.set(0)
+        wink_height = tk.IntVar()
+        wink_height.set(0)
 
         def load_portrait_dialogue():
             """
@@ -220,6 +230,8 @@ def show_main_window():
                 l_eye_animation.config(text="Eye: %d x %d" % (img_eye_animation.width, img_eye_animation.height // 3),
                                        image=ph_eye_animation)
                 l_eye_animation.image = ph_eye_animation  # keep a reference!
+                wink_width.set(math.ceil(img_eye_animation.width / 2))
+                wink_height.set(img_eye_animation.height // 3)
 
         def load_mouth_animation():
             """
@@ -564,6 +576,191 @@ def show_main_window():
                     img_dialogue_template_merge.paste(img_dialogue_template_tileset, (0, img_dialogue_template.height))
                     img_dialogue_template_merge.save(save_file)
 
+        def save_c_source():
+            """
+            Save to C source file and header.
+            :return:
+            """
+            if img_tileset is None:
+                tk.messagebox.showerror(title='Error', message='No portrait tileset.')
+            else:
+                c_file = tk.filedialog.asksaveasfilename(title='Save to C Source',
+                                                         filetypes=(("C source", "*.c"), ("all files", "*.*")))
+                if c_file is not None:
+                    header_file, _ = os.path.splitext(c_file)
+                    _, name = os.path.split(header_file)
+                    header_file += '.h'
+                    with open(header_file, 'w') as f:
+                        f.write('// Exported from' + os.path.basename(argv[0]) + '\n')
+                        f.write('''
+#pragma once
+#include "FE7JPortrait.h"
+#include "FE7JStructDef.h"                        
+                        ''')
+                        f.write('\nextern const PortraitNew portrait_%s;' % name)
+                    with open(c_file, 'w') as f:
+                        f.write('// Exported from' + os.path.basename(argv[0]) + '\n')
+                        f.write('#include \"portrait_%s.h\"\n' % name)
+                        palette = GBAImage.Palette(img_tileset.getpalette()[:3 * 16])
+                        f.write('\nconst unsigned short portrait_%s_palette[] __attribute__((aligned(4)))= ' % name)
+                        f.write(palette.tostring() + ';\n')
+                        f.write('\nconst unsigned char portrait_%s_tileset[] __attribute__((aligned(4)))= ' % name)
+                        tileset = GBAImage.TileSet(img_tileset)
+                        f.write(tileset.tostring().replace('{', '{0x0,0x4,0x10,0x0, ', 1) + ';\n')
+                        if dict_dialogue_template is not None:
+                            f.write('\nconst unsigned short portrait_%s_oam_left[] __attribute__((aligned(4)))=' % name)
+                            f.write('{%d, ' % len(dict_dialogue_template['OBJ']))
+                            for obj in dict_dialogue_template['OBJ']:
+                                w = obj['width']
+                                h = obj['height']
+                                x = obj['x']
+                                x = x - w // 2 + offset_x.get()
+                                y = obj['y']
+                                y = y - h + 80 + offset_y.get()
+                                tile_number = 32 * obj['tile_y'] + obj['tile_x']
+                                obj_attribute = GBAImage.OBJAttribute(tile_number,
+                                                                      width=w, height=h, x_coordinate=x, y_coordinate=y)
+                                f.write(obj_attribute.tostring())
+                            f.write('};\n')
+                            f.write('\nconst unsigned short portrait_%s_oam_right[] __attribute__((aligned(4)))=' % name)
+                            f.write('{%d, ' % len(dict_dialogue_template['OBJ']))
+                            for obj in dict_dialogue_template['OBJ']:
+                                w = obj['width']
+                                h = obj['height']
+                                x = obj['x']
+                                x = x - w // 2 + offset_x.get()
+                                x = - (x + w)
+                                y = obj['y']
+                                y = y - h + 80 + offset_y.get()
+                                tile_number = 32 * obj['tile_y'] + obj['tile_x']
+                                obj_attribute = GBAImage.OBJAttribute(
+                                    tile_number, width=w, height=h, x_coordinate=x, y_coordinate=y, horizontal_flip=1)
+                                f.write(obj_attribute.tostring())
+                            f.write('};\n')
+                        if img_status_screen is not None:
+                            map_status_sceen = GBAImage.BGMap(img_status_screen, img_tileset.getpalette(), tileset)
+                            f.write('\nconst unsigned short portrait_%s_tsa[] __attribute__((aligned(4)))=' % name)
+                            f.write(map_status_sceen.tostring_reverse() + ';\n')
+                            f.write('\nconst unsigned char portrait_%s_status_screen_mask[9][10] =' % name)
+                            f.write(map_status_sceen.tostring_mask() + ';\n')
+                        nonlocal img_mini
+                        if img_mini is not None:
+                            img_mini = GBAImage.reset_palette(img_mini, img_tileset.getpalette())
+                            f.write('\nconst unsigned char portrait_%s_mini[] __attribute__((aligned(4)))=' % name)
+                            tileset_mini = GBAImage.TileSet(img_mini)
+                            f.write(tileset_mini.tostring().replace('{', '{0x0,0x0,0x2,0x0, ', 1) + ';\n')
+                        nonlocal img_eye_animation
+                        if img_eye_animation is not None:
+                            img_eye_animation = GBAImage.reset_palette(img_eye_animation, img_tileset.getpalette())
+                            f.write('\nconst unsigned char portrait_%s_eye_animation[] __attribute__((aligned(4)))=' % name)
+                            tileset_eye_animation = GBAImage.TileSet(img_eye_animation)
+                            f.write(tileset_eye_animation.tostring() + ';\n')
+                        nonlocal img_mouth_animation
+                        if img_mouth_animation is not None:
+                            img_mouth_animation = GBAImage.reset_palette(img_mouth_animation, img_tileset.getpalette())
+                            f.write('\nconst unsigned char portrait_%s_mouth_animation[] __attribute__((aligned(4)))=' % name)
+                            tileset_mouth_animation = GBAImage.TileSet(img_mouth_animation)
+                            f.write(tileset_mouth_animation.tostring() + ';\n')
+                        if dict_dialogue_template is not None:
+                            f.write('\nconst PortraitOBJ portrait_%s_obj = {%d, %d, 0, 0, '
+                                    '&portrait_%s_oam_left, &portrait_%s_oam_right};\n' %
+                                    (name, dict_dialogue_template['width'],
+                                     dict_dialogue_template['height'], name, name))
+                        if img_status_screen is not None:
+                            f.write('\nconst PortraitBG portrait_%s_bg = '
+                                    '{&portrait_%s_tsa, &portrait_%s_status_screen_mask};\n' % (name, name, name))
+                        else:
+                            f.write('\nconst PortraitBG portrait_%s_bg = {NULL, NULL};\n' % name)
+                        # todo calculate start tile number of eye automatically
+                        if img_eye_animation is not None:
+                            w = img_eye_animation.width
+                            h = img_eye_animation.height // 3
+                            f.write('\nconst EyeAnimation portrait_%s_eye = '
+                                    '{%d, %d, %d, %d, 0, &portrait_%s_eye_animation};\n'
+                                    % (name, w, h, wink_width.get(), wink_height.get(), name))
+                        else:
+                            f.write('\nconst EyeAnimation portrait_%s_eye = {0, 0, 0, 0, 0, NULL};\n' % name)
+                        # todo calculate start tile number of mouth automatically
+                        if img_mouth_animation is not None:
+                            w = img_mouth_animation.width
+                            h = img_mouth_animation.height // 6
+                            f.write('\nconst MouthAnimation portrait_%s_mouth = '
+                                    '{%d, %d, 0, &portrait_%s_mouth_animation};\n'
+                                    % (name, w, h, name))
+                        else:
+                            f.write('\nconst MouthAnimation portrait_%s_mouth = {0, 0, 0, NULL};\n' % name)
+                        f.write('\nconst char portrait_%s_name[] = \"%s\";\n' % (name, name))
+                        f.write('\nconst PortraitExtra portrait_%s_extra_info = {' % name)
+                        if dict_dialogue_template is None:
+                            f.write('NULL, ')
+                        else:
+                            f.write('&portrait_%s_obj, ' % name)
+                        f.write('&portrait_%s_bg, &portrait_%s_eye, &portrait_%s_mouth, &portrait_%s_name};\n'
+                                % (name, name, name, name))
+                        f.write('const PortraitNew portrait_%s = {&portrait_%s_tileset, ' % (name, name))
+                        if img_mini is None:
+                            f.write('NULL, ')
+                        else:
+                            f.write('&portrait_%s_mini, ' % name)
+                        f.write('&portrait_%s_palette, ' % name)
+                        f.write('&portrait_%s_extra_info, NULL, NULL, 1, -1, 0};\n' % name)
+                        
+        def make_portrait_wink():
+            """
+            Set wink width and height.
+            :return: 
+            """
+            if img_eye_animation is None:
+                tk.messagebox.showerror(title='Error', message='No eye animation.')
+            else:
+                window_wink = tk.Toplevel(window_portrait)
+                window_wink.title('Wink')
+                eye_width = img_eye_animation.width
+                eye_height = img_eye_animation.height // 3
+                cv_wink = tk.Canvas(window_wink, width=eye_width, height=eye_height, bd=0)
+                cv_wink.pack()
+                cv_wink.focus_set()
+                ph_eye = ImageTk.PhotoImage(img_eye_animation.crop((0, 0, eye_width, eye_height)))
+                cv_wink.create_image(0, 0, anchor='nw', image=ph_eye)
+                # invisible label to keep reference to ph_eye
+                l_eye = tk.Label(window_wink, image=ph_eye)
+                # l_eye.pack()
+                l_eye.image = ph_eye
+                line_vertical = cv_wink.create_line(eye_width - wink_width.get(), 0,
+                                               eye_width - wink_width.get(), eye_height, fill='red')
+                line_horizontal = cv_wink.create_line(
+                    0, eye_height - wink_height.get(), eye_width, eye_height - wink_height.get(),
+                    fill='red')
+
+                def set_wink_area():
+                    """
+                    Set wink width and height.
+                    :return:
+                    """
+                    wink_width.set(eye_width - cv_wink.coords(line_vertical)[0])
+                    wink_height.set(eye_height - cv_wink.coords(line_horizontal)[1])
+                    window_wink.destroy()
+
+                def move_left(event):
+                    cv_wink.move(line_vertical, -8, 0)
+
+                def move_right(event):
+                    cv_wink.move(line_vertical, 8, 0)
+
+                def move_up(event):
+                    cv_wink.move(line_horizontal, 0, -8)
+
+                def move_down(event):
+                    cv_wink.move(line_horizontal, 0, 8)
+
+                cv_wink.bind(sequence='<Left>', func=move_left)
+                cv_wink.bind(sequence='<Right>', func=move_right)
+                cv_wink.bind(sequence='<Up>', func=move_up)
+                cv_wink.bind(sequence='<Down>', func=move_down)
+
+                btn_ok = tk.Button(window_wink, text='OK', command=set_wink_area)
+                btn_ok.pack()
+
         menu_bar_portrait = tk.Menu(window_portrait)
         menu_load = tk.Menu(menu_bar_portrait, tearoff=0)
         menu_make = tk.Menu(menu_bar_portrait, tearoff=0)
@@ -582,6 +779,7 @@ def show_main_window():
         menu_make.add_command(label='Dialogue', command=make_portrait_dialogue)
         menu_make.add_command(label='Status Screen', command=make_portrait_status_screen)
         menu_make.add_command(label='Mini', command=make_portrait_mini)
+        menu_make.add_command(label='Wink', command=make_portrait_wink)
         menu_save.add_command(label='Tileset', command=save_portrait_tileset)
         menu_save.add_command(label='Dialogue', command=save_portrait_dialogue)
         menu_save.add_command(label='Template', command=save_dialogue_template)
@@ -589,6 +787,7 @@ def show_main_window():
         menu_save.add_command(label='Mini', command=save_portrait_mini)
         menu_save.add_command(label='Eye Animation', command=save_eye_animation)
         menu_save.add_command(label='Mouth Animation', command=save_mouth_animation)
+        menu_save.add_command(label='C Source', command=save_c_source)
 
         window_portrait.config(menu=menu_bar_portrait)
 
@@ -1109,4 +1308,4 @@ def show_main_window():
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        show_main_window()
+        show_main_window(sys.argv)
