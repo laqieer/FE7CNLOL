@@ -410,6 +410,86 @@ def show_main_window():
                 btn_ok.pack()
             pass
 
+        def make_portrait_mini():
+            """
+            Make mini portrait from dialogue portrait.
+            :return:
+            """
+            nonlocal img_dialogue
+            nonlocal img_mini
+            if img_dialogue is None:
+                tk.messagebox.showerror(title='Error', message='No dialogue portrait.')
+            else:
+                window_portrait_mini = tk.Toplevel(window_portrait)
+                window_portrait_mini.title('Mini Portrait')
+
+                cv_mini = tk.Canvas(window_portrait_mini, width=img_dialogue.width, height=img_dialogue.height)
+                cv_mini.focus_set()
+                cv_mini.pack()
+                ph_dialogue = ImageTk.PhotoImage(img_dialogue)
+                cv_mini.create_image(0, 0, anchor='nw', image=ph_dialogue)
+                cv_mini.image = ph_dialogue
+
+                rect_mini = cv_mini.create_rectangle(0, 0, 64, 64, outline='red')
+
+                x = tk.IntVar()
+                y = tk.IntVar()
+                size = tk.IntVar()
+
+                def mouse_press(event):
+                    """
+                    Handler to press the mouse.
+                    :param event:
+                    :return:
+                    """
+                    cv_mini.delete(rect_mini)
+                    x.set(event.x)
+                    y.set(event.y)
+
+                def mouse_release(event):
+                    """
+                    Handler to release the mouse.
+                    :param event:
+                    :return:
+                    """
+                    x1 = x.get()
+                    x2 = event.x
+                    y1 = y.get()
+                    y2 = event.y
+                    if x1 > x2:
+                        x1, x2 = x2, x1
+                        x.set(x2)
+                    if y1 > y2:
+                        y1, y2 = y2, y1
+                        y.set(y2)
+                    if x2 - x1 > y2 - y1:
+                        size.set(x2 - x1)
+                        y2 = y1 + x2 - x1
+                    else:
+                        size.set(y2 - y1)
+                        x2 = x1 + y2 - y1
+                    rect_mini = cv_mini.create_rectangle(x1, y1, x2, y2, outline='red')
+
+                cv_mini.bind(sequence="<ButtonPress-1>", func=mouse_press)
+                cv_mini.bind(sequence="<ButtonRelease-1>", func=mouse_release)
+
+                def confirm_portrait_mini():
+                    """
+                    Confirm and make mini portrait.
+                    :return:
+                    """
+                    nonlocal img_dialogue
+                    nonlocal img_mini
+                    img_mini = img_dialogue.resize(size=(32, 32),
+                                                   box=(x.get(), y.get(), x.get() + size.get(), y.get() + size.get()))
+                    ph_mini = ImageTk.PhotoImage(img_mini)
+                    l_mini.config(image=ph_mini)
+                    l_mini.image = ph_mini
+                    window_portrait_mini.destroy()
+
+                btn_ok = tk.Button(window_portrait_mini, text='OK', command=confirm_portrait_mini)
+                btn_ok.pack()
+
         def save_portrait_tileset():
             """
             Save portrait tileset to image.
@@ -501,6 +581,7 @@ def show_main_window():
         menu_make.add_command(label='Tileset', command=make_portrait_tileset)
         menu_make.add_command(label='Dialogue', command=make_portrait_dialogue)
         menu_make.add_command(label='Status Screen', command=make_portrait_status_screen)
+        menu_make.add_command(label='Mini', command=make_portrait_mini)
         menu_save.add_command(label='Tileset', command=save_portrait_tileset)
         menu_save.add_command(label='Dialogue', command=save_portrait_dialogue)
         menu_save.add_command(label='Template', command=save_dialogue_template)
