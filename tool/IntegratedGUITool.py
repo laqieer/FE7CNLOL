@@ -735,13 +735,15 @@ def show_main_window(argv):
                         nonlocal img_eye_animation
                         if img_eye_animation is not None:
                             img_eye_animation = GBAImage.reset_palette(img_eye_animation, img_tileset.getpalette())
-                            f.write('\nconst unsigned char portrait_%s_eye_animation[] __attribute__((aligned(4)))=' % name)
+                            f.write('\nconst unsigned char portrait_%s_eye_animation[] __attribute__((aligned(4)))='
+                                    % name)
                             tileset_eye_animation = GBAImage.TileSet(img_eye_animation)
                             f.write(tileset_eye_animation.tostring() + ';\n')
                         nonlocal img_mouth_animation
                         if img_mouth_animation is not None:
                             img_mouth_animation = GBAImage.reset_palette(img_mouth_animation, img_tileset.getpalette())
-                            f.write('\nconst unsigned char portrait_%s_mouth_animation[] __attribute__((aligned(4)))=' % name)
+                            f.write('\nconst unsigned char portrait_%s_mouth_animation[] __attribute__((aligned(4)))='
+                                    % name)
                             tileset_mouth_animation = GBAImage.TileSet(img_mouth_animation)
                             f.write(tileset_mouth_animation.tostring() + ';\n')
                         if dict_dialogue_template is not None:
@@ -752,8 +754,8 @@ def show_main_window(argv):
                         if img_status_screen is not None:
                             f.write('\nconst PortraitBG portrait_%s_bg = '
                                     '{&portrait_%s_tsa, &portrait_%s_status_screen_mask};\n' % (name, name, name))
-                        else:
-                            f.write('\nconst PortraitBG portrait_%s_bg = {NULL, NULL};\n' % name)
+                        # else:
+                            # f.write('\nconst PortraitBG portrait_%s_bg = {NULL, NULL};\n' % name)
                         # todo calculate start tile number of eye automatically
                         if img_eye_animation is not None:
                             w = img_eye_animation.width
@@ -761,8 +763,8 @@ def show_main_window(argv):
                             f.write('\nconst EyeAnimation portrait_%s_eye = '
                                     '{%d, %d, %d, %d, 0, &portrait_%s_eye_animation};\n'
                                     % (name, w, h, wink_width.get(), wink_height.get(), name))
-                        else:
-                            f.write('\nconst EyeAnimation portrait_%s_eye = {0, 0, 0, 0, 0, NULL};\n' % name)
+                        # else:
+                            # f.write('\nconst EyeAnimation portrait_%s_eye = {0, 0, 0, 0, 0, NULL};\n' % name)
                         # todo calculate start tile number of mouth automatically
                         if img_mouth_animation is not None:
                             w = img_mouth_animation.width
@@ -770,16 +772,29 @@ def show_main_window(argv):
                             f.write('\nconst MouthAnimation portrait_%s_mouth = '
                                     '{%d, %d, 0, &portrait_%s_mouth_animation};\n'
                                     % (name, w, h, name))
-                        else:
-                            f.write('\nconst MouthAnimation portrait_%s_mouth = {0, 0, 0, NULL};\n' % name)
+                        # else:
+                            # f.write('\nconst MouthAnimation portrait_%s_mouth = {0, 0, 0, NULL};\n' % name)
                         f.write('\nconst char portrait_%s_name[] = \"%s\";\n' % (name, name))
                         f.write('\nconst PortraitExtra portrait_%s_extra_info = {' % name)
                         if dict_dialogue_template is None:
                             f.write('NULL, ')
                         else:
                             f.write('&portrait_%s_obj, ' % name)
-                        f.write('&portrait_%s_bg, &portrait_%s_eye, &portrait_%s_mouth, &portrait_%s_name};\n'
-                                % (name, name, name, name))
+                        if img_status_screen is None:
+                            f.write('NULL, ')
+                        else:
+                            f.write('&portrait_%s_bg, ' % name)
+                        if img_eye_animation is None:
+                            f.write('NULL, ')
+                        else:
+                            f.write('&portrait_%s_eye, ' % name)
+                        if img_mouth_animation is None:
+                            f.write('NULL, ')
+                        else:
+                            f.write('&portrait_%s_mouth, ' % name)
+                        f.write('&portrait_%s_name};\n' % name)
+                        # f.write('&portrait_%s_bg, &portrait_%s_eye, &portrait_%s_mouth, &portrait_%s_name};\n'
+                        #     % (name, name, name, name))
                         f.write('const PortraitNew portrait_%s = {&portrait_%s_tileset, ' % (name, name))
                         if img_mini is None:
                             f.write('NULL, ')

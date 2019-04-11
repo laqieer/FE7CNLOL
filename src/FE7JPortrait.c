@@ -251,7 +251,7 @@ void blinkOrWinkNew(u32 *mempool, int eyeStatus)
 	data = mempool[11];
 	portrait = data[11];
 
-	if(portrait->extra->eye->frame && portrait->extra->eye->width && portrait->extra->eye->height)
+	if(portrait->extra->eye && portrait->extra->eye->frame && portrait->extra->eye->width && portrait->extra->eye->height)
 	{
 		tileNumFrame = (portrait->extra->eye->width / 8) * (portrait->extra->eye->height / 8);
 		if(eyeStatus & (~0x81))
@@ -484,7 +484,7 @@ void chooseDialoguePortraitOAM(u32 *data)
 
 	portrait = (pPortraitNew)data[11];
 	flag1 = data[12] & 0x807;
-	if(isNewPortraitExtension(portrait))
+	if(isNewPortraitExtension(portrait) && portrait->extra->obj)
 	{
 		if(flag1 == 0x800 || flag1 == 0x801 || flag1 <= 5)
 		{
@@ -583,7 +583,7 @@ void showStatusScreenPortrait(u16 *TSABufferInWRAM, int portraitID, int presentB
 		writePlainTSA(TSABufferInWRAM, (presentBGPaletteIndex << 12) + (presentBGTileIndex & 0x3FF), 10, 9);
 		return;
 	}
-	if(portrait->tileset && portrait->extra->bg->tsa)
+	if(portrait->tileset && portrait->extra->bg && portrait->extra->bg->tsa)
 	{
 		AutoCopyOrDecompressImageToVRAM(portrait->tileset, 32 * presentBGTileIndex + 0x6000000);
 		OutputToBGPaletteBuffer(portrait->palette, 32 * presentBGPaletteIndex, 32);
@@ -713,7 +713,7 @@ void playMouthAnimation(int *mempool)
 	portrait = data[11];
 	if(isNewPortraitExtension(portrait))
 	{
-		if(portrait->extra->mouth->frame && portrait->extra->mouth->width && portrait->extra->mouth->height)
+		if(portrait->extra->mouth && portrait->extra->mouth->frame && portrait->extra->mouth->width && portrait->extra->mouth->height)
 		{
 			data = mempool[11];
 			portrait = data[11];
