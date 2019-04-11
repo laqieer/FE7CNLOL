@@ -256,6 +256,30 @@ class TileSet:
                     return BGTile(tile_number, palette_number, horizontal_flip=1, vertical_flip=1)
         return None
 
+    def find_subset(self, other):
+        """
+        Find subset in the tileset
+        :param tileset: TileSet
+        :return: the start tile number (left-top)
+        """
+        if other.width > self.width or other.height > self.height:
+            return None
+        for y in range(self.height - other.height):
+            for x in range(self.width - other.width):
+                if self.tile_matrix[y][x] == other.tile_matrix[0][0]:
+                    print(x, y)
+                    is_different = False
+                    for y1 in range(other.height):
+                        for x1 in range(other.width):
+                            if self.tile_matrix[y + y1][x + x1] != other.tile_matrix[y1][x1]:
+                                is_different = True
+                                break
+                        if is_different:
+                            break
+                    if not is_different:
+                        return y * (self.width // 8) + x
+        return None
+
     def get_non_blank_tile_number(self):
         """
         Get tile number which are not blank.

@@ -705,7 +705,8 @@ def show_main_window(argv):
                                                                       width=w, height=h, x_coordinate=x, y_coordinate=y)
                                 f.write(obj_attribute.tostring())
                             f.write('};\n')
-                            f.write('\nconst unsigned short portrait_%s_oam_right[] __attribute__((aligned(4)))=' % name)
+                            f.write('\nconst unsigned short portrait_%s_oam_right[] __attribute__((aligned(4)))=' 
+                                    % name)
                             f.write('{%d, ' % len(dict_dialogue_template['OBJ']))
                             for obj in dict_dialogue_template['OBJ']:
                                 w = obj['width']
@@ -760,18 +761,37 @@ def show_main_window(argv):
                         if img_eye_animation is not None:
                             w = img_eye_animation.width
                             h = img_eye_animation.height // 3
-                            f.write('\nconst EyeAnimation portrait_%s_eye = '
-                                    '{%d, %d, %d, %d, 0, &portrait_%s_eye_animation};\n'
-                                    % (name, w, h, wink_width.get(), wink_height.get(), name))
+                            img_eye_frame = img_mouth_animation.crop((0, h * 2, w, h * 3))
+                            tileset_eye_frame = GBAImage.TileSet(img_eye_frame)                            
+                            tile_number_eye = tileset.find_subset(tileset_eye_frame)
+                            if tile_number_eye is None:
+                                tk.messagebox.showwarning(title='Warning', 
+                                                          message='Cannot locate eye frame automatically.')
+                                f.write('\nconst EyeAnimation portrait_%s_eye = '
+                                        '{%d, %d, %d, %d, 0, &portrait_%s_eye_animation};\n'
+                                        % (name, w, h, wink_width.get(), wink_height.get(), name))
+                            else:
+                                f.write('\nconst EyeAnimation portrait_%s_eye = '
+                                        '{%d, %d, %d, %d, %d, &portrait_%s_eye_animation};\n'
+                                        % (name, w, h, wink_width.get(), wink_height.get(), tile_number_eye, name))
                         # else:
                             # f.write('\nconst EyeAnimation portrait_%s_eye = {0, 0, 0, 0, 0, NULL};\n' % name)
                         # todo calculate start tile number of mouth automatically
                         if img_mouth_animation is not None:
                             w = img_mouth_animation.width
                             h = img_mouth_animation.height // 6
-                            f.write('\nconst MouthAnimation portrait_%s_mouth = '
-                                    '{%d, %d, 0, &portrait_%s_mouth_animation};\n'
-                                    % (name, w, h, name))
+                            img_mouth_frame = img_mouth_animation.crop((0, h * 5, w, h * 6))
+                            tileset_mouth_frame = GBAImage.TileSet(img_mouth_frame)                            
+                            tile_number_mouth = tileset.find_subset(tileset_mouth_frame)
+                            if tile_number_mouth is None:
+                                tk.messagebox.showwarning(title='Warning', 
+                                                          message='Cannot locate mouth frame automatically.')
+                                f.write('\nconst MouthAnimation portrait_%s_mouth = '
+                                        '{%d, %d, 0, &portrait_%s_mouth_animation};\n' % (name, w, h, name))
+                            else:
+                                f.write('\nconst MouthAnimation portrait_%s_mouth = '
+                                        '{%d, %d, %d, &portrait_%s_mouth_animation};\n'
+                                        % (name, w, h, tile_number_mouth, name))
                         # else:
                             # f.write('\nconst MouthAnimation portrait_%s_mouth = {0, 0, 0, NULL};\n' % name)
                         f.write('\nconst char portrait_%s_name[] = \"%s\";\n' % (name, name))
