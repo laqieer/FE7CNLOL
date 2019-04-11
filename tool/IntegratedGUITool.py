@@ -6,12 +6,83 @@ import sys
 import os
 import math
 import json
+import getopt
 import tkinter as tk
 import tkinter.messagebox
 import tkinter.colorchooser
 from tkinter import filedialog
-from PIL import Image, ImageTk, ImageDraw
+from PIL import Image, ImageTk, ImageDraw, PaletteFile, GimpPaletteFile, ImageColor
 import GBAImage
+from codecs import encode
+
+
+def act_to_list(act_file):
+    # fixme Important sidenote: Adobe sometimes does weird stuff, like filling the last bits with 00ff ffff ffff,
+    # which totally ruins color amount recognition. I haven't found the documentation for the fileformat,
+    # so I don't really know what's going on there. It seems the total_colors_count is the most reliable bit of
+    # information we have, as it is least likely to get filled with fff even if we make color tables 2 or 4 colors long,
+    #  where as color_count has the tendency to be broken on less than 128 colors palette tables.
+    with open(act_file, 'rb') as act:
+        raw_data = act.read()  # Read binary data
+    hex_data = encode(raw_data, 'hex')  # Convert it to hexadecimal values
+    total_colors_count = (int(hex_data[-7:-4], 16))  # Get last 3 digits to get number of colors total
+    misterious_count = (int(hex_data[-4:-3], 16))  # I have no idea what does it do
+    colors_count = (int(hex_data[-3:], 16))  # Get last 3 digits to get number of nontransparent colors
+
+    # Decode colors from hex to string and split it by 6 (because colors are #1c1c1c)
+    colors = [hex_data[i:i + 6].decode() for i in range(0, total_colors_count * 6, 6)]
+
+    # Add # to each item and filter empty items if there is a corrupted total_colors_count bit
+    colors = ['#' + i for i in colors if len(i)]
+
+    return colors, total_colors_count
+
+
+def show_palette(palette, size=4):
+    """
+    Show palette.
+    :param palette: RGB list
+    :return: Image
+    """
+    colors = len(palette) // 3
+    rows = math.ceil(colors / 16)
+    width = size * 16
+    height = size * rows
+    image = Image.new("P", (width, height))
+    draw = ImageDraw.Draw(image)
+    for row in range(rows):
+        for col in range(16):
+            draw.rectangle((size * col, size * row, size * (col + 1), size * (row + 1),),
+                           fill=tuple(palette[3 * (16 * row + col): 3 * (16 * row + col + 1)]))
+    return image
+
+
+def read_palette(palette_file):
+    """
+    Read palette file.
+    :param palette_file: filename
+    :return: palette. RGB list.
+    """
+    _, ext = os.path.splitext(palette_file)
+    rgb_list = []
+    if ext in [".act", ".ACT"]:
+        palette, _ = act_to_list(palette_file)
+        for i, color in enumerate(palette):
+            color = ImageColor.getrgb(color)
+            rgb_list += list(color)
+    elif ext in [".gpl", ".GPL"]:
+        with open(palette_file, 'rb') as f:
+            palette = GimpPaletteFile.GimpPaletteFile(f)
+            for i in palette.getpalette():
+                for j in i:
+                    rgb_list.append(j)
+    else:
+        with open(palette_file, 'rb') as f:
+            palette = PaletteFile.PaletteFile(f)
+            for i in palette.getpalette():
+                for j in i:
+                    rgb_list.append(j)
+    return rgb_list
 
 
 def convert_palette_to_image(image: Image, color_number=256, pixel_size=4):
@@ -97,6 +168,18 @@ def ask_and_open_json():
     if json_file is not None:
         with open(json_file, 'r') as f:
             return json.load(f)
+
+
+def ask_and_open_palette():
+    """
+    Ask user for a palette file.
+    :return: palette. RGB list.
+    """
+    palette_file = filedialog.askopenfilename(title='Open Palette', filetypes=[
+        ('PhotoShop Palette', '*.ACT'), ('GIMP Palette', '*.gpl'), ('Teragon-style Palette', '*')])
+    if palette_file is not None:
+        palette = read_palette(palette_file)
+    return palette
 
 
 def ask_and_save_image(image):
@@ -826,7 +909,7 @@ def show_main_window(argv):
         window_image = tk.Toplevel(window)
         window_image.title('Image')
 
-        palette = [0] * 3 * 356
+        palette = [0] * 3 * 256
         img_init: Image = None
         img_palette: Image = None
         img_edit: Image = None
@@ -930,6 +1013,27 @@ def show_main_window(argv):
             count_tile_number()
             count_major_tile_number(scale_threshold.get())
             palette = img_edit.getpalette()
+
+        def load_palette():
+            """
+            Load palette and requantize image.
+            :return: None.
+            """
+            nonlocal palette
+            nonlocal img_edit
+            nonlocal img_last
+            palette = ask_and_open_palette()
+            if palette is not None:
+                img_palette = show_palette(palette)
+                ph_palette = ImageTk.PhotoImage(img_palette)
+                l_palette.config(image=ph_palette)
+                l_palette.image = ph_palette
+                # requantize the image
+                if img_edit is not None:
+                    img_last = img_edit
+                    img_edit = img_edit.convert("RGB")
+                    img_edit = img_edit.quantize(palette=img_palette)
+                    img_edit = GBAImage.reset_palette(img_edit, palette)
 
         def save_image():
             """
@@ -1250,6 +1354,7 @@ def show_main_window(argv):
         menu_bar_image.add_cascade(label='Edit', menu=menu_edit)
         menu_bar_image.add_cascade(label='Save', menu=menu_save)
         menu_load.add_command(label='Image', command=load_image)
+        menu_load.add_command(label='Palette', command=load_palette)
         menu_save.add_command(label='Image', command=save_image)
         submenu_transparent = tk.Menu(menu_edit, tearoff=0)
         menu_edit.add_cascade(label='Tranparent Color', menu=submenu_transparent, underline=0)
@@ -1309,3 +1414,15 @@ def show_main_window(argv):
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         show_main_window(sys.argv)
+    else:
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "", ["palette="])
+        except getopt.GetoptError:
+            print("Commandline is for debugging. Use GUI instead.")
+            sys.exit(-1)
+        pass
+        for opt, arg in opts:
+            if opt in ["--palette"]:
+                palette_file = arg
+                palette = read_palette(palette_file)
+                print(palette)
