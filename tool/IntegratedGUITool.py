@@ -207,7 +207,11 @@ def show_main_window(argv):
     # welcome image
     cv = tk.Canvas(window, width=445, height=127)
     cv.pack()
-    img_welcome_file = tk.PhotoImage(file="welcome.gif")
+    if os.path.isfile("welcome.gif"):
+        welcome_file = "welcome.gif"
+    elif os.path.isfile("tool/welcome.gif"):
+        welcome_file = "tool/welcome.gif"
+    img_welcome_file = tk.PhotoImage(file=welcome_file)
     cv.create_image(0, 0, anchor='nw', image=img_welcome_file)
 
     # menu bar
@@ -537,6 +541,7 @@ def show_main_window(argv):
                     :param event:
                     :return:
                     """
+                    nonlocal rect_mini
                     cv_mini.delete(rect_mini)
                     x.set(event.x)
                     y.set(event.y)
@@ -547,6 +552,7 @@ def show_main_window(argv):
                     :param event:
                     :return:
                     """
+                    nonlocal rect_mini
                     x1 = x.get()
                     x2 = event.x
                     y1 = y.get()
@@ -683,7 +689,7 @@ def show_main_window(argv):
                         f.write('\nextern const PortraitNew portrait_%s;' % name)
                     with open(c_file, 'w') as f:
                         f.write('// Exported from' + os.path.basename(argv[0]) + '\n')
-                        f.write('#include \"portrait_%s.h\"\n' % name)
+                        f.write('#include \"%s.h\"\n' % name)
                         palette = GBAImage.Palette(img_tileset.getpalette()[:3 * 16])
                         f.write('\nconst unsigned short portrait_%s_palette[] __attribute__((aligned(4)))= ' % name)
                         f.write(palette.tostring() + ';\n')
@@ -697,13 +703,13 @@ def show_main_window(argv):
                                 w = obj['width']
                                 h = obj['height']
                                 x = obj['x']
-                                x = x - w // 2 + offset_x.get()
+                                x = x - dict_dialogue_template['width'] // 2 + offset_x.get()
                                 y = obj['y']
-                                y = y - h + 80 + offset_y.get()
+                                y = y - dict_dialogue_template['height'] + 80 + offset_y.get()
                                 tile_number = 32 * obj['tile_y'] + obj['tile_x']
                                 obj_attribute = GBAImage.OBJAttribute(tile_number,
                                                                       width=w, height=h, x_coordinate=x, y_coordinate=y)
-                                f.write(obj_attribute.tostring())
+                                f.write(obj_attribute.tostring() + ',')
                             f.write('};\n')
                             f.write('\nconst unsigned short portrait_%s_oam_right[] __attribute__((aligned(4)))=' 
                                     % name)
@@ -712,14 +718,14 @@ def show_main_window(argv):
                                 w = obj['width']
                                 h = obj['height']
                                 x = obj['x']
-                                x = x - w // 2 + offset_x.get()
+                                x = x - dict_dialogue_template['width'] // 2 + offset_x.get()
                                 x = - (x + w)
                                 y = obj['y']
-                                y = y - h + 80 + offset_y.get()
+                                y = y - dict_dialogue_template['height'] + 80 + offset_y.get()
                                 tile_number = 32 * obj['tile_y'] + obj['tile_x']
                                 obj_attribute = GBAImage.OBJAttribute(
                                     tile_number, width=w, height=h, x_coordinate=x, y_coordinate=y, horizontal_flip=1)
-                                f.write(obj_attribute.tostring())
+                                f.write(obj_attribute.tostring() + ',')
                             f.write('};\n')
                         if img_status_screen is not None:
                             map_status_sceen = GBAImage.BGMap(img_status_screen, img_tileset.getpalette(), tileset)

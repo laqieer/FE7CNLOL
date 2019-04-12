@@ -3,7 +3,13 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "D:/FE_kaizou2/FE7CNLOL/lib/libfe/include",
+                "D:/FE_kaizou2/FE7CNLOL/lib/libagb/include",
+                "D:/FE_kaizou2/FE7CNLOL/lib/libagb/include/backup",
+                "D:/FE_kaizou2/FE7CNLOL/lib/libmy/include",
+                "D:/FE_kaizou2/FE7CNLOL/include",
+                "D:/FE_kaizou2/FE7CNLOL/portrait"
             ],
             "defines": [
                 "_DEBUG",

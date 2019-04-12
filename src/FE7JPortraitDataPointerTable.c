@@ -9,6 +9,7 @@
 #include "ZelgiusPortrait.h"
 #include "Fenrir.h"
 #include "PortraitCherryBlue.h"
+#include "CherryRed.h"
 
 // 第二个头像指针表,起始序号0x100,旧扩展格式
 const struct Portrait portraitTableNew[] = {
@@ -30,6 +31,7 @@ const pPortraitNew portraitTableNewExtension[] = {
 	NULL, // 0x200
 	//{&CherryBlue_portrait_tileset, &CherryBlue_portrait_mini, &CherryBlue_portrait_palette, &CherryBlue_portrait_extra_info, NULL, NULL, NULL, NULL, NULL, 1, 0xFF, 0x201}, // 0x201 Cherry (Blue)
 	&CherryBlue_portrait, // 0x201
+	&portrait_CherryRed, // 0x202
 };
 
 // 大头像精灵组合模板

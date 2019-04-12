@@ -14,3 +14,4 @@
 #define pFenrir "\x9\x2"
 
 #define pCherryBlue "\x1\x3"
+#define pCherryRed "\x2\x3"

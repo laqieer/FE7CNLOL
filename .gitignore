@@ -15,3 +15,5 @@ rom
 *tags*
 tool/venv*
 *.SearchResults
+*.pyc
+.vscode/ipch/*

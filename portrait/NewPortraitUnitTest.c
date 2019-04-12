@@ -6,5 +6,5 @@
 
 // 用人造人凯内斯测试新导入的头像
 __attribute__((section(".KennethMorphPortraitID")))
-const PortraitID KennethMorphPortraitID = 0x201;
+const PortraitID KennethMorphPortraitID = 0x202;
 
