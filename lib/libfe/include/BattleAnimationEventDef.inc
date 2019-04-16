@@ -83,6 +83,34 @@ ShowFrame \frames, \No, \sheet, \frameSection
 .hword	\deltaX, \deltaY, 0
 .endm
 
+@ 右侧（第二色板）
+.macro	OBJR_P2 dimension=0, x0=0, y0=0, deltaX=0, deltaY=0
+.word	\dimension
+.byte	\x0 / 8 + 0x20 * \y0 / 8, 0x10
+.hword	\deltaX, \deltaY, 0
+.endm
+
+@ 左侧（第二色板）
+.macro	OBJL_P2 dimension=0, x0=0, y0=0, deltaX=0, deltaY=0
+.word	\dimension + 0x10000000
+.byte	\x0 / 8 + 0x20 * \y0 / 8, 0x10
+.hword	\deltaX, \deltaY, 0
+.endm
+
+@ 右侧（色板号参数）
+.macro	OBJR_P dimension=0, x0=0, y0=0, deltaX=0, deltaY=0, palette=0
+.word	\dimension
+.byte	\x0 / 8 + 0x20 * \y0 / 8, \palette * 0x10
+.hword	\deltaX, \deltaY, 0
+.endm
+
+@ 左侧（色板号参数）
+.macro	OBJL_P dimension=0, x0=0, y0=0, deltaX=0, deltaY=0, palette=0
+.word	\dimension + 0x10000000
+.byte	\x0 / 8 + 0x20 * \y0 / 8, \palette * 0x10
+.hword	\deltaX, \deltaY, 0
+.endm
+
 @ OBJ尺寸定义
 .set	_8x8,		0
 .set	_16x16,	0x40000000
