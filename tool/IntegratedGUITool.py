@@ -1440,6 +1440,26 @@ def show_main_window(argv):
         window_battle_animation = tk.Toplevel(window)
         window_battle_animation.title('Battle Animation')
 
+        def import_from_script():
+            """
+            Import battle animation from script.
+            :return: None.
+            """
+            im = ask_and_open_image(height=160)
+            pass
+
+        def export_to_source():
+            """
+            Export battle animation to source file.
+            :return: None.
+            """
+            pass
+        
+        btn_import = tk.Button(window_battle_animation, text="Import", command=import_from_script)
+        btn_import.pack()
+        btn_export = tk.Button(window_battle_animation, text="Export", command=export_to_source)
+        btn_export.pack()
+
     # function buttons
     btn_portrait = tk.Button(window, text='Portrait', command=show_portrait_window)
     btn_portrait.pack(side='left', padx=10, pady=5)
