@@ -194,6 +194,9 @@ class Tile:
     def __eq__(self, other):
         return self.hash == other.hash
 
+    def __ne__(self, other):
+        return self.hash != other.hash
+
 
 class TileSet:
     """
