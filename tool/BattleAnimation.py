@@ -1,12 +1,36 @@
+# -*- coding: cp936 -*-
 # Battle Animation with 31 colors and customized command.
 # by laqieer
 # 2019-4-15
 
-from PIL import Image, ImageMath
+from PIL import Image, ImageMath, ImageDraw
 import imagehash
 import tkinter as tk
 import tkinter.messagebox
 import math
+import copy
+
+# to split frame into objects and make sheet
+obj_size = [{'width': 64, 'height': 64, 'threshold': 7},
+            {'width': 32, 'height': 64, 'threshold': 3},
+            {'width': 64, 'height': 32, 'threshold': 3},
+            {'width': 32, 'height': 32, 'threshold': 3},
+            {'width': 16, 'height': 32, 'threshold': 1},
+            {'width': 8, 'height': 32, 'threshold': 0},
+            {'width': 32, 'height': 16, 'threshold': 1},
+            {'width': 16, 'height': 16, 'threshold': 1},
+            {'width': 8, 'height': 16, 'threshold': 0},
+            {'width': 32, 'height': 8, 'threshold': 0},
+            {'width': 16, 'height': 8, 'threshold': 0},
+            {'width': 8, 'height': 8, 'threshold': 0}]
+
+
+def clear_rectangle(image: Image, x=0, y=0, width=8, height=8):
+    """
+    Fill in a rectangle area with transparent color.
+    """
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([x, y, x + width, y + height], fill=0)
 
 
 def hash_image(image: Image):
@@ -93,6 +117,83 @@ def is_transparent(image: Image):
     :return: bool.
     """
     return ImageMath.eval('not a', a=image)
+
+
+def find_rectangle_col_first(image: Image, width=8, height=8, threshold=0):
+    """
+    Find rectangle area in an image. Column first.
+    :param: image
+    :param: width: rectangle width
+    :param: height: ractangle height
+    :param: threshold: allowed blank tile number
+    :return: x, y (unit: pixel). -1, -1 if fails.
+    """
+    for i in range(image.width - width + 1):
+        for j in range(image.height - height + 1):
+##            im_box = image.crop((i, j, i + width, j + height))
+            blank_tiles = 0
+            for x in range(i, i + width, 8):
+                for y in range(j, j + height, 8):
+                    im_tile = image.crop((x, y, x + 8, y + 8))
+                    if is_transparent(im_tile):
+                        blank_tiles += 1
+                    if blank_tiles > threshold:
+                        break
+                if blank_tiles > threshold:
+                    break
+            if blank_tiles <= threshold:
+##                im_box.show()
+##                print(i, j, width, height, blank_tiles)
+                return i, j
+    return -1, -1
+
+
+def find_rectangle_row_first(image: Image, width=8, height=8, threshold=0):
+    """
+    Find rectangle area in an image. Row first.
+    :param: image
+    :param: width: rectangle width
+    :param: height: ractangle height
+    :param: threshold: allowed blank tile number
+    :return: x, y (unit: pixel). -1, -1 if fails.
+    """
+    for i in range(image.height - height + 1):
+        for j in range(image.width - width + 1):
+            im_box = image.crop((j, i, j + width, i + height))
+            blank_tiles = 0
+            for x in range(i, i + width, 8):
+                for y in range(j, j + height, 8):
+                    im_tile = im_box.crop((x, y, x + 8, y + 8))
+                    if is_transparent(im_tile):
+                        blank_tiles += 1
+                    if blank_tiles > threshold:
+                        break
+                if blank_tiles > threshold:
+                    break
+            if blank_tiles <= threshold:
+                return j, i
+    return -1, -1
+
+
+def split_frame(image: Image):
+    """
+    Split frame into parts.
+    """
+    im_rest = image.copy()
+    part_list = []
+    while not is_transparent(im_rest):
+        for obj in obj_size:
+            if im_rest.width + 8 >= obj['width'] and im_rest.height + 8 >= obj['height']:
+                x, y = find_rectangle_col_first(im_rest, obj['width'], obj['height'], obj['threshold'])
+##                print(obj['width'], obj['height'], x, y)
+                if x >= 0 and y >= 0:
+                    part_list.append({'x': x, 'y': y, 'width': obj['width'], 'height': obj['height']})
+                    break
+        clear_rectangle(im_rest, x, y, obj['width'], obj['height'])
+##        if x >= 0 and y >= 0:
+##            im_rest.show()
+##    print(part_list)
+    return part_list
 
 
 def read_palette_top_right(image: Image):
@@ -283,6 +384,29 @@ class Sheet:
                             return 8 * i, 8 * j
         return -1, -1
 
+    def find_blank_rectangles(self, part_list: list):
+        space_list = []
+        occupied_matrix = copy.deepcopy(self.occupied_matrix)
+        for part in part_list:
+            x0, y0 = self.find_blank_area_col_first(part['width'], part['height'])
+            if x0 == -1 or y0 == -1:
+                self.occupied_matrix = occupied_matrix
+                return None
+            space_list.append({'x': part['x'], 'y': part['y'],
+                               'width': part['width'], 'height': part['height'],
+                               'x0': x0, 'y0': y0})
+            for row in range(y0 // 8, (y0 + part['height']) // 8):
+                for col in range(x0 // 8, (x0 + part['width']) // 8):
+                    self.occupied_matrix[row][col] = 1
+        self.occupied_matrix = occupied_matrix
+        return space_list
+
+    def add_parts(self, image: Image, space_list: list):
+        for space in space_list:
+            self.add(image.crop((space['x'], space['y'],
+                                 space['x'] + space['width'], space['y'] + space['height'])),
+                     space['x0'], space['y0'], space['width'], space['height'])
+
     def try_to_add(self, image: Image, priority='col', width=0, height=0):
         """
         Try to add image to the sheet.
@@ -319,18 +443,40 @@ class SheetSet:
     def append(self):
         self.sheet_list.append(Sheet(self.palette))
 
-    def add(self, image: Image, width=0, height=0):
-        for i, sheet in enumerate(self.sheet_list):
+    def add(self, image: Image, width=0, height=0, start_sheet_number=0):
+        for i, sheet in enumerate(self.sheet_list[start_sheet_number: ]):
             x0, y0 = sheet.try_to_add(image, width, height)
             if x0 >= 0 and y0 >= 0:
-                return i, x0, y0
+                return i + start_sheet_number, x0, y0
         self.append()
         self.sheet_list[-1].add(image=image, x0=0, y0=0, width=width, height=height)
         return len(self.sheet_list) - 1, 0, 0
 
+    def find_space(self, width=0, height=0, start_sheet_number=0):
+        for i, sheet in enumerate(self.sheet_list[start_sheet_number: ]):
+            x0, y0 = sheet.find_blank_area_col_first(width, height)
+            if x0 >= 0 and y0 >= 0:
+                return i + start_sheet_number, x0, y0
+        return len(self.sheet_list), 0, 0
+
     def save_as_images(self, prefix='sheet_'):
         for i, sheet in enumerate(self.sheet_list):
             sheet.save_as_image(prefix + str(i) + '.png')
+
+    # todo detect duplicated parts to save space
+    def find_space_for_parts(self, part_list: list):
+        for i, sheet in enumerate(self.sheet_list):
+            space_list = sheet.find_blank_rectangles(part_list)
+            if space_list is not None:
+                return i, space_list
+        self.append()
+        return len(self.sheet_list) - 1, self.sheet_list[-1].find_blank_rectangles(part_list)
+
+    def add_parts(self, image: Image, space_list: list, sheet_id):
+        if 'x0' not in space_list[0] or 'y0' not in space_list[0]:
+            space_list = self.sheet_list[sheet_id].find_blank_rectangles(space_list)
+        self.sheet_list[sheet_id].add_parts(image, space_list)
+        return space_list
 
 
 class Frame:
@@ -342,20 +488,32 @@ class Frame:
     def __init__(self, image: Image):
         self.image = standardize_image(image)
         self.im_p1, self.im_p2 = split_palette(self.image)
-        self.im_p1 = self.im_p1.crop(self.im_p1.getbbox())
-        self.im_p2 = self.im_p2.crop(self.im_p2.getbbox())
-        self.part_list_right = []
-        self.part_list_left = []
+        self.bbox_p1 = self.im_p1.getbbox()
+        self.im_p1 = self.im_p1.crop(self.bbox_p1)
+        self.bbox_p2 = self.im_p2.getbbox()
+        self.im_p2 = self.im_p2.crop(self.bbox_p2)
         if self.sheets.palette == [0] * 3 * 256:
             self.sheets.palette = self.image.getpalette()
-        w_obj, h_obj = get_obj_size(self.im_p1)
-        self.sheet_index, x0, y0 = self.sheets.add(self.im_p1, w_obj, h_obj)
-        self.part_list_right.append(FramePart(w_obj, h_obj, x0, y0, 0, 0))
-        self.part_list_left.append(FramePart(w_obj, h_obj, x0, y0, -w_obj, 0, side='left'))
-        w_obj, h_obj = get_obj_size(self.im_p2)
-        self.sheet_index, x0, y0 = self.sheets.add(self.im_p2, w_obj, h_obj)
-        self.part_list_right.append(FramePart(w_obj, h_obj, x0, y0, 0, 0, palette_number=1))
-        self.part_list_left.append(FramePart(w_obj, h_obj, x0, y0, -w_obj, 0, side='left', palette_number=1))
+        if not is_transparent(self.im_p1):
+            part_list_p1 = split_frame(self.im_p1)
+        else:
+            part_list_p1 = []
+        if not is_transparent(self.im_p2):
+            part_list_p2 = split_frame(self.im_p2)
+        else:
+            part_list_p2 = []
+        self.sheet_index, _ = self.sheets.find_space_for_parts(part_list_p1 + part_list_p2)
+        if len(part_list_p1) > 0:
+            self.space_list_p1 = self.sheets.add_parts(self.im_p1, part_list_p1, self.sheet_index)
+        else:
+            self.space_list_p1 = []
+        if len(part_list_p2) > 0:
+            self.space_list_p2 = self.sheets.add_parts(self.im_p2, part_list_p2, self.sheet_index)
+        else:
+            self.space_list_p2 = []
+        print(self.space_list_p1)
+        print(self.space_list_p2)
+                    
 
     def __hash__(self):
         return hash_image(self.image)
@@ -390,19 +548,26 @@ class FrameSet:
 
 
 if __name__ == "__main__":
-    im_f0 = Image.open('../trash/æ™®è‰å¸Œæ‹‰30è‰²/001.png')
-    im_f1 = Image.open('../trash/æ™®è‰å¸Œæ‹‰30è‰²/002.png')
-    im_f2 = Image.open('../trash/æ™®è‰å¸Œæ‹‰30è‰²/003.png')
-    im_f3 = Image.open('../trash/æ™®è‰å¸Œæ‹‰30è‰²/004.png')
-    im_f4 = Image.open('../trash/æ™®è‰å¸Œæ‹‰30è‰²/005.png')
-    im_f5 = Image.open('../trash/æ™®è‰å¸Œæ‹‰30è‰²/006.png')
-    im_f6 = Image.open('../trash/æ™®è‰å¸Œæ‹‰30è‰²/007.png')
+    im_f0 = Image.open('../trash/ÆÕÀòÏ£À­30É«/001.png')
+    im_f1 = Image.open('../trash/ÆÕÀòÏ£À­30É«/002.png')
+    im_f2 = Image.open('../trash/ÆÕÀòÏ£À­30É«/003.png')
+    im_f3 = Image.open('../trash/ÆÕÀòÏ£À­30É«/004.png')
+    im_f4 = Image.open('../trash/ÆÕÀòÏ£À­30É«/005.png')
+    im_f5 = Image.open('../trash/ÆÕÀòÏ£À­30É«/006.png')
+    im_f6 = Image.open('../trash/ÆÕÀòÏ£À­30É«/007.png')
     frames = FrameSet()
-    print(frames.add(im_f0))
-    print(frames.add(im_f1))
-    print(frames.add(im_f2))
-    print(frames.add(im_f3))
-    print(frames.add(im_f4))
-    print(frames.add(im_f5))
-    print(frames.add(im_f6))
-    frames.frame_list[0].sheets.save_as_images('../trash/æ™®è‰å¸Œæ‹‰30è‰²/sheet_')
+    print("pocessing 001.png")
+    print("Frame ", frames.add(im_f0))
+    print("pocessing 002.png")
+    print("Frame ", frames.add(im_f1))
+    print("pocessing 003.png")
+    print("Frame ", frames.add(im_f2))
+    print("pocessing 004.png")
+    print("Frame ", frames.add(im_f3))
+    print("pocessing 005.png")
+    print("Frame ", frames.add(im_f4))
+    print("pocessing 006.png")
+    print("Frame ", frames.add(im_f5))
+    print("pocessing 007.png")
+    print("Frame ", frames.add(im_f6))
+    frames.frame_list[0].sheets.save_as_images('../trash/ÆÕÀòÏ£À­30É«/sheet_')
