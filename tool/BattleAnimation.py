@@ -9,9 +9,10 @@ import tkinter as tk
 import tkinter.messagebox
 import math
 import copy
+import json
 
 # to split frame into objects and make sheet
-obj_size = [{'width': 64, 'height': 64, 'threshold': 7},
+obj_conf = [{'width': 64, 'height': 64, 'threshold': 7},
             {'width': 32, 'height': 64, 'threshold': 3},
             {'width': 64, 'height': 32, 'threshold': 3},
             {'width': 32, 'height': 32, 'threshold': 3},
@@ -175,14 +176,18 @@ def find_rectangle_row_first(image: Image, width=8, height=8, threshold=0):
     return -1, -1
 
 
-def split_frame(image: Image):
+def split_frame(image: Image, split_conf=None):
     """
     Split frame into parts.
     """
+    if split_conf is None:
+        conf = obj_conf
+    else:
+        conf = split_conf
     im_rest = image.copy()
     part_list = []
     while not is_transparent(im_rest):
-        for obj in obj_size:
+        for obj in conf:
             if im_rest.width + 8 >= obj['width'] and im_rest.height + 8 >= obj['height']:
                 x, y = find_rectangle_col_first(im_rest, obj['width'], obj['height'], obj['threshold'])
 ##                print(obj['width'], obj['height'], x, y)
@@ -485,7 +490,11 @@ class Frame:
     """
     sheets = SheetSet([0] * 3 * 256)
 
-    def __init__(self, image: Image):
+    def __init__(self, image: Image, split_conf=None):
+        if split_conf is None:
+            self.split_conf = obj_conf
+        else:
+            self.split_conf = split_conf
         self.image = standardize_image(image)
         self.im_p1, self.im_p2 = split_palette(self.image)
         self.bbox_p1 = self.im_p1.getbbox()
@@ -495,11 +504,11 @@ class Frame:
         if self.sheets.palette == [0] * 3 * 256:
             self.sheets.palette = self.image.getpalette()
         if not is_transparent(self.im_p1):
-            part_list_p1 = split_frame(self.im_p1)
+            part_list_p1 = split_frame(self.im_p1, self.split_conf)
         else:
             part_list_p1 = []
         if not is_transparent(self.im_p2):
-            part_list_p2 = split_frame(self.im_p2)
+            part_list_p2 = split_frame(self.im_p2, self.split_conf)
         else:
             part_list_p2 = []
         self.sheet_index, _ = self.sheets.find_space_for_parts(part_list_p1 + part_list_p2)
@@ -529,8 +538,16 @@ class FrameSet:
     """
     All frames.
     """
-    def __init__(self):
+    def __init__(self, split_conf_file=None):
         self.frame_list = []
+        if split_conf_file is None:
+            self.split_conf = obj_conf
+        else:
+            self.read_split_conf(split_conf_file)
+
+    def read_split_conf(self, split_conf_file: str):
+        with open(split_conf_file, 'r') as f:
+            self.split_conf = json.load(f)
 
     def index(self, image: Image):
         image = standardize_image(image)
@@ -542,7 +559,7 @@ class FrameSet:
     def add(self, image: Image):
         index = self.index(image)
         if index is None:
-            self.frame_list.append(Frame(image))
+            self.frame_list.append(Frame(image, self.split_conf))
             index = len(self.frame_list) - 1
         return index
 
@@ -555,7 +572,7 @@ if __name__ == "__main__":
     im_f4 = Image.open('../trash/普莉希拉30色/005.png')
     im_f5 = Image.open('../trash/普莉希拉30色/006.png')
     im_f6 = Image.open('../trash/普莉希拉30色/007.png')
-    frames = FrameSet()
+    frames = FrameSet('SplitConf.json')
     print("pocessing 001.png")
     print("Frame ", frames.add(im_f0))
     print("pocessing 002.png")
