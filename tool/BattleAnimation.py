@@ -10,6 +10,7 @@ import tkinter.messagebox
 import math
 import copy
 import json
+from operator import methodcaller, attrgetter
 
 # to split frame into objects and make sheet
 obj_conf = [{'width': 64, 'height': 64, 'threshold': 7},
@@ -32,6 +33,27 @@ def clear_rectangle(image: Image, x=0, y=0, width=8, height=8):
     """
     draw = ImageDraw.Draw(image)
     draw.rectangle([x, y, x + width, y + height], fill=0)
+
+
+def is_transparent(image: Image):
+    """
+    Check if an image is totally transparent.
+    :param image:
+    :return: bool.
+    """
+    return ImageMath.eval('not a', a=image)
+
+
+def image_crop_s(image: Image, box=None):
+    """
+    Image.crop has out of range problem. This is a safe version.
+    """
+    x1 = min(box[0], image.width)
+    x2 = min(box[2], image.width)
+    y1 = min(box[1], image.height)
+    y2 = min(box[3], image.height)
+    return image.crop((x1, y1, x2, y2))
+
 
 
 def hash_image(image: Image):
@@ -111,15 +133,6 @@ def split_palette(image: Image):
     return image_1, image_2
 
 
-def is_transparent(image: Image):
-    """
-    Check if an image is totally transparent.
-    :param image:
-    :return: bool.
-    """
-    return ImageMath.eval('not a', a=image)
-
-
 def find_rectangle_col_first(image: Image, width=8, height=8, threshold=0):
     """
     Find rectangle area in an image. Column first.
@@ -162,8 +175,8 @@ def find_rectangle_row_first(image: Image, width=8, height=8, threshold=0):
         for j in range(image.width - width + 1):
             im_box = image.crop((j, i, j + width, i + height))
             blank_tiles = 0
-            for x in range(i, i + width, 8):
-                for y in range(j, j + height, 8):
+            for x in range(0, width, 8):
+                for y in range(0, height, 8):
                     im_tile = im_box.crop((x, y, x + 8, y + 8))
                     if is_transparent(im_tile):
                         blank_tiles += 1
@@ -192,7 +205,8 @@ def split_frame(image: Image, split_conf=None):
                 x, y = find_rectangle_col_first(im_rest, obj['width'], obj['height'], obj['threshold'])
 ##                print(obj['width'], obj['height'], x, y)
                 if x >= 0 and y >= 0:
-                    part_list.append({'x': x, 'y': y, 'width': obj['width'], 'height': obj['height']})
+                    part_list.append({'x': x, 'y': y, 'width': obj['width'], 'height': obj['height'],
+                                      'hash': hash_image(image_crop_s(image, (x, y, x + obj['width'], y + obj['height'])))})
                     break
         clear_rectangle(im_rest, x, y, obj['width'], obj['height'])
 ##        if x >= 0 and y >= 0:
@@ -311,11 +325,13 @@ class Sheet:
     """
     One sheet.
     """
-    def __init__(self, palette: list):
+    def __init__(self, palette: list, index):
+        self.index = index
         self.image = Image.new("P", (256, 64))
         self.image.putpalette(palette)
         self.occupied_matrix = [([0] * 32) for i in range(8)]
         self.occupied_tiles = 0
+        self.hash_dict = {}
 
     def get_usable_tiles(self):
         return 32 * 8 - self.occupied_tiles
@@ -330,14 +346,11 @@ class Sheet:
 
     def add(self, image: Image, x0=0, y0=0, width=0, height=0):
         self.image.paste(image, box=(x0, y0))
-        w = max(image.width, width)
-        w = min(w, 64)
-        h = max(image.height, height)
-        h = min(h, 64)
-        for i in range(math.ceil(h / 8)):
-            for j in range(math.ceil(w / 8)):
+        self.hash_dict[hash_image(image)] = (x0, y0)
+        for i in range(math.ceil(height / 8)):
+            for j in range(math.ceil(width / 8)):
                 self.occupied_matrix[y0 // 8 + i][x0 // 8 + j] = 1
-        self.occupied_tiles += math.ceil(h / 8) * math.ceil(w / 8)
+        self.occupied_tiles += math.ceil(height / 8) * math.ceil(width / 8)
 
     def find_blank_area_row_first(self, width, height):
         """
@@ -393,24 +406,27 @@ class Sheet:
         space_list = []
         occupied_matrix = copy.deepcopy(self.occupied_matrix)
         for part in part_list:
-            x0, y0 = self.find_blank_area_col_first(part['width'], part['height'])
-            if x0 == -1 or y0 == -1:
-                self.occupied_matrix = occupied_matrix
-                return None
-            space_list.append({'x': part['x'], 'y': part['y'],
-                               'width': part['width'], 'height': part['height'],
-                               'x0': x0, 'y0': y0})
-            for row in range(y0 // 8, (y0 + part['height']) // 8):
-                for col in range(x0 // 8, (x0 + part['width']) // 8):
-                    self.occupied_matrix[row][col] = 1
+            if part['hash'] in self.hash_dict:
+                (x0, y0) = self.hash_dict[part['hash']]
+            else:
+                x0, y0 = self.find_blank_area_col_first(part['width'], part['height'])
+                if x0 == -1 or y0 == -1:
+                    self.occupied_matrix = occupied_matrix
+                    return None
+                for row in range(y0 // 8, (y0 + part['height']) // 8):
+                    for col in range(x0 // 8, (x0 + part['width']) // 8):
+                        self.occupied_matrix[row][col] = 1
+            space_list.append({'x': part['x'], 'y': part['y'], 'width': part['width'],
+                               'height': part['height'], 'x0': x0, 'y0': y0, 'hash': part['hash']})
         self.occupied_matrix = occupied_matrix
         return space_list
 
     def add_parts(self, image: Image, space_list: list):
         for space in space_list:
-            self.add(image.crop((space['x'], space['y'],
-                                 space['x'] + space['width'], space['y'] + space['height'])),
-                     space['x0'], space['y0'], space['width'], space['height'])
+            if space['hash'] not in self.hash_dict:
+                self.add(image_crop_s(image, (space['x'], space['y'], space['x'] + space['width'],
+                                              space['y'] + space['height'])), space['x0'], space['y0'],
+                         space['width'], space['height'])
 
     def try_to_add(self, image: Image, priority='col', width=0, height=0):
         """
@@ -421,20 +437,33 @@ class Sheet:
         :param height: OBJ height
         :return: x0, y0 if succeeds, -1, -1 if fails.
         """
-        w = max(image.width, width)
-        w = min(w, 64)
-        h = max(image.height, height)
-        h = min(h, 64)
         if priority == 'row':
-            x0, y0 = self.find_blank_area_row_first(w, h)
+            x0, y0 = self.find_blank_area_row_first(width, height)
         else:
-            x0, y0 = self.find_blank_area_col_first(w, h)
+            x0, y0 = self.find_blank_area_col_first(width, height)
         if x0 >= 0 and y0 >= 0:
-            self.add(image, x0, y0, w, h)
+            self.add(image, x0, y0, width, height)
         return x0, y0
 
     def save_as_image(self, fp):
         self.image.save(fp)
+
+    def search_part(self, part_hash):
+        return self.hash_dict.get(part_hash)
+
+    def get_duplicated_tiles(self, part_list: list):
+        duplicated_tiles = 0
+        for part in part_list:
+            if part['hash'] in self.hash_dict:
+                duplicated_tiles += (part['width'] // 8) * (part['height'] // 8)
+        return duplicated_tiles
+
+    def get_duplicated_parts(self, part_list: list):
+        duplicated_parts = 0
+        for part in part_list:
+            if part['hash'] in self.hash_dict:
+                duplicated_parts += 1
+        return duplicated_parts
 
 
 class SheetSet:
@@ -446,7 +475,7 @@ class SheetSet:
         self.palette = palette
 
     def append(self):
-        self.sheet_list.append(Sheet(self.palette))
+        self.sheet_list.append(Sheet(self.palette, len(self.sheet_list)))
 
     def add(self, image: Image, width=0, height=0, start_sheet_number=0):
         for i, sheet in enumerate(self.sheet_list[start_sheet_number: ]):
@@ -465,15 +494,17 @@ class SheetSet:
         return len(self.sheet_list), 0, 0
 
     def save_as_images(self, prefix='sheet_'):
+##        self.sheet_list.sort(key=attrgetter('index'))
         for i, sheet in enumerate(self.sheet_list):
-            sheet.save_as_image(prefix + str(i) + '.png')
+            sheet.save_as_image(prefix + str(sheet.index) + '.png')
 
-    # todo detect duplicated parts to save space
     def find_space_for_parts(self, part_list: list):
-        for i, sheet in enumerate(self.sheet_list):
+        s = sorted(self.sheet_list, key=methodcaller('get_duplicated_parts', part_list), reverse=True)
+        s = sorted(s, key=methodcaller('get_duplicated_tiles', part_list), reverse=True)
+        for i, sheet in enumerate(s):
             space_list = sheet.find_blank_rectangles(part_list)
             if space_list is not None:
-                return i, space_list
+                return sheet.index, space_list
         self.append()
         return len(self.sheet_list) - 1, self.sheet_list[-1].find_blank_rectangles(part_list)
 
