@@ -121,10 +121,10 @@ def split_palette(image: Image):
     w = image.width
     h = image.height
     palette = image.getpalette()
-    palette_1 = palette[: 3 * 16] + [0] * 3 * 16 * 15
-    palette_2 = palette[3 * 16: 3 * 16 * 2] + [0] * 3 * 16 * 15
-    palette_1s = palette[: 3 * 16] + palette[: 3] * 16 + [0] * 3 * 16 * 14
-    palette_2s = palette[: 3] * 16 + palette[3 * 16: 3 * 16 * 2] + [0] * 3 * 16 * 14
+    palette_1 = palette[: 3 * 16] + palette[:3] * 16 * 15
+    palette_2 = palette[3 * 16: 3 * 16 * 2] + palette[:3] * 16 * 15
+    palette_1s = palette[: 3 * 16] + palette[: 3] * 16 + palette[:3] * 16 * 14
+    palette_2s = palette[: 3] * 16 + palette[3 * 16: 3 * 16 * 2] + palette[:3] * 16 * 14
     image_1s = image.copy()
     image_1s.putpalette(palette_1s)
     image_2s = image.copy()
@@ -242,7 +242,7 @@ def set_palette(image: Image, palette: list):
     """
     if image.mode == "P":
         image = image.convert("RGB")
-    im_palette = Image.new("P", (8, 8))
+    im_palette = Image.new("P", (8, 8), tuple(palette[:3]))
     im_palette.putpalette(palette)
     image = image.quantize(colors=32, palette=im_palette, dither=0)
     return image
@@ -266,7 +266,7 @@ def set_palette_top_right(image: Image):
         dest_map = [image.getpixel((image.width - 1, 0))] * 256
         for i in range(4):
             for j in range(8):
-                dest_map[8 * i + j] = list(image.getpixel((image.width - j - 1, i)))
+                dest_map[8 * i + j] = image.getpixel((image.width - j - 1, i))
         image = image.remap_palette(dest_map=dest_map)
     return image
 
@@ -597,7 +597,6 @@ class FrameSet:
 
 
 def f_default(s: str):
-    # todo process frame. Show/ShowFrame. f_86.
     return '@' + s
 
 
@@ -653,8 +652,9 @@ def parse_line(s: str):
     return ''
 
 
-def parse_modes(name, f_text, f_asm):
+def parse_modes(name, f_text, f_asm, script_file=None):
     if f_text is not None and f_asm is not None:
+        frames = FrameSet('SplitConf.json')
         mode = 1
         while mode <= 12:
             print('---Mode %d---' % mode)
@@ -664,10 +664,24 @@ def parse_modes(name, f_text, f_asm):
             lines = []
             while s[0] != '~':
                 s = next(f_text)
-                print(s)
-                s_out = parse_line(s)
                 if len(s) > 0:
-                    lines.append('\t' + s_out + '\n')
+                    print(s)
+                    s_out = parse_line(s)
+                    if 'p-' in s:
+                        # process image
+                        [duration, image_file] = s.split('p-', 1)
+                        duration = duration.strip()
+                        image_file = image_file.strip()
+                        if script_file is not None and not os.path.isabs(image_file):
+                            image_file = os.path.join(os.path.dirname(script_file), image_file)
+                        im = Image.open(image_file)
+                        # todo handle pierce frame (width: 480/488)
+                        frame_id = frames.add(im)
+                        sheet_id = frames.frame_list[frame_id].sheet_index
+                        s_out += '\n\tShow %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
+                            frame_id, name, sheet_id, name, frame_id, name, duration)
+                    if len(s_out) > 0:
+                        lines.append('\t' + s_out + '\n')
             else:
                 # todo add loop command
                 pass
@@ -713,7 +727,7 @@ def parse_script(script_file: str='script.txt', output_file: str=None, name: str
         f_asm.write('\t.include "../include/%s_oam.inc"\n' % name)
         f_asm.write('\n%s_script:\n' % name)
         with open(script_file, 'r') as f_text:
-            parse_modes(name, f_text, f_asm)
+            parse_modes(name, f_text, f_asm, script_file)
         f_asm.write('\n%s_modes:\n' % name)
         for i in range(12):
             f_asm.write('\t.word %s_mode%d - %s_script\n' % (name, i + 1, name))
@@ -746,5 +760,8 @@ if __name__ == "__main__":
     print("pocessing 007.png")
     print("Frame ", frames.add(im_f6))
     frames.frame_list[0].sheets.save_as_images('../trash/ÆÕÀòÏ£À­30É«/sheet_')'''
+##    frames = FrameSet('SplitConf.json')
+##    im = Image.open('../trash/erlm_sw1/erlm_sw1_000.png')
+##    print(frames.add(im))
     # test: parse script
-    parse_script('../trash/erlm_sw1.txt')
+    parse_script('../trash/erlm_sw1/erlm_sw1.txt')
