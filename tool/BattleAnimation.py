@@ -678,8 +678,9 @@ def parse_modes(name, f_text, f_asm, script_file=None):
                         # todo handle pierce frame (width: 480/488)
                         frame_id = frames.add(im)
                         sheet_id = frames.frame_list[frame_id].sheet_index
+                        # frame 0 is empty (for mode 2 and mode 4)
                         s_out += '\n\tShow %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
-                            frame_id, name, sheet_id, name, frame_id, name, duration)
+                            frame_id + 1, name, sheet_id, name, frame_id + 1, name, duration)
                     if len(s_out) > 0:
                         lines.append('\t' + s_out + '\n')
             else:
