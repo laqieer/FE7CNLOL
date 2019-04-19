@@ -29,7 +29,7 @@ ShowFrame \frames, \No, \sheet, \frameSection
 
 @ 整体循环指令
 .macro	Loop count=1
-.byte	1, \count, 0, 0x85
+.byte	1, 3 * \count, 0, 0x85
 .endm
 
 @ 音效播放指令
