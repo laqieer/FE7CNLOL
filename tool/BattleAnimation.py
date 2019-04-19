@@ -56,7 +56,6 @@ def image_crop_s(image: Image, box=None):
     return image.crop((x1, y1, x2, y2))
 
 
-
 def hash_image(image: Image):
     # return imagehash.dhash(image)
     # return imagehash.whash(image)
@@ -552,9 +551,43 @@ class Frame:
             self.space_list_p2 = self.sheets.add_parts(self.im_p2, part_list_p2, self.sheet_index)
         else:
             self.space_list_p2 = []
-        print(self.space_list_p1)
-        print(self.space_list_p2)
-                    
+##        print(self.space_list_p1)
+##        print(self.space_list_p2)
+
+    def tostring(self, side='right'):
+        s = ''
+        if len(self.space_list_p1) > 0:
+            for space in self.space_list_p1:
+                dimension = '_%dx%d' % (space['width'], space['height'])
+                x0 = space['x0']
+                y0 = space['y0']
+                dx = space['x'] + self.bbox_p1[0] - 148
+                dy = space['y'] + self.bbox_p1[1] - 88
+                obj_cmd = 'OBJR'
+                if side == 'left':
+                    dx = - dx - space['width']
+                    obj_cmd = 'OBJL'
+                s += '\t%s %s, %d, %d, %d, %d\n' % (obj_cmd, dimension, x0, y0, dx, dy)
+        if len(self.space_list_p2) > 0:
+            for space in self.space_list_p2:
+                dimension = '_%dx%d' % (space['width'], space['height'])
+                x0 = space['x0']
+                y0 = space['y0']
+                dx = space['x'] + self.bbox_p1[0] - 148
+                dy = space['y'] + self.bbox_p1[1] - 88
+                obj_cmd = 'OBJR_P2'
+                if side == 'left':
+                    dx = - dx - space['width']
+                    obj_cmd = 'OBJL_P2'
+                s += '\t%s %s, %d, %d, %d, %d\n' % (obj_cmd, dimension, x0, y0, dx, dy)
+        s += '\tEndFrame\n'
+        return s
+
+    def tostring_r(self):
+        return self.tostring(side='right')
+
+    def tostring_l(self):
+        return self.tostring(side='left')
 
     def __hash__(self):
         return hash_image(self.image)
@@ -656,51 +689,64 @@ def parse_modes(name, f_text, f_asm, script_file=None):
     if f_text is not None and f_asm is not None:
         frames = FrameSet('SplitConf.json')
         mode = 1
-        while mode <= 12:
-            print('---Mode %d---' % mode)
-            f_asm.write('\n%s_mode%d:\n' % (name, mode))
-            s = next(f_text)
-            print(s)
-            lines = []
-            while s[0] != '~':
+        oam_file = os.path.join(os.path.dirname(script_file), name + '_oam.inc')
+        with open(oam_file, 'w') as f_oam:
+            f_oam.write('@This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
+            oam_r_lines = ['\t.align 4\n', '%s_oam_r:\n' % name, '%s_frame_r_0:\n\tEndFrame\n' % name]
+            oam_l_lines = ['\t.align 4\n', '%s_oam_l:\n' % name, '%s_frame_l_0:\n\tEndFrame\n' % name]
+            while mode <= 12:
+                print('---Mode %d---' % mode)
+                f_asm.write('\n%s_mode%d:\n' % (name, mode))
                 s = next(f_text)
-                if len(s) > 0:
-                    print(s)
-                    s_out = parse_line(s)
-                    if 'p-' in s:
-                        # process image
-                        [duration, image_file] = s.split('p-', 1)
-                        duration = duration.strip()
-                        image_file = image_file.strip()
-                        if script_file is not None and not os.path.isabs(image_file):
-                            image_file = os.path.join(os.path.dirname(script_file), image_file)
-                        im = Image.open(image_file)
-                        # todo handle pierce frame (width: 480/488)
-                        frame_id = frames.add(im)
-                        sheet_id = frames.frame_list[frame_id].sheet_index
-                        # frame 0 is empty (for mode 2 and mode 4)
-                        s_out += '\n\tShow %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
-                            frame_id + 1, name, sheet_id, name, frame_id + 1, name, duration)
-                    if len(s_out) > 0:
-                        lines.append('\t' + s_out + '\n')
-            else:
-                # todo add loop command
-                pass
-                lines.append('\tEndMode\n')
-                f_asm.writelines(lines)
-                if mode in [1, 3]:
+                print(s)
+                lines = []
+                while s[0] != '~':
+                    s = next(f_text)
+                    if len(s) > 0:
+                        print(s)
+                        s_out = parse_line(s)
+                        if 'p-' in s:
+                            # process image
+                            [duration, image_file] = s.split('p-', 1)
+                            duration = duration.strip()
+                            image_file = image_file.strip()
+                            if script_file is not None and not os.path.isabs(image_file):
+                                image_file = os.path.join(os.path.dirname(script_file), image_file)
+                            im = Image.open(image_file)
+                            # todo handle pierce frame (width: 480/488)
+                            frame_id = frames.add(im)
+                            sheet_id = frames.frame_list[frame_id].sheet_index
+                            # frame 0 is empty (for mode 2 and mode 4)
+                            s_out += '\n\tShow %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
+                                frame_id + 1, name, sheet_id, name, frame_id + 1, name, duration)
+                            oam_r_lines += ['%s_frame_r_%d:\n' % (name, frame_id + 1),
+                                            frames.frame_list[frame_id].tostring_r()]
+                            oam_l_lines += ['%s_frame_l_%d:\n' % (name, frame_id + 1),
+                                            frames.frame_list[frame_id].tostring_l()]
+                        if len(s_out) > 0:
+                            lines.append('\t' + s_out + '\n')
+                else:
+                    # todo add loop command
+                    pass
+                    lines.append('\tEndMode\n')
+                    f_asm.writelines(lines)
+                    if mode in [1, 3]:
+                        mode += 1
+                        f_asm.write('\n%s_mode%d:\n' % (name, mode))
+                        for line in lines:
+                            if 'Show' in line:
+                                # todo support pierce
+                                f_asm.write('\tShow 0, %s_sheet_0, %s_frame_r_0 - %s_oam_r%s' % (name, name, name, line[line.rfind(','):]))
+                            elif 'ShowFrame' in line:
+                                # todo support pierce
+                                f_asm.write('%s, 0, %s_sheet_0, %s_frame_r_0 - %s_oam_r\n' % (line[:line.find(',')], name, name, name))
+                            else:
+                                f_asm.write(line)
                     mode += 1
-                    f_asm.write('\n%s_mode%d:\n' % (name, mode))
-                    for line in lines:
-                        if 'Show' in line:
-                            # todo support pierce
-                            f_asm.write('\tShow 0, %s_sheet_0, %s_frame_r_0 - %s_oam_r%s' % (name, name, name, line[line.rfind(','):]))
-                        elif 'ShowFrame' in line:
-                            # todo support pierce
-                            f_asm.write('%s, 0, %s_sheet_0, %s_frame_r_0 - %s_oam_r\n' % (line[:line.find(',')], name, name, name))
-                        else:
-                            f_asm.write(line)
-                mode += 1
+            f_oam.writelines(oam_r_lines)
+            f_oam.write('\n\t.section .rodata\n')
+            f_oam.writelines(oam_l_lines)
+            f_oam.write('\n\tEndOAMInfo\n')
 
 
 def parse_script(script_file: str='script.txt', output_file: str=None, name: str=None):
@@ -719,13 +765,13 @@ def parse_script(script_file: str='script.txt', output_file: str=None, name: str
     with open(output_file, 'w') as f_asm:
         f_asm.write('@This file is made by BattleAnimation.py automatically. You can edit it.')
         f_asm.write('\t.include "BattleAnimationEventDef.inc"\n')
-        f_asm.write('\t.include "../include/%s_sheet.inc"\n' % name)
+        f_asm.write('\t.include "%s_sheet.inc"\n' % name)
         f_asm.write('\t.section .rodata\n\t.align 4\n')
         f_asm.write('\t.global %s_modes\n' % name)
         f_asm.write('\t.global %s_script\n' % name)
         f_asm.write('\t.global %s_oam_r\n' % name)
         f_asm.write('\t.global %s_oam_l\n' % name)
-        f_asm.write('\t.include "../include/%s_oam.inc"\n' % name)
+        f_asm.write('\t.include "%s_oam.inc"\n' % name)
         f_asm.write('\n%s_script:\n' % name)
         with open(script_file, 'r') as f_text:
             parse_modes(name, f_text, f_asm, script_file)
