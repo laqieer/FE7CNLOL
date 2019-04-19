@@ -629,6 +629,27 @@ class FrameSet:
             index = len(self.frame_list) - 1
         return index
 
+    def tostring(self, name, side='right'):
+        s = '\t.align 4\n'
+        if side == 'left':
+            s += '%s_oam_l:\n%s_frame_l_0:\n\tEndFrame\n' % (name, name)
+        else:
+            s += '%s_oam_r:\n%s_frame_r_0:\n\tEndFrame\n' % (name, name)
+        for i, frame in enumerate(self.frame_list):
+            if side == 'left':
+                s += '%s_frame_l_%d:\n' % (name, i + 1)
+            else:
+                s += '%s_frame_r_%d:\n' % (name, i + 1)
+            s += frame.tostring(side=side)
+        s += '\n\tEndOAMInfo\n'
+        return s
+
+    def tostring_r(self, name):
+        return self.tostring(name, side='right')
+
+    def tostring_l(self, name):
+        return self.tostring(name, side='left')
+
 
 def f_default(s: str):
     return '@' + s
@@ -693,11 +714,9 @@ def parse_modes(name, f_text, f_asm, script_file=None):
         oam_file = os.path.join(os.path.dirname(script_file), name + '_oam.inc')
         with open(oam_file, 'w') as f_oam:
             f_oam.write('@This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
-            oam_r_lines = ['\t.align 4\n', '%s_oam_r:\n' % name, '%s_frame_r_0:\n\tEndFrame\n' % name]
-            oam_l_lines = ['\t.align 4\n', '%s_oam_l:\n' % name, '%s_frame_l_0:\n\tEndFrame\n' % name]
             while mode <= 12:
                 print('---Mode %d---' % mode)
-                f_asm.write('\n%s_mode%d:\n' % (name, mode))
+                f_asm.write('\n%s_mode_%d:\n' % (name, mode))
                 s = next(f_text)
                 print(s)
                 lines = []
@@ -727,23 +746,15 @@ def parse_modes(name, f_text, f_asm, script_file=None):
                             # frame 0 is empty (for mode 2 and mode 4)
                             s_out += '\tShow %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
                                 frame_id + 1, name, sheet_id, name, frame_id + 1, name, duration)
-                            oam_r_lines += ['%s_frame_r_%d:\n' % (name, frame_id + 1),
-                                            frames.frame_list[frame_id].tostring_r()]
-                            oam_l_lines += ['%s_frame_l_%d:\n' % (name, frame_id + 1),
-                                            frames.frame_list[frame_id].tostring_l()]
                             if is_pierce:
                                 frame_id_p = frames.add(im_p)
                                 sheet_id_p = frames.frame_list[frame_id_p].sheet_index
-                                oam_r_lines += ['%s_frame_r_%d:\n' % (name, frame_id_p + 1),
-                                                frames.frame_list[frame_id_p].tostring_r()]
-                                oam_l_lines += ['%s_frame_l_%d:\n' % (name, frame_id_p + 1),
-                                                frames.frame_list[frame_id_p].tostring_l()]
                             if mode in [1, 3]:
                                 if is_pierce:
-                                    s_out_b += 'Show %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
+                                    s_out_b += '\tShow %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
                                         frame_id_p + 1, name, sheet_id_p, name, frame_id_p + 1, name, duration)
                                 else:
-                                    s_out_b += 'Show 0, %s_sheet_0, %s_frame_r_0 - %s_oam_r, %s' % (name, name, name, duration)
+                                    s_out_b += '\tShow 0, %s_sheet_0, %s_frame_r_0 - %s_oam_r, %s' % (name, name, name, duration)
                         if len(s_out) > 0:
                             lines.append('\t' + s_out + '\n')
                         if len(s_out_b) > 0:
@@ -755,14 +766,12 @@ def parse_modes(name, f_text, f_asm, script_file=None):
                     f_asm.writelines(lines)
                     if mode in [1, 3]:
                         mode += 1
-                        f_asm.write('\n%s_mode%d:\n' % (name, mode))
+                        f_asm.write('\n%s_mode_%d:\n' % (name, mode))
                         f_asm.writelines(lines_b)
                     mode += 1
-            oam_r_lines.append('\n\tEndOAMInfo\n')
-            oam_l_lines.append('\n\tEndOAMInfo\n')
-            f_oam.writelines(oam_r_lines)
+            f_oam.writelines(frames.tostring_r(name))
             f_oam.write('\t.section .rodata\n')
-            f_oam.writelines(oam_l_lines)
+            f_oam.writelines(frames.tostring_l(name))
 
 
 def parse_script(script_file: str='script.txt', output_file: str=None, name: str=None):
@@ -779,7 +788,7 @@ def parse_script(script_file: str='script.txt', output_file: str=None, name: str
         name, _ = os.path.splitext(name)
         name = name.replace('_script', '')
     with open(output_file, 'w') as f_asm:
-        f_asm.write('@This file is made by BattleAnimation.py automatically. You can edit it.')
+        f_asm.write('@This file is made by BattleAnimation.py automatically. You can edit it.\n')
         f_asm.write('\t.include "BattleAnimationEventDef.inc"\n')
         f_asm.write('\t.include "%s_sheet.inc"\n' % name)
         f_asm.write('\t.section .rodata\n\t.align 4\n')
@@ -793,7 +802,7 @@ def parse_script(script_file: str='script.txt', output_file: str=None, name: str
             parse_modes(name, f_text, f_asm, script_file)
         f_asm.write('\n%s_modes:\n' % name)
         for i in range(12):
-            f_asm.write('\t.word %s_mode%d - %s_script\n' % (name, i + 1, name))
+            f_asm.write('\t.word %s_mode_%d - %s_script\n' % (name, i + 1, name))
         f_asm.write('\t.word 0,0,0,0,0,0,0,0,0,0,0,0\n')
         f_asm.write('\t.end\n')
 
