@@ -33,7 +33,7 @@ def clear_rectangle(image: Image, x=0, y=0, width=8, height=8):
     Fill in a rectangle area with transparent color.
     """
     draw = ImageDraw.Draw(image)
-    draw.rectangle([x, y, x + width, y + height], fill=0)
+    draw.rectangle([x, y, min(x + width, image.width), min(y + height, image.height)], fill=0)
 
 
 def is_transparent(image: Image):
@@ -142,13 +142,13 @@ def find_rectangle_col_first(image: Image, width=8, height=8, threshold=0):
     :param: threshold: allowed blank tile number
     :return: x, y (unit: pixel). -1, -1 if fails.
     """
-    for i in range(image.width - width + 1):
-        for j in range(image.height - height + 1):
+    for i in range(max(image.width - width, 0) + 1):
+        for j in range(max(image.height - height, 0) + 1):
 ##            im_box = image.crop((i, j, i + width, j + height))
             blank_tiles = 0
             for x in range(i, i + width, 8):
                 for y in range(j, j + height, 8):
-                    im_tile = image.crop((x, y, x + 8, y + 8))
+                    im_tile = image_crop_s(image, (x, y, x + 8, y + 8))
                     if is_transparent(im_tile):
                         blank_tiles += 1
                     if blank_tiles > threshold:
@@ -171,13 +171,13 @@ def find_rectangle_row_first(image: Image, width=8, height=8, threshold=0):
     :param: threshold: allowed blank tile number
     :return: x, y (unit: pixel). -1, -1 if fails.
     """
-    for i in range(image.height - height + 1):
-        for j in range(image.width - width + 1):
-            im_box = image.crop((j, i, j + width, i + height))
+    for i in range(max(image.height - height, 0) + 1):
+        for j in range(max(image.width - width, 0) + 1):
+            im_box = image_crop_s(image, (j, i, j + width, i + height))
             blank_tiles = 0
             for x in range(0, width, 8):
                 for y in range(0, height, 8):
-                    im_tile = im_box.crop((x, y, x + 8, y + 8))
+                    im_tile = image_crop_s(image, (x, y, x + 8, y + 8))
                     if is_transparent(im_tile):
                         blank_tiles += 1
                     if blank_tiles > threshold:
@@ -193,6 +193,7 @@ def split_frame(image: Image, split_conf=None):
     """
     Split frame into parts.
     """
+##    image.show()
     if split_conf is None:
         conf = obj_conf
     else:
@@ -700,11 +701,13 @@ def parse_modes(name, f_text, f_asm, script_file=None):
                 s = next(f_text)
                 print(s)
                 lines = []
+                lines_b = []
                 while s[0] != '~':
                     s = next(f_text)
                     if len(s) > 0:
                         print(s)
                         s_out = parse_line(s)
+                        s_out_b = s_out
                         if 'p-' in s:
                             # process image
                             [duration, image_file] = s.split('p-', 1)
@@ -714,17 +717,37 @@ def parse_modes(name, f_text, f_asm, script_file=None):
                                 image_file = os.path.join(os.path.dirname(script_file), image_file)
                             im = Image.open(image_file)
                             # todo handle pierce frame (width: 480/488)
+                            is_pierce = False
+                            if im.width >= 480:
+                                is_pierce = True
+                                im_p = im.crop((240, 0, 480, 160))
+                                im = im.crop((0, 0, 240, 160))
                             frame_id = frames.add(im)
                             sheet_id = frames.frame_list[frame_id].sheet_index
                             # frame 0 is empty (for mode 2 and mode 4)
-                            s_out += '\n\tShow %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
+                            s_out += '\tShow %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
                                 frame_id + 1, name, sheet_id, name, frame_id + 1, name, duration)
                             oam_r_lines += ['%s_frame_r_%d:\n' % (name, frame_id + 1),
                                             frames.frame_list[frame_id].tostring_r()]
                             oam_l_lines += ['%s_frame_l_%d:\n' % (name, frame_id + 1),
                                             frames.frame_list[frame_id].tostring_l()]
+                            if is_pierce:
+                                frame_id_p = frames.add(im_p)
+                                sheet_id_p = frames.frame_list[frame_id_p].sheet_index
+                                oam_r_lines += ['%s_frame_r_%d:\n' % (name, frame_id_p + 1),
+                                                frames.frame_list[frame_id_p].tostring_r()]
+                                oam_l_lines += ['%s_frame_l_%d:\n' % (name, frame_id_p + 1),
+                                                frames.frame_list[frame_id_p].tostring_l()]
+                            if mode in [1, 3]:
+                                if is_pierce:
+                                    s_out_b += 'Show %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
+                                        frame_id_p + 1, name, sheet_id_p, name, frame_id_p + 1, name, duration)
+                                else:
+                                    s_out_b += 'Show 0, %s_sheet_0, %s_frame_r_0 - %s_oam_r, %s' % (name, name, name, duration)
                         if len(s_out) > 0:
                             lines.append('\t' + s_out + '\n')
+                        if len(s_out_b) > 0:
+                            lines_b.append('\t' + s_out_b + '\n')
                 else:
                     # todo add loop command
                     pass
@@ -733,20 +756,13 @@ def parse_modes(name, f_text, f_asm, script_file=None):
                     if mode in [1, 3]:
                         mode += 1
                         f_asm.write('\n%s_mode%d:\n' % (name, mode))
-                        for line in lines:
-                            if 'Show' in line:
-                                # todo support pierce
-                                f_asm.write('\tShow 0, %s_sheet_0, %s_frame_r_0 - %s_oam_r%s' % (name, name, name, line[line.rfind(','):]))
-                            elif 'ShowFrame' in line:
-                                # todo support pierce
-                                f_asm.write('%s, 0, %s_sheet_0, %s_frame_r_0 - %s_oam_r\n' % (line[:line.find(',')], name, name, name))
-                            else:
-                                f_asm.write(line)
+                        f_asm.writelines(lines_b)
                     mode += 1
+            oam_r_lines.append('\n\tEndOAMInfo\n')
+            oam_l_lines.append('\n\tEndOAMInfo\n')
             f_oam.writelines(oam_r_lines)
-            f_oam.write('\n\t.section .rodata\n')
+            f_oam.write('\t.section .rodata\n')
             f_oam.writelines(oam_l_lines)
-            f_oam.write('\n\tEndOAMInfo\n')
 
 
 def parse_script(script_file: str='script.txt', output_file: str=None, name: str=None):
