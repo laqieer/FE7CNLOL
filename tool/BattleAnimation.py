@@ -10,6 +10,7 @@ import tkinter.messagebox
 import math
 import copy
 import json
+import os
 from operator import methodcaller, attrgetter
 
 # to split frame into objects and make sheet
@@ -595,8 +596,134 @@ class FrameSet:
         return index
 
 
+def f_default(s: str):
+    # todo process frame. Show/ShowFrame. f_86.
+    return '@' + s
+
+
+def f_comment(s: str):
+    return '@' + s[1:]
+
+
+def f_85(s: str):
+    if s[1:3] == '01':
+        return '@Loop end'
+    return 'Cmd 0x%s' % s[1:3]
+
+
+def f_sound(s: str):
+    return 'SFX 0x%s' % s[1:5]
+
+
+def f_effect(s: str):
+    return 'EFX 0x%s' % s[1:5]
+
+
+def f_loop(s: str):
+    # todo count frames between L and C01 to add Loop command automatically
+    return '@Loop begin'
+
+
+def f_next_mode(current_mode: int):
+    # handle it in caller function
+    return ''
+
+
+def f_inline_assembly(s: str):
+    return s[1:]
+
+
+def f_raw_binary(s: str):
+    return '.word 0x' + s[1:]
+
+
+def f_trans(s: str):
+    return 'Trans ' + s[1:]
+
+
+parse_func = {'/': f_comment, '#': f_comment, '@': f_comment, ';': f_comment,
+              'C': f_85, 'S': f_sound, 'E': f_effect, 'L': f_loop, '~': f_next_mode,
+              '^': f_inline_assembly, '$': f_raw_binary, 'T': f_trans}
+
+
+def parse_line(s: str):
+    parse_function = parse_func.get(s[0], f_default)
+    if parse_function:
+        return parse_function(s)
+    return ''
+
+
+def parse_modes(name, f_text, f_asm):
+    if f_text is not None and f_asm is not None:
+        mode = 1
+        while mode <= 12:
+            print('---Mode %d---' % mode)
+            f_asm.write('\n%s_mode%d:\n' % (name, mode))
+            s = next(f_text)
+            print(s)
+            lines = []
+            while s[0] != '~':
+                s = next(f_text)
+                print(s)
+                s_out = parse_line(s)
+                if len(s) > 0:
+                    lines.append('\t' + s_out + '\n')
+            else:
+                # todo add loop command
+                pass
+                lines.append('\tEndMode\n')
+                f_asm.writelines(lines)
+                if mode in [1, 3]:
+                    mode += 1
+                    f_asm.write('\n%s_mode%d:\n' % (name, mode))
+                    for line in lines:
+                        if 'Show' in line:
+                            # todo support pierce
+                            f_asm.write('\tShow 0, %s_sheet_0, %s_frame_r_0 - %s_oam_r%s' % (name, name, name, line[line.rfind(','):]))
+                        elif 'ShowFrame' in line:
+                            # todo support pierce
+                            f_asm.write('%s, 0, %s_sheet_0, %s_frame_r_0 - %s_oam_r\n' % (line[:line.find(',')], name, name, name))
+                        else:
+                            f_asm.write(line)
+                mode += 1
+
+
+def parse_script(script_file: str='script.txt', output_file: str=None, name: str=None):
+    if output_file is None and name is not None:
+        output_file = name + '_script.s'
+    if name is None and output_file is not None:
+        name = os.path.basename(output_file)
+        name, _ = os.path.splitext(name)
+        name = name.replace('_script', '')
+    if output_file is None and name is None:
+        output_file, _ = os.path.splitext(script_file)
+        output_file += '.s'
+        name = os.path.basename(script_file)
+        name, _ = os.path.splitext(name)
+        name = name.replace('_script', '')
+    with open(output_file, 'w') as f_asm:
+        f_asm.write('@This file is made by BattleAnimation.py automatically. You can edit it.')
+        f_asm.write('\t.include "BattleAnimationEventDef.inc"\n')
+        f_asm.write('\t.include "../include/%s_sheet.inc"\n' % name)
+        f_asm.write('\t.section .rodata\n\t.align 4\n')
+        f_asm.write('\t.global %s_modes\n' % name)
+        f_asm.write('\t.global %s_script\n' % name)
+        f_asm.write('\t.global %s_oam_r\n' % name)
+        f_asm.write('\t.global %s_oam_l\n' % name)
+        f_asm.write('\t.include "../include/%s_oam.inc"\n' % name)
+        f_asm.write('\n%s_script:\n' % name)
+        with open(script_file, 'r') as f_text:
+            parse_modes(name, f_text, f_asm)
+        f_asm.write('\n%s_modes:\n' % name)
+        for i in range(12):
+            f_asm.write('\t.word %s_mode%d - %s_script\n' % (name, i + 1, name))
+        f_asm.write('\t.word 0,0,0,0,0,0,0,0,0,0,0,0\n')
+        f_asm.write('\t.end\n')
+
+
 if __name__ == "__main__":
-    im_f0 = Image.open('../trash/普莉希拉30色/001.png')
+    # test: split frame and make sheet
+    '''im_f0 = Image.open('../trash/普莉希拉30色/001.png')
     im_f1 = Image.open('../trash/普莉希拉30色/002.png')
     im_f2 = Image.open('../trash/普莉希拉30色/003.png')
     im_f3 = Image.open('../trash/普莉希拉30色/004.png')
@@ -618,4 +745,6 @@ if __name__ == "__main__":
     print("Frame ", frames.add(im_f5))
     print("pocessing 007.png")
     print("Frame ", frames.add(im_f6))
-    frames.frame_list[0].sheets.save_as_images('../trash/普莉希拉30色/sheet_')
+    frames.frame_list[0].sheets.save_as_images('../trash/普莉希拉30色/sheet_')'''
+    # test: parse script
+    parse_script('../trash/erlm_sw1.txt')
