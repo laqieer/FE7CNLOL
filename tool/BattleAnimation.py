@@ -737,7 +737,7 @@ def output_palette_group(name, fp, palette: list):
         f_temp.write(palette_group_bytes)
     nlzss.encode_file('palette_group_temp.bin', 'palette_group_temp_nlzss.bin')
     fp.write('// LZ77 compressed\n')
-    fp.write(bin2c.bin2c('palette_group_temp_nlzss.bin', varname=name + '_pal_1') + '\n')
+    fp.write(bin2c.bin2c('palette_group_temp_nlzss.bin', varname=name + '_pal_1').replace('=', '__attribute__((aligned(4)))=') + '\n')
     os.remove('palette_group_temp.bin')
     os.remove('palette_group_temp_nlzss.bin')
 
