@@ -469,6 +469,12 @@ class Sheet:
                 duplicated_parts += 1
         return duplicated_parts
 
+    def tostring(self, name=''):
+        s = '%s_sheet_%d:\n\t' % (name, self.index)
+        s += GBAImage.TileSet(self.image).tostring()[1:-1]
+        s += '\n'
+        return s
+
 
 class SheetSet:
     """
@@ -517,6 +523,19 @@ class SheetSet:
             space_list = self.sheet_list[sheet_id].find_blank_rectangles(space_list)
         self.sheet_list[sheet_id].add_parts(image, space_list)
         return space_list
+
+    def tostring(self, name=''):
+        s = ''
+        for sheet in self.sheet_list:
+            s += sheet.tostring(name)
+        return s
+
+    def save_to_asmfile(self, name='', path=''):
+        asmfile = os.path.join(path, name + '_sheets.inc')
+        with open(asmfile, 'w') as f_asm:
+            f_asm.write('@This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
+            f_asm.write('\t.section .rodata\n\t.align\n')
+            f_asm.write(self.tostring(name) + '\n')
 
 
 class Frame:
@@ -807,6 +826,7 @@ def parse_modes(name, f_text, f_asm, script_file=None):
             path = ''
         output_animation_palette(name, frames.frame_list[0].sheets.palette, path)
         frames.frame_list[0].sheets.save_as_images(os.path.join(path, name + '_sheet_'))
+        frames.frame_list[0].sheets.save_to_asmfile(name=name, path=path)
 
 
 def parse_script(script_file: str='script.txt', output_file: str=None, name: str=None):
