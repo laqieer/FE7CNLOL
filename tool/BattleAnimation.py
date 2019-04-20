@@ -535,7 +535,7 @@ class SheetSet:
         with open(asmfile, 'w') as f_asm:
             f_asm.write('@This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
             f_asm.write('\t.section .rodata\n\t.align\n')
-            f_asm.write(self.tostring(name) + '\n')
+            f_asm.write(self.tostring(name).replace(':\n\t\n\t0x10,', ':\n\t\n\t0x00,') + '\n')
 
 
 class Frame:
