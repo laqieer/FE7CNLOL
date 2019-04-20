@@ -730,20 +730,20 @@ def parse_line(s: str):
     return ''
 
 
-def output_palette_group(name, fp, palette: list):
+def output_palette_lz77(name, fp, palette: list):
     palette_bytes = GBAImage.Palette(palette).to_bytes()
-    palette_group_bytes = palette_bytes * 4
     with open('palette_group_temp.bin', 'wb') as f_temp:
-        f_temp.write(palette_group_bytes)
+        f_temp.write(palette_bytes)
     nlzss.encode_file('palette_group_temp.bin', 'palette_group_temp_nlzss.bin')
     fp.write('// LZ77 compressed\n')
-    fp.write(bin2c.bin2c('palette_group_temp_nlzss.bin', varname=name + '_pal_1').replace('=', '__attribute__((aligned(4)))=') + '\n')
+    fp.write(bin2c.bin2c('palette_group_temp_nlzss.bin', varname=name + '_pal').replace('=', '__attribute__((aligned(4)))=') + '\n')
     os.remove('palette_group_temp.bin')
     os.remove('palette_group_temp_nlzss.bin')
 
 
-def output_palette_2(name, fp, palette: list):
-    fp.write('const unsigned short %s_pal_2[] __attribute__((aligned(4)))= {' % name)
+def output_double_palette(name, fp, palette: list):
+    # add 4 0xFF at the head to distinguish with single palette
+    fp.write('const unsigned short %s_pal[] __attribute__((aligned(4)))= {0xFFFF,0xFFFF,' % name)
     fp.write(GBAImage.Palette(palette).tostring_raw())
     fp.write('};\n')
 
@@ -752,9 +752,11 @@ def output_animation_palette(name: str, palette: list, path=''):
     palette_file = os.path.join(path, name + '_pal.c')
     with open(palette_file, 'w') as f_pal:
         f_pal.write('//This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
-        output_palette_group(name, f_pal, palette[: 3 * 16])
-        if not palette[3 * 16: 3 * 16 * 2] == palette[3 * 16: 3 * 16 + 3] * 16:
-            output_palette_2(name, f_pal, palette[3 * 16: 3 * 16 * 2])
+        if palette[3 * 16: 3 * 16 * 2] == palette[3 * 16: 3 * 16 + 3] * 16:
+            # lz77 compression avoids the weak 0x10 detection in my hacked game routine
+            output_palette_lz77(name, f_pal, palette[: 3 * 16] * 4)
+        else:
+            output_double_palette(name, f_pal, palette[: 3 * 16 * 2] * 5)
 
 
 def parse_modes(name, f_text, f_asm, script_file=None):
