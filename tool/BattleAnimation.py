@@ -682,9 +682,10 @@ def f_comment(s: str):
 
 
 def f_85(s: str):
+    s_out = 'Cmd 0x%s' % s[1:3]
     if s[1:3] == '01':
-        return '@Loop end'
-    return 'Cmd 0x%s' % s[1:3]
+        s_out = '@Loop end\n\t' + s_out
+    return s_out
 
 
 def f_sound(s: str):
