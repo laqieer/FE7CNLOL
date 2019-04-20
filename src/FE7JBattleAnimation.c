@@ -843,6 +843,8 @@ void battleAnimationInit()
   short v10; // r0@10
   short v11; // r0@12
   int v12; // [sp+0h] [bp-24h]@10
+  int i; // 循环变量
+  pBattleAnimation animation_p; // 调色板所在的战斗动画
 
   *(u32 *)0x201FB14 = 0;
   *(u32 *)0x201FB10 = 0;
@@ -869,24 +871,39 @@ void battleAnimationInit()
     animationID_PalGroup = getAnimationIDForPaletteGroup(animationID, 0);
 	
 //	无压缩data5支持
-	if( *(u8 *)battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup == 0x10)
+/*	if( *(u8 *)battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup == 0x10)
     	FE7JLZ77UnCompWram(
 	//      FE7BattleAnimationBank[animationID_PalGroup].palGroup,
 		  battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
 	      BattleAnimationPaletteGroupBufferLeftSide);
 	else
 		FE7JCPUFastSet(battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
-						BattleAnimationPaletteGroupBufferLeftSide,0x80/4);
+						BattleAnimationPaletteGroupBufferLeftSide,0x80/4);	*/
+						
+	// data5(调色板组)双倍扩展(16 x 5 => 32 x 5)
+	animation_p = GetBattleAnimation(animationID_PalGroup);
+	if(*(int *)animation_p->palGroup == -1)	// 头部加4个0xFF标识32色板组
+		for(i = 0; i < 5; i++)
+			FE7JCPUFastSet((int)animation_p->palGroup + 4 + 0x20 * 2 * i, (int)BattleAnimationPaletteGroupBufferLeftSide + 0x20 * i, 0x20 / 4);
+	else
+		if(*(u8 *)animation_p->palGroup == 0x10)	// 这种压缩识别方式这是为了兼容以前做好的动画,假设无压缩数据的第一个字节刚好是0x10的话...
+			FE7JLZ77UnCompWram(animation_p->palGroup, BattleAnimationPaletteGroupBufferLeftSide);
+		else
+			FE7JCPUFastSet(animation_p->palGroup, BattleAnimationPaletteGroupBufferLeftSide, 0xA0 / 4);
 	
     if ( characterBattlePaletteID != -1 )
     {
 	//	无压缩人物调色板支持
-		if( *(u8 *)characterBattlePalTable[characterBattlePaletteID].pal == 0x10)
-		  FE7JLZ77UnCompWram(
-	        characterBattlePalTable[characterBattlePaletteID].pal,
-    	    BattleAnimationPaletteGroupBufferLeftSide);
+	// 个人调色板双倍扩展(16 x 1 => 32 x 1)
+		if(*(int *)characterBattlePalTable[characterBattlePaletteID].pal == -1)
+			FE7JCPUFastSet((int)characterBattlePalTable[characterBattlePaletteID].pal + 4, BattleAnimationPaletteGroupBufferLeftSide, 0x20 / 4);
 		else
-			FE7JCPUFastSet(characterBattlePalTable[characterBattlePaletteID].pal,BattleAnimationPaletteGroupBufferLeftSide,0x20/4);
+			if( *(u8 *)characterBattlePalTable[characterBattlePaletteID].pal == 0x10)
+			  FE7JLZ77UnCompWram(
+				characterBattlePalTable[characterBattlePaletteID].pal,
+				BattleAnimationPaletteGroupBufferLeftSide);
+			else
+				FE7JCPUFastSet(characterBattlePalTable[characterBattlePaletteID].pal,BattleAnimationPaletteGroupBufferLeftSide,0x20/4);
 		
       sub(8054798)(BattleAnimationPaletteGroupBufferLeftSide, 0);
     }
@@ -899,15 +916,19 @@ void battleAnimationInit()
 	//	FE7JCPUFastSet(&PriscillaAnimationTest_PalA, &OBJPaletteBuffer[128], 8u);
 	if(characterBattlePaletteID != -1)
 	{
-		if(characterBattlePaletteID < sizeof(characterBattleSecondPalTable)/sizeof(characterBattleSecondPalTable[0]))
-			if(characterBattleSecondPalTable[characterBattlePaletteID])
-				FE7JCPUFastSet(characterBattleSecondPalTable[characterBattlePaletteID], &OBJPaletteBuffer[128], 8);
+		if(characterBattlePaletteID < sizeof(characterBattleSecondPalTable)/sizeof(characterBattleSecondPalTable[0]) && characterBattleSecondPalTable[characterBattlePaletteID])
+			FE7JCPUFastSet(characterBattleSecondPalTable[characterBattlePaletteID], &OBJPaletteBuffer[128], 8);
+		else	// 直接扩展色板支持
+			if(*(int *)characterBattlePalTable[characterBattlePaletteID].pal == -1)
+				FE7JCPUFastSet((int)characterBattlePalTable[characterBattlePaletteID].pal + 4 + 0x20, &OBJPaletteBuffer[128], 8);
 	}
 	else
 	{
-		if(animationID < sizeof(battleAnimationSecondPalTable)/sizeof(battleAnimationSecondPalTable[0]))
-			if(battleAnimationSecondPalTable[animationID])
-				FE7JCPUFastSet(battleAnimationSecondPalTable[animationID] + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[128], 8);
+		if(animationID < sizeof(battleAnimationSecondPalTable)/sizeof(battleAnimationSecondPalTable[0]) && battleAnimationSecondPalTable[animationID])
+			FE7JCPUFastSet(battleAnimationSecondPalTable[animationID] + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[128], 8);
+		else	// 直接扩展色板支持
+			if(*(int *)animation_p->palGroup == -1)
+				FE7JCPUFastSet((int)animation_p->palGroup + 4 + 0x20 * 2 * palSlotIDInPalGroup + 0x20, &OBJPaletteBuffer[128], 8);
 	}
 	
     EnablePaletteSync();
@@ -991,26 +1012,39 @@ void battleAnimationInit()
     animationID_PalGroup = getAnimationIDForPaletteGroup(animationID, 1);
 	
 //	无压缩data5支持
-	if(*(u8 *)battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup == 0x10)
+/*	if(*(u8 *)battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup == 0x10)
     	FE7JLZ77UnCompWram(
 	//      FE7BattleAnimationBank[animationID_PalGroup].palGroup,
 		  battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
 	      BattleAnimationPaletteGroupBufferRightSide);
 	else
 		FE7JCPUFastSet(battleAnimationBank[animationID_PalGroup>>8][animationID_PalGroup & 0xFF].palGroup,
-						BattleAnimationPaletteGroupBufferRightSide,0x80/4);
+						BattleAnimationPaletteGroupBufferRightSide,0x80/4);	*/
+						
+	animation_p = GetBattleAnimation(animationID_PalGroup);
+	if(*(int *)animation_p->palGroup == -1)	// 头部加4个0xFF标识32色板组
+		for(i = 0; i < 5; i++)
+			FE7JCPUFastSet((int)animation_p->palGroup + 4 + 0x20 * 2 * i, (int)BattleAnimationPaletteGroupBufferRightSide + 0x20 * i, 0x20 / 4);
+	else
+		if(*(u8 *)animation_p->palGroup == 0x10)	// 这种压缩识别方式这是为了兼容以前做好的动画,假设无压缩数据的第一个字节刚好是0x10的话...
+			FE7JLZ77UnCompWram(animation_p->palGroup, BattleAnimationPaletteGroupBufferRightSide);
+		else
+			FE7JCPUFastSet(animation_p->palGroup, BattleAnimationPaletteGroupBufferRightSide, 0xA0 / 4);
 	
     if ( characterBattlePaletteID != -1 )
     {
 	//	无压缩人物调色板支持
-		if(*(u8 *)characterBattlePalTable[characterBattlePaletteID].pal == 0x10)
-      		FE7JLZ77UnCompWram(
-		        characterBattlePalTable[characterBattlePaletteID].pal,
-        		BattleAnimationPaletteGroupBufferRightSide);
+		if(*(int *)characterBattlePalTable[characterBattlePaletteID].pal == -1)
+			FE7JCPUFastSet((int)characterBattlePalTable[characterBattlePaletteID].pal + 4, BattleAnimationPaletteGroupBufferRightSide, 0x20 / 4);
 		else
-			FE7JCPUFastSet(characterBattlePalTable[characterBattlePaletteID].pal,BattleAnimationPaletteGroupBufferRightSide,0x20/4);
-		
-	      sub(8054798)(BattleAnimationPaletteGroupBufferRightSide, 1);
+			if(*(u8 *)characterBattlePalTable[characterBattlePaletteID].pal == 0x10)
+				FE7JLZ77UnCompWram(
+					characterBattlePalTable[characterBattlePaletteID].pal,
+					BattleAnimationPaletteGroupBufferRightSide);
+			else
+				FE7JCPUFastSet(characterBattlePalTable[characterBattlePaletteID].pal,BattleAnimationPaletteGroupBufferRightSide,0x20/4);
+			
+			  sub(8054798)(BattleAnimationPaletteGroupBufferRightSide, 1);
     }
     BattleAnimationPaletteRightSide = BattleAnimationPaletteGroupBufferRightSide + 16 * palSlotIDInPalGroup;
     FE7JCPUFastSet(BattleAnimationPaletteGroupBufferRightSide + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[144], 8u);
@@ -1021,16 +1055,20 @@ void battleAnimationInit()
 	//	FE7JCPUFastSet(&PriscillaAnimationTest_PalA, &OBJPaletteBuffer[160], 8u);
 	if(characterBattlePaletteID != -1)
 	{
-		if(characterBattlePaletteID < sizeof(characterBattleSecondPalTable)/sizeof(characterBattleSecondPalTable[0]))
-			if(characterBattleSecondPalTable[characterBattlePaletteID])
-				FE7JCPUFastSet(characterBattleSecondPalTable[characterBattlePaletteID], &OBJPaletteBuffer[160], 8);
+		if(characterBattlePaletteID < sizeof(characterBattleSecondPalTable)/sizeof(characterBattleSecondPalTable[0]) && characterBattleSecondPalTable[characterBattlePaletteID])
+			FE7JCPUFastSet(characterBattleSecondPalTable[characterBattlePaletteID], &OBJPaletteBuffer[160], 8);
+		else	// 直接扩展色板支持
+			if(*(int *)characterBattlePalTable[characterBattlePaletteID].pal == -1)
+				FE7JCPUFastSet((int)characterBattlePalTable[characterBattlePaletteID].pal + 4 + 0x20, &OBJPaletteBuffer[160], 8);
 		// DEBUG("characterBattlePaletteID = %d",characterBattlePaletteID)
 	}
 	else
 	{
-		if(animationID < sizeof(battleAnimationSecondPalTable)/sizeof(battleAnimationSecondPalTable[0]))
-			if(battleAnimationSecondPalTable[animationID])
-				FE7JCPUFastSet(battleAnimationSecondPalTable[animationID] + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[160], 8);
+		if(animationID < sizeof(battleAnimationSecondPalTable)/sizeof(battleAnimationSecondPalTable[0]) && battleAnimationSecondPalTable[animationID])
+			FE7JCPUFastSet(battleAnimationSecondPalTable[animationID] + 16 * palSlotIDInPalGroup, &OBJPaletteBuffer[160], 8);
+		else	// 直接扩展色板支持
+			if(*(int *)animation_p->palGroup == -1)
+				FE7JCPUFastSet((int)animation_p->palGroup + 4 + 0x20 * 2 * palSlotIDInPalGroup + 0x20, &OBJPaletteBuffer[160], 8);
 		// DEBUG("animationID = 0x%x",animationID)
 	}
 	
@@ -3072,6 +3110,7 @@ void DemoBattleAnimationInit(void *AIS)
 	int v16; // r1@8
 	__int16 v17; // [sp+0h] [bp-24h]@1
 	u16 animationID;
+	int i;
 
 	v2 = *((_WORD *)AIS + 5);
 	// IDA的BYTEn系列宏请勿使用
@@ -3187,24 +3226,49 @@ void DemoBattleAnimationInit(void *AIS)
 	v15[17] = (int)AIS;
 	// data5
 //	FE7JLZ77UnCompWram(*(&FE7BattleAnimationBank.palGroup + 8 * *((_WORD *)AIS + 3)), *((void **)AIS + 8));
-	if(*(u8 *)animation->palGroup == 0x10)
-		FE7JLZ77UnCompWram(animation->palGroup, *((void **)AIS + 8));
+	// 直接扩展色板支持
+	if(*(int *)animation->palGroup == -1)
+		for(i = 0; i < 5; i++)
+			FE7JCPUFastSet((int)animation->palGroup + 4 + 0x20 * 2 * i, (int)(*((void **)AIS + 8)) + 0x20 * i, 0x20/4);
 	else
-		FE7JCPUFastSet(animation->palGroup, *((void **)AIS + 8), 0x80/4);
+		if(*(u8 *)animation->palGroup == 0x10)
+			FE7JLZ77UnCompWram(animation->palGroup, *((void **)AIS + 8));
+		else
+			FE7JCPUFastSet(animation->palGroup, *((void **)AIS + 8), 0xA0/4);
 	v16 = *((_WORD *)AIS + 4);
 	if ( v16 != -1 )
 //		FE7JLZ77UnCompWram(*(&characterBattlePalTable.pal + 4 * v16), *((void **)AIS + 8));
 		// 个人专用调色板
 	{
-		if(*(u8 *)characterBattlePalTable[v16].pal == 0x10)
-			FE7JLZ77UnCompWram(characterBattlePalTable[v16].pal, *((void **)AIS + 8));
+		if(*(int *)characterBattlePalTable[v16].pal == -1)
+			FE7JCPUFastSet((int)characterBattlePalTable[v16].pal + 4, *((void **)AIS + 8), 0x20/4);
 		else
-			FE7JCPUFastSet(characterBattlePalTable[v16].pal, *((void **)AIS + 8), 0x20/4);
+			if(*(u8 *)characterBattlePalTable[v16].pal == 0x10)
+				FE7JLZ77UnCompWram(characterBattlePalTable[v16].pal, *((void **)AIS + 8));
+			else
+				FE7JCPUFastSet(characterBattlePalTable[v16].pal, *((void **)AIS + 8), 0x20/4);
 	}
 	FE7JCPUFastSet(
 		(void *)(*((_DWORD *)AIS + 8) + 32 * *((_BYTE *)AIS + 1)),
 		(u16 *)OBJPaletteBuffer+16 * *((_WORD *)AIS + 8),
 		8u);
+	// 双色板扩展
+	if(v16 != -1)	// 人物特殊色板
+	{
+		if(v16 < sizeof(characterBattleSecondPalTable)/sizeof(characterBattleSecondPalTable[0]) && characterBattleSecondPalTable[v16])
+			FE7JCPUFastSet(characterBattleSecondPalTable[v16], (u16 *)OBJPaletteBuffer+16 * (*((_WORD *)AIS + 8) + 1), 8);
+		else	// 直接扩展色板支持
+			if(*(int *)characterBattlePalTable[v16].pal == -1)
+				FE7JCPUFastSet((int)characterBattlePalTable[v16].pal + 4 + 0x20, (u16 *)OBJPaletteBuffer+16 * (*((_WORD *)AIS + 8) + 1), 8);
+	}
+	else	// 动画自带色板
+	{
+		if(animationID < sizeof(battleAnimationSecondPalTable)/sizeof(battleAnimationSecondPalTable[0]) && battleAnimationSecondPalTable[animationID])
+			FE7JCPUFastSet(battleAnimationSecondPalTable[animationID] + 16 * (*((_BYTE *)AIS + 1)), (u16 *)OBJPaletteBuffer+16 * (*((_WORD *)AIS + 8) + 1), 8);
+		else	// 直接扩展色板支持
+			if(*(int *)animation->palGroup == -1)
+				FE7JCPUFastSet((int)animation->palGroup + 4 + 0x20 * 2 * (*((_BYTE *)AIS + 1)) + 0x20, (u16 *)OBJPaletteBuffer+16 * (*((_WORD *)AIS + 8) + 1), 8);
+	}
 	EnablePaletteSync();
 	*((_DWORD *)AIS + 11) = 0;
 }
