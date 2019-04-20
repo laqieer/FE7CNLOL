@@ -805,7 +805,8 @@ def parse_modes(name, f_text, f_asm, script_file=None):
             path = os.path.dirname(script_file)
         else:
             path = ''
-        output_animation_palette(name, frames[0].sheets.palette, path)
+        output_animation_palette(name, frames.frame_list[0].sheets.palette, path)
+        frames.frame_list[0].sheets.save_as_images(os.path.join(path, name + '_sheet_'))
 
 
 def parse_script(script_file: str='script.txt', output_file: str=None, name: str=None):
