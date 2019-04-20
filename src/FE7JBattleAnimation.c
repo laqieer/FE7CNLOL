@@ -243,6 +243,29 @@ const BattleAnimation * const battleAnimationBank[] =
 	NewBattleAnimationBank
 };
 
+// 战斗动画bank信息表
+const BattleAnimationBankInfo battleAnimationBankInfoTable[] =
+{
+	{FE7BattleAnimationBank, 0},
+	{&NewBattleAnimationBank, 0},
+	{&BattleAnimationPointerBank, 1},
+};
+
+// 根据战斗动画id取战斗动画数据地址
+pBattleAnimation GetBattleAnimation(u16 index)
+{
+	u8 bank_number;
+	u8 animation_number;
+	BattleAnimationBankInfo bank_info;
+	
+	bank_number = index >> 8;
+	animation_number = index & 0xFF;
+	bank_info = battleAnimationBankInfoTable[bank_number];
+	if(bank_info.is_pointer)
+		return ((pBattleAnimation*)(bank_info.array))[animation_number];
+	return (pBattleAnimation)(bank_info.array) + animation_number;
+}
+
 // 交换2个双字节
 void swap_u16(u16 *a,u16 *b)
 {
@@ -829,7 +852,8 @@ void battleAnimationInit()
     palSlotIDInPalGroup = BattleAnimationPalSlotLeftSide;
     characterBattlePaletteID = CharaterBattleAnimationPaletteIDLeftSide;
 //    animation = FE7BattleAnimationBank + BattleAnimationIDLeftSide;
-	animation = &battleAnimationBank[animationID>>8][animationID & 0xFF];
+//	animation = &battleAnimationBank[animationID>>8][animationID & 0xFF];
+	animation = GetBattleAnimation(animationID);
 //    FE7JLZ77UnCompWram(animation->event, BattleAnimationEventBufferLeftSide);
 
 //	无压缩data2支持
@@ -950,7 +974,8 @@ void battleAnimationInit()
     palSlotIDInPalGroup = BattleAnimationPalSlotRightSide;
     characterBattlePaletteID = CharaterBattleAnimationPaletteIDRightSide;
 //    animation = FE7BattleAnimationBank + BattleAnimationIDRightSide;
-	animation = &battleAnimationBank[animationID>>8][animationID & 0xFF];
+//	animation = &battleAnimationBank[animationID>>8][animationID & 0xFF];
+	animation = GetBattleAnimation(animationID);
 //    FE7JLZ77UnCompWram(animation->event, BattleAnimationEventBufferRightSide);
 
 //	无压缩data2支持
@@ -3063,7 +3088,8 @@ void DemoBattleAnimationInit(void *AIS)
 	// 双字节动画ID
 	animationID = *((_WORD *)AIS + 3);
 	// 高字节选择动画库，低字节选择动画
-	animation = &battleAnimationBank[animationID>>8][animationID & 0xFF];
+//	animation = &battleAnimationBank[animationID>>8][animationID & 0xFF];
+	animation = GetBattleAnimation(animationID);
 //	FE7JLZ77UnCompWram(*(&FE7BattleAnimationBank.event + 8 * *((_WORD *)AIS + 3)), *((void **)AIS + 10));
 //	animation = &FE7BattleAnimationBank + *((_WORD *)AIS + 3);
 	// data2

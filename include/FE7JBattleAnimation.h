@@ -32,7 +32,15 @@ typedef	struct {
 	void *oamR2L;			// 第三个指针指向OAM数据(在右侧朝左侧)
 	void *oamL2R;			// 第四个指针指向OAM数据(在左侧朝右侧)
 	void *palGroup;			// 第五个指针指向调色板组
-} BattleAnimation;
+} BattleAnimation, *pBattleAnimation;
+
+// 战斗动画bank信息
+typedef struct {
+	void *array;
+	bool is_pointer;
+} BattleAnimationBankInfo;
+
+extern const pBattleAnimation BattleAnimationPointerBank[];
 
 // 动画运行结构体定义
 typedef struct ais {
