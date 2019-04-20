@@ -753,7 +753,8 @@ def output_animation_palette(name: str, palette: list, path=''):
     with open(palette_file, 'w') as f_pal:
         f_pal.write('//This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
         output_palette_group(name, f_pal, palette[: 3 * 16])
-        output_palette_2(name, f_pal, palette[3 * 16: 3 * 16 * 2])
+        if not palette[3 * 16: 3 * 16 * 2] == palette[3 * 16: 3 * 16 + 3] * 16:
+            output_palette_2(name, f_pal, palette[3 * 16: 3 * 16 * 2])
 
 
 def parse_modes(name, f_text, f_asm, script_file=None):
