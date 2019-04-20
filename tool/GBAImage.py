@@ -135,6 +135,12 @@ class Palette:
         s += '}'
         return s
 
+    def tostring_raw(self):
+        s = ''
+        for i in range(self.color_number):
+            s += '0x%04X,' % self.color_list[i].to_short()
+        return s
+
 
 class Tile:
     """

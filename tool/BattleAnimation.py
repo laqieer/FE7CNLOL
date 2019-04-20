@@ -12,6 +12,9 @@ import copy
 import json
 import os
 from operator import methodcaller, attrgetter
+import GBAImage
+import bin2c
+import nlzss
 
 # to split frame into objects and make sheet
 obj_conf = [{'width': 64, 'height': 64, 'threshold': 7},
@@ -707,6 +710,32 @@ def parse_line(s: str):
     return ''
 
 
+def output_palette_group(name, fp, palette: list):
+    palette_bytes = GBAImage.Palette(palette).to_bytes()
+    palette_group_bytes = palette_bytes * 4
+    with open('palette_group_temp.bin', 'wb') as f_temp:
+        f_temp.write(palette_group_bytes)
+    nlzss.encode_file('palette_group_temp.bin', 'palette_group_temp_nlzss.bin')
+    fp.write('// LZ77 compressed\n')
+    fp.write(bin2c.bin2c('palette_group_temp_nlzss.bin', varname=name + '_pal_1') + '\n')
+    os.remove('palette_group_temp.bin')
+    os.remove('palette_group_temp_nlzss.bin')
+
+
+def output_palette_2(name, fp, palette: list):
+    fp.write('const unsigned short %s_pal_2[] __attribute__((aligned(4)))= {' % name)
+    fp.write(GBAImage.Palette(palette).tostring_raw())
+    fp.write('};\n')
+
+
+def output_animation_palette(name: str, palette: list, path=''):
+    palette_file = os.path.join(path, name + '_pal.c')
+    with open(palette_file, 'w') as f_pal:
+        f_pal.write('@This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
+        output_palette_group(name, f_pal, palette[: 3 * 16])
+        output_palette_2(name, f_pal, palette[3 * 16: 3 * 16 * 2])
+
+
 def parse_modes(name, f_text, f_asm, script_file=None):
     if f_text is not None and f_asm is not None:
         frames = FrameSet('SplitConf.json')
@@ -772,6 +801,11 @@ def parse_modes(name, f_text, f_asm, script_file=None):
             f_oam.writelines(frames.tostring_r(name))
             f_oam.write('\t.section .rodata\n')
             f_oam.writelines(frames.tostring_l(name))
+        if script_file is not None:
+            path = os.path.dirname(script_file)
+        else:
+            path = ''
+        output_animation_palette(name, frames[0].sheets.palette, path)
 
 
 def parse_script(script_file: str='script.txt', output_file: str=None, name: str=None):
