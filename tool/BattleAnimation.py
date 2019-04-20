@@ -751,7 +751,7 @@ def output_palette_2(name, fp, palette: list):
 def output_animation_palette(name: str, palette: list, path=''):
     palette_file = os.path.join(path, name + '_pal.c')
     with open(palette_file, 'w') as f_pal:
-        f_pal.write('@This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
+        f_pal.write('//This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
         output_palette_group(name, f_pal, palette[: 3 * 16])
         output_palette_2(name, f_pal, palette[3 * 16: 3 * 16 * 2])
 
