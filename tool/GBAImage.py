@@ -4,6 +4,9 @@
 
 from PIL import Image, ImageSequence
 import struct
+import nlzss
+import bin2c
+import os
 
 
 def reset_palette(image, palette=None):
@@ -313,6 +316,15 @@ class TileSet:
                 if self.tile_matrix[y][x].get_non_transparent_pixel_number() > threshold:
                     tile_number += 1
         return tile_number
+
+    def tostring_lz77(self):
+        with open('tileset_temp.bin', 'wb') as f_temp:
+            f_temp.write(self.to_bytes())
+        nlzss.encode_file('tileset_temp.bin', 'tileset_temp_nlzss.bin')
+        _, s = bin2c.bin2c('tileset_temp_nlzss.bin').split("=")
+        os.remove('tileset_temp.bin')
+        os.remove('tileset_temp_nlzss.bin')
+        return s
 
 
 class BGTile:
