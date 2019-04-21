@@ -11,6 +11,8 @@ import math
 import copy
 import json
 import os
+import sys
+import getopt
 from operator import methodcaller, attrgetter
 import GBAImage
 import bin2c
@@ -758,7 +760,7 @@ def output_animation_c_file(name: str, palette: list, path='', abbr=''):
             output_palette_lz77(name, f_c, palette[: 3 * 16] * 4)
         else:
             output_double_palette(name, f_c, palette[: 3 * 16 * 2] * 5)
-        f_c.write('const BattleAnimation %s_animation __attribute__((aligned(4)))= {"%s",&%s_modes,&%s_script,&%s_oam_r,&%s_oam_l,&%s_pal};' % tuple([name, abbr] + [name] * 5))
+        f_c.write('const BattleAnimation %s_animation __attribute__((aligned(4)))= {"%s",&%s_modes,&%s_script,&%s_oam_r,&%s_oam_l,&%s_pal};' % tuple([name, abbr[:11]] + [name] * 5))
 
 
 def output_animation_header_file(name: str, path=''):
@@ -778,7 +780,7 @@ def parse_modes(name, f_text, f_asm, script_file=None, split_conf_file=None, abb
     if f_text is not None and f_asm is not None:
 ##        pos_save = f_asm.tell()
         lines_behind = []
-        frames = FrameSet('SplitConf.json', split_conf_file)
+        frames = FrameSet(split_conf_file)
         mode = 1
         oam_file = os.path.join(os.path.dirname(script_file), name + '_oam.inc')
         with open(oam_file, 'w') as f_oam:
@@ -891,33 +893,40 @@ def parse_script(script_file: str='script.txt', output_file: str=None, name: str
         f_asm.write('\t.end\n')
 
 
+def main(argv):
+    script_file = None
+    output_file = None
+    name = None
+    split_conf_file = None
+    abbr = ''
+    try:
+        opts, args = getopt.getopt(argv, 'i:o:n:c:a:h', ['in=', 'out=', 'name=', 'conf=', 'abbr=', 'help'])
+    except getopt.GetoptError:
+        print('Commandline Parameter Error. -h/--help.')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt in ('-h', '--help'):
+            print('Handle battle animation script and make source files to include in project.\n')
+            print('Commandline Parameter:\n')
+            print('\t-h,--help\tshow help\n')
+            print('\t-i,--in\tinput animation script file\n')
+            print('\t-o,--out\toutput assembly script file\n')
+            print('\t-n,--name\tanimation name\n')
+            print('\t-a,--abbr\tanimation name abbr (less than 12 characters)\n')
+            print('\t-c,--conf\tsplit algorithm configure file\n')
+            sys.exit()
+        elif opt in ('-i', '--in'):
+            script_file = arg
+        elif opt in ('-o', '--out'):
+            output_file = arg
+        elif opt in ('-n', '--name'):
+            name = arg
+        elif opt in ('-a', '--abbr'):
+            abbr = arg
+        elif opt in ('-c', '--conf'):
+            split_conf_file = arg
+    parse_script(script_file=script_file, output_file=output_file, name=name, split_conf_file=split_conf_file, abbr=abbr)
+
+
 if __name__ == "__main__":
-    # test: split frame and make sheet
-    '''im_f0 = Image.open('../trash/普莉希拉30色/001.png')
-    im_f1 = Image.open('../trash/普莉希拉30色/002.png')
-    im_f2 = Image.open('../trash/普莉希拉30色/003.png')
-    im_f3 = Image.open('../trash/普莉希拉30色/004.png')
-    im_f4 = Image.open('../trash/普莉希拉30色/005.png')
-    im_f5 = Image.open('../trash/普莉希拉30色/006.png')
-    im_f6 = Image.open('../trash/普莉希拉30色/007.png')
-    frames = FrameSet('SplitConf.json')
-    print("pocessing 001.png")
-    print("Frame ", frames.add(im_f0))
-    print("pocessing 002.png")
-    print("Frame ", frames.add(im_f1))
-    print("pocessing 003.png")
-    print("Frame ", frames.add(im_f2))
-    print("pocessing 004.png")
-    print("Frame ", frames.add(im_f3))
-    print("pocessing 005.png")
-    print("Frame ", frames.add(im_f4))
-    print("pocessing 006.png")
-    print("Frame ", frames.add(im_f5))
-    print("pocessing 007.png")
-    print("Frame ", frames.add(im_f6))
-    frames.frame_list[0].sheets.save_as_images('../trash/普莉希拉30色/sheet_')'''
-##    frames = FrameSet('SplitConf.json')
-##    im = Image.open('../trash/erlm_sw1/erlm_sw1_000.png')
-##    print(frames.add(im))
-    # test: parse script
-    parse_script('../trash/roy_sword/roy_sword.txt')
+    main(sys.argv[1:])
