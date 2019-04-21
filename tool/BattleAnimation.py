@@ -476,6 +476,11 @@ class Sheet:
         s += GBAImage.TileSet(self.image).tostring() + ';\n'
         return s
 
+    def tostring_lz77(self, name=''):
+        s = '\n//lz77 compressed\nconst unsigned char %s_sheet_%d[] __attribute__((aligned(4)))=' % (name, self.index)
+        s += GBAImage.TileSet(self.image).tostring_lz77() + '\n'
+        return s
+
 
 class SheetSet:
     """
@@ -531,11 +536,20 @@ class SheetSet:
             s += sheet.tostring(name)
         return s
 
-    def save_to_c_file(self, name='', path=''):
+    def tostring_lz77(self, name=''):
+        s = ''
+        for sheet in self.sheet_list:
+            s += sheet.tostring_lz77(name)
+        return s
+
+    def save_to_c_file(self, name='', path='', comp='lz77'):
         c_file = os.path.join(path, name + '_sheets.c')
         with open(c_file, 'w') as f_c:
             f_c.write('//This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
-            f_c.write(self.tostring(name).replace('{\n\t0x10,0x0,0x20,0x0,', '{\n\t0x0,0x0,0x20,0x0,'))
+            if comp == 'lz77':
+                f_c.write(self.tostring_lz77(name))
+            else:
+                f_c.write(self.tostring(name).replace('{\n\t0x10,0x0,0x20,0x0,', '{\n\t0x0,0x0,0x20,0x0,'))
 
 
 class Frame:
