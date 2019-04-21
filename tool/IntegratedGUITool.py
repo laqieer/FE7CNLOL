@@ -14,6 +14,7 @@ from tkinter import filedialog
 from PIL import Image, ImageTk, ImageDraw, PaletteFile, GimpPaletteFile, ImageColor
 import GBAImage
 from codecs import encode
+import BattleAnimation
 
 
 def act_to_list(act_file):
@@ -1440,25 +1441,47 @@ def show_main_window(argv):
         window_battle_animation = tk.Toplevel(window)
         window_battle_animation.title('Battle Animation')
 
-        def import_from_script():
-            """
-            Import battle animation from script.
-            :return: None.
-            """
-            im = ask_and_open_image(height=160)
-            pass
+        script_file = None
+        output_file = None
+        split_conf_file = None
 
-        def export_to_source():
+        def load_animation_script():
+            nonlocal script_file
+            script_file = filedialog.askopenfilename(title='Open Script', filetypes=[('TEXT', '*.txt'), ('All Files', '*')])
+
+        def save_assembly_script():
+            nonlocal output_file
+            output_file = filedialog.askopenfilename(title='Output Assembly', filetypes=[('ASM', '*.s'), ('All Files', '*')])
+
+        def load_split_conf():
+            nonlocal split_conf_file
+            split_conf_file = filedialog.askopenfilename(title='Split Configure', filetypes=[('JSON', '*.json'), ('All Files', '*')])
+
+        def make_battle_animation():
             """
-            Export battle animation to source file.
+            Make battle animation from script. Close the window when done.
             :return: None.
             """
-            pass
+            BattleAnimation.parse_script(script_file=script_file, output_file=output_file, name=e_name.get(), split_conf_file=split_conf_file, abbr=e_abbr.get())
+            window_battle_animation.destroy()
+
+        btn_script_file = tk.Button(window_battle_animation, text='Script', command=load_animation_script)
+        btn_script_file.pack()
+        btn_output_file = tk.Button(window_battle_animation, text='Assembly', command=save_assembly_script)
+        btn_output_file.pack()
+        btn_split_conf_file = tk.Button(window_battle_animation, text='Split Configure', command=load_split_conf)
+        btn_split_conf_file.pack()
         
-        btn_import = tk.Button(window_battle_animation, text="Import", command=import_from_script)
-        btn_import.pack()
-        btn_export = tk.Button(window_battle_animation, text="Export", command=export_to_source)
-        btn_export.pack()
+        e_name = tk.Entry(window_battle_animation)
+        e_name.insert(10, 'animation_name')
+        e_name.pack()
+        
+        e_abbr = tk.Entry(window_battle_animation, width='11')
+        e_abbr.insert(10, 'abbr')
+        e_abbr.pack()
+        
+        btn_make = tk.Button(window_battle_animation, text="Make", command=make_battle_animation)
+        btn_make.pack()
 
     # function buttons
     btn_portrait = tk.Button(window, text='Portrait', command=show_portrait_window)
