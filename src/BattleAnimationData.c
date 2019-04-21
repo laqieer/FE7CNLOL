@@ -4,7 +4,9 @@
 
 #include "FE7JBattleAnimation.h"
 
+#include "roy_sword_animation.h"
+
 // 指针表
 const pBattleAnimation BattleAnimationPointerBank[] = {
-	0
+	&roy_sword_animation, // 0x200
 };

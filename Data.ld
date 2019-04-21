@@ -52,3 +52,7 @@
 	.DisableNilsCharacterPalette : {*.o(.DisableNilsCharacterPalette)}
 	. = 0x8C51538 + 36 * 0x8F + 25;
 	.FlametongueRange : {*.o(.FlametongueRange)}
+	. = 0x8D60D1E;
+	.lyn_sword_animation_id : {*.o(.lyn_sword_animation_id)}
+	. = 0x8C4C1E3;
+	.lyn_unpromoted_animation_palette_id : {*.o(.lyn_unpromoted_animation_palette_id)}
