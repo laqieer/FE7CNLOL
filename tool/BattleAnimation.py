@@ -470,9 +470,8 @@ class Sheet:
         return duplicated_parts
 
     def tostring(self, name=''):
-        s = '%s_sheet_%d:\n\t' % (name, self.index)
-        s += GBAImage.TileSet(self.image).tostring()[1:-1]
-        s += '\n'
+        s = '\nconst unsigned char %s_sheet_%d[] __attribute__((aligned(4)))= ' % (name, self.index)
+        s += GBAImage.TileSet(self.image).tostring() + ';\n'
         return s
 
 
@@ -530,12 +529,11 @@ class SheetSet:
             s += sheet.tostring(name)
         return s
 
-    def save_to_asmfile(self, name='', path=''):
-        asmfile = os.path.join(path, name + '_sheets.inc')
-        with open(asmfile, 'w') as f_asm:
-            f_asm.write('@This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
-            f_asm.write('\t.section .rodata\n\t.align\n')
-            f_asm.write(self.tostring(name).replace(':\n\t\n\t0x10,', ':\n\t\n\t0x00,') + '\n')
+    def save_to_c_file(self, name='', path=''):
+        c_file = os.path.join(path, name + '_sheets.c')
+        with open(c_file, 'w') as f_c:
+            f_c.write('//This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
+            f_c.write(self.tostring(name).replace('{\n\t0x10,0x0,0x20,0x0,', '{\n\t0x0,0x0,0x20,0x0,'))
 
 
 class Frame:
@@ -748,19 +746,38 @@ def output_double_palette(name, fp, palette: list):
     fp.write('};\n')
 
 
-def output_animation_palette(name: str, palette: list, path=''):
-    palette_file = os.path.join(path, name + '_pal.c')
-    with open(palette_file, 'w') as f_pal:
-        f_pal.write('//This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
+def output_animation_c_file(name: str, palette: list, path=''):
+    palette_file = os.path.join(path, name + '_animation.c')
+    with open(palette_file, 'w') as f_c:
+        f_c.write('//This file is made by BattleAnimation.py automatically.\n//You can set the abbr for the animation.\n')
+        f_c.write('//It is required to add &%s_animation into BattleAnimationPointerBank[].\n' % name)
+        f_c.write('#include "FE7JBattleAnimation.h"\n')
+        f_c.write('#include "%s_animation.h"\n' % name)
         if palette[3 * 16: 3 * 16 * 2] == palette[3 * 16: 3 * 16 + 3] * 16:
             # lz77 compression avoids the weak 0x10 detection in my hacked game routine
-            output_palette_lz77(name, f_pal, palette[: 3 * 16] * 4)
+            output_palette_lz77(name, f_c, palette[: 3 * 16] * 4)
         else:
-            output_double_palette(name, f_pal, palette[: 3 * 16 * 2] * 5)
+            output_double_palette(name, f_c, palette[: 3 * 16 * 2] * 5)
+        f_c.write('const BattleAnimation %s_animation __attribute__((aligned(4)))= {"",&%s_modes,&%s_script,&%s_oam_r,&%s_oam_l,&%s_pal};' % tuple([name] * 6))
+
+
+def output_animation_header_file(name: str, path=''):
+    header_file = os.path.join(path, name + '_animation.h')
+    with open(header_file, 'w') as f_header:
+        f_header.write('//This file is made by BattleAnimation.py automatically.\n')
+        f_header.write('//It is required to include this file in BattleAnimationData.c.\n')
+        f_header.write('#pragma once\n')
+        f_header.write('extern const BattleAnimation %s_animation;\n' % name)
+        f_header.write('extern const unsigned char %s_modes[];\n' % name)
+        f_header.write('extern const unsigned char %s_script[];\n' % name)
+        f_header.write('extern const unsigned char %s_oam_r[];\n' % name)
+        f_header.write('extern const unsigned char %s_oam_l[];\n' % name)
 
 
 def parse_modes(name, f_text, f_asm, script_file=None):
     if f_text is not None and f_asm is not None:
+##        pos_save = f_asm.tell()
+        lines_behind = []
         frames = FrameSet('SplitConf.json')
         mode = 1
         oam_file = os.path.join(os.path.dirname(script_file), name + '_oam.inc')
@@ -768,7 +785,7 @@ def parse_modes(name, f_text, f_asm, script_file=None):
             f_oam.write('@This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
             while mode <= 12:
                 print('---Mode %d---' % mode)
-                f_asm.write('\n%s_mode_%d:\n' % (name, mode))
+                lines_behind.append('\n%s_mode_%d:\n' % (name, mode))
                 s = next(f_text)
                 print(s)
                 lines = []
@@ -815,11 +832,11 @@ def parse_modes(name, f_text, f_asm, script_file=None):
                     # todo add loop command
                     pass
                     lines.append('\tEndMode\n')
-                    f_asm.writelines(lines)
+                    lines_behind += lines
                     if mode in [1, 3]:
                         mode += 1
-                        f_asm.write('\n%s_mode_%d:\n' % (name, mode))
-                        f_asm.writelines(lines_b)
+                        lines_behind.append('\n%s_mode_%d:\n' % (name, mode))
+                        lines_behind += lines_b + ['\tEndMode\n']
                     mode += 1
             f_oam.writelines(frames.tostring_r(name))
             f_oam.write('\t.section .rodata\n')
@@ -828,9 +845,17 @@ def parse_modes(name, f_text, f_asm, script_file=None):
             path = os.path.dirname(script_file)
         else:
             path = ''
-        output_animation_palette(name, frames.frame_list[0].sheets.palette, path)
+        output_animation_c_file(name, frames.frame_list[0].sheets.palette, path)
+        output_animation_header_file(name, path)
         frames.frame_list[0].sheets.save_as_images(os.path.join(path, name + '_sheet_'))
-        frames.frame_list[0].sheets.save_to_asmfile(name=name, path=path)
+        frames.frame_list[0].sheets.save_to_c_file(name=name, path=path)
+##        f_asm.seek(pos_save, 0)
+        lines_extern_sheets = []
+##        lines_behind = f_asm.readlines()
+        for i in range(len(frames.frame_list[0].sheets.sheet_list)):
+            lines_extern_sheets.append('\n\t.extern %s_sheet_%d' % (name, i))
+        lines_extern_sheets.append('\n')
+        f_asm.writelines(lines_extern_sheets + lines_behind)
 
 
 def parse_script(script_file: str='script.txt', output_file: str=None, name: str=None):
@@ -846,16 +871,16 @@ def parse_script(script_file: str='script.txt', output_file: str=None, name: str
         name = os.path.basename(script_file)
         name, _ = os.path.splitext(name)
         name = name.replace('_script', '')
+##    with open(output_file, 'w+') as f_asm:
     with open(output_file, 'w') as f_asm:
         f_asm.write('@This file is made by BattleAnimation.py automatically. You can edit it.\n')
         f_asm.write('\t.include "BattleAnimationEventDef.inc"\n')
-        f_asm.write('\t.include "%s_sheet.inc"\n' % name)
         f_asm.write('\t.section .rodata\n\t.align 4\n')
         f_asm.write('\t.global %s_modes\n' % name)
         f_asm.write('\t.global %s_script\n' % name)
         f_asm.write('\t.global %s_oam_r\n' % name)
         f_asm.write('\t.global %s_oam_l\n' % name)
-        f_asm.write('\t.include "%s_oam.inc"\n' % name)
+        f_asm.write('\t.include "../include/%s_oam.inc"\n' % name)
         f_asm.write('\n%s_script:\n' % name)
         with open(script_file, 'r') as f_text:
             parse_modes(name, f_text, f_asm, script_file)
@@ -895,4 +920,4 @@ if __name__ == "__main__":
 ##    im = Image.open('../trash/erlm_sw1/erlm_sw1_000.png')
 ##    print(frames.add(im))
     # test: parse script
-    parse_script('../trash/erlm_sw1/erlm_sw1.txt')
+    parse_script('../trash/roy_sword/roy_sword.txt')
