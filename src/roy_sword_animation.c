@@ -11,4 +11,4 @@ const char roy_sword_pal[53] __attribute__((aligned(4)))= {
     0x65, 0x54, 0xa5, 0x14, 0xfc, 0xf0, 0x1f, 0xf0, 0x1f, 0xf0, 0x1f, 0xf0, 
     0x1f, 0xf0, 0x1f, 0x30, 0x1f
 };
-const BattleAnimation roy_sword_animation __attribute__((aligned(4)))= {"",&roy_sword_modes,&roy_sword_script,&roy_sword_oam_r,&roy_sword_oam_l,&roy_sword_pal};
+const BattleAnimation roy_sword_animation __attribute__((aligned(4)))= {"lorm_sw1",&roy_sword_modes,&roy_sword_script,&roy_sword_oam_r,&roy_sword_oam_l,&roy_sword_pal};
