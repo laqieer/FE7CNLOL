@@ -746,7 +746,7 @@ def output_double_palette(name, fp, palette: list):
     fp.write('};\n')
 
 
-def output_animation_c_file(name: str, palette: list, path=''):
+def output_animation_c_file(name: str, palette: list, path='', abbr=''):
     palette_file = os.path.join(path, name + '_animation.c')
     with open(palette_file, 'w') as f_c:
         f_c.write('//This file is made by BattleAnimation.py automatically.\n//You can set the abbr for the animation.\n')
@@ -758,7 +758,7 @@ def output_animation_c_file(name: str, palette: list, path=''):
             output_palette_lz77(name, f_c, palette[: 3 * 16] * 4)
         else:
             output_double_palette(name, f_c, palette[: 3 * 16 * 2] * 5)
-        f_c.write('const BattleAnimation %s_animation __attribute__((aligned(4)))= {"",&%s_modes,&%s_script,&%s_oam_r,&%s_oam_l,&%s_pal};' % tuple([name] * 6))
+        f_c.write('const BattleAnimation %s_animation __attribute__((aligned(4)))= {"%s",&%s_modes,&%s_script,&%s_oam_r,&%s_oam_l,&%s_pal};' % tuple([name, abbr] + [name] * 5))
 
 
 def output_animation_header_file(name: str, path=''):
@@ -774,11 +774,11 @@ def output_animation_header_file(name: str, path=''):
         f_header.write('extern const unsigned char %s_oam_l[];\n' % name)
 
 
-def parse_modes(name, f_text, f_asm, script_file=None):
+def parse_modes(name, f_text, f_asm, script_file=None, split_conf_file=None, abbr=''):
     if f_text is not None and f_asm is not None:
 ##        pos_save = f_asm.tell()
         lines_behind = []
-        frames = FrameSet('SplitConf.json')
+        frames = FrameSet('SplitConf.json', split_conf_file)
         mode = 1
         oam_file = os.path.join(os.path.dirname(script_file), name + '_oam.inc')
         with open(oam_file, 'w') as f_oam:
@@ -845,7 +845,7 @@ def parse_modes(name, f_text, f_asm, script_file=None):
             path = os.path.dirname(script_file)
         else:
             path = ''
-        output_animation_c_file(name, frames.frame_list[0].sheets.palette, path)
+        output_animation_c_file(name, frames.frame_list[0].sheets.palette, path, abbr)
         output_animation_header_file(name, path)
         frames.frame_list[0].sheets.save_as_images(os.path.join(path, name + '_sheet_'))
         frames.frame_list[0].sheets.save_to_c_file(name=name, path=path)
@@ -858,7 +858,7 @@ def parse_modes(name, f_text, f_asm, script_file=None):
         f_asm.writelines(lines_extern_sheets + lines_behind)
 
 
-def parse_script(script_file: str='script.txt', output_file: str=None, name: str=None):
+def parse_script(script_file: str='script.txt', output_file: str=None, name: str=None, split_conf_file=None, abbr=''):
     if output_file is None and name is not None:
         output_file = name + '_script.s'
     if name is None and output_file is not None:
@@ -883,7 +883,7 @@ def parse_script(script_file: str='script.txt', output_file: str=None, name: str
         f_asm.write('\t.include "../include/%s_oam.inc"\n' % name)
         f_asm.write('\n%s_script:\n' % name)
         with open(script_file, 'r') as f_text:
-            parse_modes(name, f_text, f_asm, script_file)
+            parse_modes(name, f_text, f_asm, script_file, split_conf_file, abbr)
         f_asm.write('\n%s_modes:\n' % name)
         for i in range(12):
             f_asm.write('\t.word %s_mode_%d - %s_script\n' % (name, i + 1, name))
