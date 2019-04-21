@@ -1451,17 +1451,20 @@ def show_main_window(argv):
 
         def save_assembly_script():
             nonlocal output_file
-            output_file = filedialog.askopenfilename(title='Output Assembly', filetypes=[('ASM', '*.s'), ('All Files', '*')])
+            output_file = filedialog.asksaveasfilename(title='Output Assembly', filetypes=[('ASM', '*.s'), ('All Files', '*')])
 
         def load_split_conf():
             nonlocal split_conf_file
             split_conf_file = filedialog.askopenfilename(title='Split Configure', filetypes=[('JSON', '*.json'), ('All Files', '*')])
-
+            
         def make_battle_animation():
             """
             Make battle animation from script. Close the window when done.
             :return: None.
             """
+            nonlocal script_file
+            nonlocal output_file
+            nonlocal split_conf_file
             BattleAnimation.parse_script(script_file=script_file, output_file=output_file, name=e_name.get(), split_conf_file=split_conf_file, abbr=e_abbr.get())
             window_battle_animation.destroy()
 
