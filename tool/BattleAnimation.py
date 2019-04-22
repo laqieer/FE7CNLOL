@@ -352,7 +352,10 @@ class Sheet:
 
     def add(self, image: Image, x0=0, y0=0, width=0, height=0):
         self.image.paste(image, box=(x0, y0))
-        self.hash_dict[hash_image(image)] = (x0, y0)
+        self.hash_dict[hash_image(image)] = (x0, y0, 0, 0)
+        self.hash_dict[hash_image(image.transpose(Image.FLIP_LEFT_RIGHT))] = (x0, y0, 1, 0)
+        self.hash_dict[hash_image(image.transpose(Image.FLIP_TOP_BOTTOM))] = (x0, y0, 0, 1)
+        self.hash_dict[hash_image(image.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM))] = (x0, y0, 1, 1)
         for i in range(math.ceil(height / 8)):
             for j in range(math.ceil(width / 8)):
                 self.occupied_matrix[y0 // 8 + i][x0 // 8 + j] = 1
@@ -413,7 +416,7 @@ class Sheet:
         occupied_matrix = copy.deepcopy(self.occupied_matrix)
         for part in part_list:
             if part['hash'] in self.hash_dict:
-                (x0, y0) = self.hash_dict[part['hash']]
+                (x0, y0, h_flip, v_flip) = self.hash_dict[part['hash']]
             else:
                 x0, y0 = self.find_blank_area_col_first(part['width'], part['height'])
                 if x0 == -1 or y0 == -1:
@@ -422,8 +425,10 @@ class Sheet:
                 for row in range(y0 // 8, (y0 + part['height']) // 8):
                     for col in range(x0 // 8, (x0 + part['width']) // 8):
                         self.occupied_matrix[row][col] = 1
-            space_list.append({'x': part['x'], 'y': part['y'], 'width': part['width'],
-                               'height': part['height'], 'x0': x0, 'y0': y0, 'hash': part['hash']})
+                h_flip = 0
+                v_flip = 0
+            space_list.append({'x': part['x'], 'y': part['y'], 'width': part['width'], 'height': part['height'],
+                               'x0': x0, 'y0': y0, 'hash': part['hash'], 'h_flip': h_flip, 'v_flip': v_flip})
         self.occupied_matrix = occupied_matrix
         return space_list
 
@@ -627,11 +632,12 @@ class Frame:
                 y0 = space['y0']
                 dx = space['x'] + self.bbox_p1[0] - 148
                 dy = space['y'] + self.bbox_p1[1] - 88
-                obj_cmd = 'OBJR'
+                h_flip = space['h_flip']
+                v_flip = space['v_flip']
                 if side == 'left':
                     dx = - dx - space['width']
-                    obj_cmd = 'OBJL'
-                s += '\t%s %s, %d, %d, %d, %d\n' % (obj_cmd, dimension, x0, y0, dx, dy)
+                    h_flip = 1 - h_flip
+                s += '\tOBJ_U %s, %d, %d, %d, %d, 0, %d, %d\n' % (dimension, x0, y0, dx, dy, h_flip, v_flip)
         if len(self.space_list_p2) > 0:
             for space in self.space_list_p2:
                 dimension = '_%dx%d' % (space['width'], space['height'])
@@ -639,11 +645,12 @@ class Frame:
                 y0 = space['y0']
                 dx = space['x'] + self.bbox_p1[0] - 148
                 dy = space['y'] + self.bbox_p1[1] - 88
-                obj_cmd = 'OBJR_P2'
+                h_flip = space['h_flip']
+                v_flip = space['v_flip']
                 if side == 'left':
                     dx = - dx - space['width']
-                    obj_cmd = 'OBJL_P2'
-                s += '\t%s %s, %d, %d, %d, %d\n' % (obj_cmd, dimension, x0, y0, dx, dy)
+                    h_flip = 1 - h_flip
+                s += '\tOBJ_U %s, %d, %d, %d, %d, 1, %d, %d\n' % (dimension, x0, y0, dx, dy, h_flip, v_flip)
         s += '\tEndFrame\n'
         return s
 
