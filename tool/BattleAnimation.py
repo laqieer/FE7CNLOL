@@ -557,6 +557,7 @@ class Frame:
     One frame.
     """
     sheets = SheetSet([0] * 3 * 256)
+    parsed_frames = {}
 
     def __init__(self, image: Image, split_conf=None):
         if split_conf is None:
@@ -564,30 +565,56 @@ class Frame:
         else:
             self.split_conf = split_conf
         self.image = standardize_image(image)
-        self.im_p1, self.im_p2 = split_palette(self.image)
-        self.bbox_p1 = self.im_p1.getbbox()
-        self.im_p1 = self.im_p1.crop(self.bbox_p1)
-        self.bbox_p2 = self.im_p2.getbbox()
-        self.im_p2 = self.im_p2.crop(self.bbox_p2)
-        if self.sheets.palette == [0] * 3 * 256:
-            self.sheets.palette = self.image.getpalette()
-        if not is_transparent(self.im_p1):
-            part_list_p1 = split_frame(self.im_p1, self.split_conf)
+        self.bbox = self.image.getbbox()
+        self.im_core = self.image.crop(self.bbox)
+        self.hash_core = hash_image(self.im_core)
+        if self.hash_core in self.parsed_frames:
+            self.sheet_index = self.parsed_frames[self.hash_core]['sheet_index']
+            self.space_list_p1 = self.parsed_frames[self.hash_core]['space_list_p1']
+            self.space_list_p2 = self.parsed_frames[self.hash_core]['space_list_p2']
+            bbox = self.parsed_frames[self.hash_core]['bbox']
+            bbox_p1 = self.parsed_frames[self.hash_core]['bbox_p1']
+            bbox_p2 = self.parsed_frames[self.hash_core]['bbox_p2']
+            if len(self.space_list_p1) > 0:
+                self.bbox_p1 = []
+                # element 2 & 3 are useless, so omitted
+                self.bbox_p1[0] = bbox_p1[0] - bbox[0] + self.bbox[0]
+                self.bbox_p1[1] = bbox_p1[1] - bbox[1] + self.bbox[1]
+                self.bbox_p1 = tuple(self.bbox_p1)
+            if len(self.space_list_p2) > 0:
+                self.bbox_p2 = []
+                # element 2 & 3 are useless, so omitted
+                self.bbox_p2[0] = bbox_p2[0] - bbox[0] + self.bbox[0]
+                self.bbox_p2[1] = bbox_p2[1] - bbox[1] + self.bbox[1]
+                self.bbox_p2 = tuple(self.bbox_p2)
         else:
-            part_list_p1 = []
-        if not is_transparent(self.im_p2):
-            part_list_p2 = split_frame(self.im_p2, self.split_conf)
-        else:
-            part_list_p2 = []
-        self.sheet_index, _ = self.sheets.find_space_for_parts(part_list_p1 + part_list_p2)
-        if len(part_list_p1) > 0:
-            self.space_list_p1 = self.sheets.add_parts(self.im_p1, part_list_p1, self.sheet_index)
-        else:
-            self.space_list_p1 = []
-        if len(part_list_p2) > 0:
-            self.space_list_p2 = self.sheets.add_parts(self.im_p2, part_list_p2, self.sheet_index)
-        else:
-            self.space_list_p2 = []
+            self.im_p1, self.im_p2 = split_palette(self.image)
+            self.bbox_p1 = self.im_p1.getbbox()
+            self.im_p1 = self.im_p1.crop(self.bbox_p1)
+            self.bbox_p2 = self.im_p2.getbbox()
+            self.im_p2 = self.im_p2.crop(self.bbox_p2)
+            if self.sheets.palette == [0] * 3 * 256:
+                self.sheets.palette = self.image.getpalette()
+            if not is_transparent(self.im_p1):
+                part_list_p1 = split_frame(self.im_p1, self.split_conf)
+            else:
+                part_list_p1 = []
+            if not is_transparent(self.im_p2):
+                part_list_p2 = split_frame(self.im_p2, self.split_conf)
+            else:
+                part_list_p2 = []
+            self.sheet_index, _ = self.sheets.find_space_for_parts(part_list_p1 + part_list_p2)
+            if len(part_list_p1) > 0:
+                self.space_list_p1 = self.sheets.add_parts(self.im_p1, part_list_p1, self.sheet_index)
+            else:
+                self.space_list_p1 = []
+            if len(part_list_p2) > 0:
+                self.space_list_p2 = self.sheets.add_parts(self.im_p2, part_list_p2, self.sheet_index)
+            else:
+                self.space_list_p2 = []
+            self.parsed_frames[self.hash_core] = {'sheet_index': self.sheet_index,
+                                                   'space_list_p1': self.space_list_p1, 'space_list_p2': self.space_list_p2,
+                                                   'bbox': self.bbox, 'bbox_p1': self.bbox_p1, 'bbox_p2': self.bbox_p2}
 ##        print(self.space_list_p1)
 ##        print(self.space_list_p2)
 
