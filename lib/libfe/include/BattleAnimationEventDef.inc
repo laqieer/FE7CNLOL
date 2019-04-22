@@ -111,6 +111,13 @@ ShowFrame \frames, \No, \sheet, \frameSection
 .hword	\deltaX, \deltaY, 0
 .endm
 
+@ 通用
+.macro	OBJ_U dimension=0, x0=0, y0=0, deltaX=0, deltaY=0, palette=0, HFlip=0, VFlip=0
+.word	\dimension | (\HFlip << 28) | (\VFlip << 29)
+.byte	\x0 / 8 + 0x20 * \y0 / 8, \palette << 4
+.hword	\deltaX, \deltaY, 0
+.endm
+
 @ OBJ尺寸定义
 .set	_8x8,		0
 .set	_16x16,	0x40000000
