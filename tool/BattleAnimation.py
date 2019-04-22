@@ -794,6 +794,7 @@ def parse_modes(name, f_text, f_asm, script_file=None, split_conf_file=None, abb
         frames = FrameSet(split_conf_file)
         mode = 1
         oam_file = os.path.join(os.path.dirname(script_file), name + '_oam.inc')
+        parsed_images = {}
         with open(oam_file, 'w') as f_oam:
             f_oam.write('@This file is made by BattleAnimation.py automatically. Don\'t edit it.\n')
             while mode <= 12:
@@ -814,23 +815,33 @@ def parse_modes(name, f_text, f_asm, script_file=None, split_conf_file=None, abb
                             [duration, image_file] = s.split('p-', 1)
                             duration = duration.strip()
                             image_file = image_file.strip()
-                            if script_file is not None and not os.path.isabs(image_file):
-                                image_file = os.path.join(os.path.dirname(script_file), image_file)
-                            im = Image.open(image_file)
-                            # todo handle pierce frame (width: 480/488)
-                            is_pierce = False
-                            if im.width >= 480:
-                                is_pierce = True
-                                im_p = im.crop((240, 0, 480, 160))
-                                im = im.crop((0, 0, 240, 160))
-                            frame_id = frames.add(im)
-                            sheet_id = frames.frame_list[frame_id].sheet_index
+                            if image_file in parsed_images:
+                                frame_id = parsed_images[image_file]['frame_id']
+                                sheet_id = parsed_images[image_file]['sheet_id']
+                                is_pierce = parsed_images[image_file]['is_pierce']
+                                if(is_pierce):
+                                    frame_id_p = parsed_images[image_file]['frame_id_p']
+                                    sheet_id_p = parsed_images[image_file]['sheet_id_p']
+                            else:
+                                if script_file is not None and not os.path.isabs(image_file):
+                                    image_file = os.path.join(os.path.dirname(script_file), image_file)
+                                im = Image.open(image_file)
+                                is_pierce = False
+                                if im.width >= 480:
+                                    is_pierce = True
+                                    im_p = im.crop((240, 0, 480, 160))
+                                    im = im.crop((0, 0, 240, 160))
+                                frame_id = frames.add(im)
+                                sheet_id = frames.frame_list[frame_id].sheet_index
+                                parsed_images[image_file] = {'frame_id': frame_id, 'sheet_id': sheet_id, 'is_pierce': is_pierce}
+                                if is_pierce:
+                                    frame_id_p = frames.add(im_p)
+                                    sheet_id_p = frames.frame_list[frame_id_p].sheet_index
+                                    parsed_images[image_file]['frame_id_p'] = frame_id_p
+                                    parsed_images[image_file]['sheet_id_p'] = sheet_id_p
                             # frame 0 is empty (for mode 2 and mode 4)
                             s_out += '\tShow %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
                                 frame_id + 1, name, sheet_id, name, frame_id + 1, name, duration)
-                            if is_pierce:
-                                frame_id_p = frames.add(im_p)
-                                sheet_id_p = frames.frame_list[frame_id_p].sheet_index
                             if mode in [1, 3]:
                                 if is_pierce:
                                     s_out_b += '\tShow %d, %s_sheet_%d, %s_frame_r_%d - %s_oam_r, %s' % (
