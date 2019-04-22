@@ -696,10 +696,7 @@ def f_comment(s: str):
 
 
 def f_85(s: str):
-    s_out = 'Cmd 0x%s' % s[1:3]
-    if s[1:3] == '01':
-        s_out = '@Loop end\n\t' + s_out
-    return s_out
+    return 'Cmd 0x%s' % s[1:3]
 
 
 def f_sound(s: str):
@@ -845,7 +842,21 @@ def parse_modes(name, f_text, f_asm, script_file=None, split_conf_file=None, abb
                         if len(s_out_b) > 0:
                             lines_b.append('\t' + s_out_b + '\n')
                 else:
-                    # todo add loop command
+                    while '\t@Loop begin\n' in lines:
+                        index_loop = lines.index('\t@Loop begin\n')
+                        if '\tCmd 0x01\n' in lines[index_loop:]:
+                            index_c01 = index_loop + lines[index_loop:].index('\tCmd 0x01\n')
+                            if '\t@Loop begin\n' in lines[index_loop:index_c01]:
+                                lines[index_loop] = '\t@Invalid Loop\n'
+                            else:
+                                loop_count = 0
+                                for i in lines[index_loop:index_c01]:
+                                    if 'p-' in i:
+                                        loop_count += 1
+                                lines[index_c01] = '\tLoop %d\n' % loop_count
+                                lines[index_loop] = '\t@Loop start\n'
+                        else:
+                            lines[index_loop] = '\t@Invalid Loop\n'
                     pass
                     lines.append('\tEndMode\n')
                     lines_behind += lines
