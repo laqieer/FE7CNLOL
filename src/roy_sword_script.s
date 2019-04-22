@@ -52,7 +52,6 @@ roy_sword_mode_1:
 	Show 13, roy_sword_sheet_1, roy_sword_frame_r_13 - roy_sword_oam_r, 2
 	@1 p- roy_sword_011.png
 	Show 14, roy_sword_sheet_1, roy_sword_frame_r_14 - roy_sword_oam_r, 1
-	@Loop end
 	Cmd 0x01
 	@2 p- roy_sword_012.png
 	Show 15, roy_sword_sheet_1, roy_sword_frame_r_15 - roy_sword_oam_r, 2
@@ -131,7 +130,6 @@ roy_sword_mode_2:
 	Show 9, roy_sword_sheet_0, roy_sword_frame_r_9 - roy_sword_oam_r, 2
 	@1 p- roy_sword_011.png
 	Show 9, roy_sword_sheet_0, roy_sword_frame_r_9 - roy_sword_oam_r, 1
-	@Loop end
 	Cmd 0x01
 	@2 p- roy_sword_012.png
 	Show 9, roy_sword_sheet_0, roy_sword_frame_r_9 - roy_sword_oam_r, 2
@@ -242,7 +240,6 @@ roy_sword_mode_3:
 	Show 13, roy_sword_sheet_1, roy_sword_frame_r_13 - roy_sword_oam_r, 2
 	@1 p- roy_sword_011.png
 	Show 14, roy_sword_sheet_1, roy_sword_frame_r_14 - roy_sword_oam_r, 1
-	@Loop end
 	Cmd 0x01
 	@2 p- roy_sword_012.png
 	Show 15, roy_sword_sheet_1, roy_sword_frame_r_15 - roy_sword_oam_r, 2
@@ -353,7 +350,6 @@ roy_sword_mode_4:
 	Show 9, roy_sword_sheet_0, roy_sword_frame_r_9 - roy_sword_oam_r, 2
 	@1 p- roy_sword_011.png
 	Show 9, roy_sword_sheet_0, roy_sword_frame_r_9 - roy_sword_oam_r, 1
-	@Loop end
 	Cmd 0x01
 	@2 p- roy_sword_012.png
 	Show 9, roy_sword_sheet_0, roy_sword_frame_r_9 - roy_sword_oam_r, 2
@@ -413,7 +409,6 @@ roy_sword_mode_5:
 	Cmd 0x05
 	@1 p- roy_sword_052.png
 	Show 55, roy_sword_sheet_7, roy_sword_frame_r_55 - roy_sword_oam_r, 1
-	@Loop end
 	Cmd 0x01
 	Cmd 0x23
 	@3 p- roy_sword_053.png
@@ -451,7 +446,6 @@ roy_sword_mode_6:
 	Cmd 0x05
 	@1 p- roy_sword_052.png
 	Show 55, roy_sword_sheet_7, roy_sword_frame_r_55 - roy_sword_oam_r, 1
-	@Loop end
 	Cmd 0x01
 	Cmd 0x23
 	@3 p- roy_sword_053.png
@@ -473,7 +467,6 @@ roy_sword_mode_7:
 	Show 60, roy_sword_sheet_7, roy_sword_frame_r_60 - roy_sword_oam_r, 3
 	@1 p- roy_sword_058.png
 	Show 61, roy_sword_sheet_5, roy_sword_frame_r_61 - roy_sword_oam_r, 1
-	@Loop end
 	Cmd 0x01
 	@3 p- roy_sword_057.png
 	Show 60, roy_sword_sheet_7, roy_sword_frame_r_60 - roy_sword_oam_r, 3
@@ -489,7 +482,6 @@ roy_sword_mode_8:
 	Show 60, roy_sword_sheet_7, roy_sword_frame_r_60 - roy_sword_oam_r, 3
 	@1 p- roy_sword_058.png
 	Show 61, roy_sword_sheet_5, roy_sword_frame_r_61 - roy_sword_oam_r, 1
-	@Loop end
 	Cmd 0x01
 	@3 p- roy_sword_057.png
 	Show 60, roy_sword_sheet_7, roy_sword_frame_r_60 - roy_sword_oam_r, 3
@@ -499,21 +491,18 @@ roy_sword_mode_8:
 roy_sword_mode_9:
 	@4 p- roy_sword_000.png
 	Show 1, roy_sword_sheet_0, roy_sword_frame_r_1 - roy_sword_oam_r, 4
-	@Loop end
 	Cmd 0x01
 	EndMode
 
 roy_sword_mode_10:
 	@4 p- roy_sword_000.png
 	Show 1, roy_sword_sheet_0, roy_sword_frame_r_1 - roy_sword_oam_r, 4
-	@Loop end
 	Cmd 0x01
 	EndMode
 
 roy_sword_mode_11:
 	@4 p- roy_sword_000.png
 	Show 1, roy_sword_sheet_0, roy_sword_frame_r_1 - roy_sword_oam_r, 4
-	@Loop end
 	Cmd 0x01
 	EndMode
 
@@ -547,7 +536,6 @@ roy_sword_mode_12:
 	Show 67, roy_sword_sheet_8, roy_sword_frame_r_67 - roy_sword_oam_r, 2
 	@1 p- roy_sword_065.png
 	Show 68, roy_sword_sheet_8, roy_sword_frame_r_68 - roy_sword_oam_r, 1
-	@Loop end
 	Cmd 0x01
 	@2 p- roy_sword_066.png
 	Show 69, roy_sword_sheet_8, roy_sword_frame_r_69 - roy_sword_oam_r, 2
