@@ -55,8 +55,11 @@ def output_script(f_asm, script_data: bytes, sheets: dict, name):
             f_asm.write('0x%X,' % command)
     f_asm.write('\n')
 
-def dump_battle_animation(f_rom, f_asm, index, name):
-    base_addr = get_battle_animation(f_rom, index)
+def dump_battle_animation(f_rom, f_asm, index, name, table_addr):
+    if table_addr is None:
+        base_addr = get_battle_animation(f_rom, index)
+    else:
+        base_addr = table_addr + 32 * index
     f_rom.seek(base_addr)
     abbr = str(f_rom.read(11))[2:-1]
     modes_addr = read_rom_offset(f_rom, base_addr + 12)
@@ -97,11 +100,13 @@ def main(argv):
     index = 0
     out_file = None
     name = ''
+    table_addr = None
     try:
-        opts, args = getopt.getopt(argv, 'r:i:o:n:', ['rom=', 'index=', 'out=', 'name='])
+        opts, args = getopt.getopt(argv, 'r:i:o:n:t:', ['rom=', 'index=', 'out=', 'name=', 'table='])
     except getopt.GetoptError:
         print('-r/--rom <rom_file> -o/--out <output_file>',
-              '-i/--index <animation_id> -n/--name <base_name>\n')
+              '-i/--index <animation_id> -n/--name <base_name>\n',
+              '-t/--table <animation_table_address>')
         sys.exit(2)
     for opt, arg in opts:
         if opt in ('-r', '--rom'):
@@ -115,6 +120,10 @@ def main(argv):
             out_file = arg
         elif opt in ('-n', '--name'):
             name = arg
+        elif opt in ('-t', '--table'):
+            table_addr = int(arg, 16)
+            if is_valid_pointer(table_addr):
+                table_addr = convert_pointer_to_offset(table_addr)
     if index == 'all':
         index = 0
         with open(rom_file, 'rb') as f_rom:
@@ -127,14 +136,14 @@ def main(argv):
                     s_file = os.path.splitext(out_file)[0] + '_%X.s' % index
                 with open(s_file, 'w') as f_asm:
                     write_head(f_asm, animation_name)
-                    dump_battle_animation(f_rom, f_asm, index, animation_name)
+                    dump_battle_animation(f_rom, f_asm, index, animation_name, table_addr)
                 index += 1
     else:
         if out_file is None:
             out_file = 'banim_%s.s' % name
         with open(rom_file, 'rb') as f_rom, open(out_file, 'w') as f_asm:
             write_head(f_asm, name)
-            dump_battle_animation(f_rom, f_asm, index, name)
+            dump_battle_animation(f_rom, f_asm, index, name, table_addr)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
