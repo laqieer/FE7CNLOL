@@ -64,6 +64,9 @@ def dump_battle_animation(f_rom, f_asm, index, name):
     oam_r_addr = read_rom_offset(f_rom, base_addr + 20)
     oam_l_addr = read_rom_offset(f_rom, base_addr + 24)
     palette_addr = read_rom_offset(f_rom, base_addr + 28)
+    if modes_addr is None or script_addr is None or oam_l_addr is None or oam_r_addr is None or palette_addr is None:
+        print('0x%X is an empty slot.\n' % index)
+        sys.exit(1)
     palette_addr_len = get_lz77_src_data_length(f_rom, palette_addr)
     palette_data = read_data(f_rom, palette_addr, palette_addr_len)
     palette_data = lz77_compress_data(lz77_decompress_data(palette_data))
@@ -112,11 +115,26 @@ def main(argv):
             out_file = arg
         elif opt in ('-n', '--name'):
             name = arg
-    if out_file is None:
-        out_file = 'banim_%s.s' % name
-    with open(rom_file, 'rb') as f_rom, open(out_file, 'w') as f_asm:
-        write_head(f_asm, name)
-        dump_battle_animation(f_rom, f_asm, index, name)
+    if index == 'all':
+        index = 0
+        with open(rom_file, 'rb') as f_rom:
+            while True:
+                animation_name = '%s_%X' % (name, index)
+                print('Dumping %s...' % animation_name)
+                if out_file is None:
+                    s_file = 'banim_' + animation_name +'.s'
+                else:
+                    s_file = os.path.splitext(out_file)[0] + '_%X.s' % index
+                with open(s_file, 'w') as f_asm:
+                    write_head(f_asm, animation_name)
+                    dump_battle_animation(f_rom, f_asm, index, animation_name)
+                index += 1
+    else:
+        if out_file is None:
+            out_file = 'banim_%s.s' % name
+        with open(rom_file, 'rb') as f_rom, open(out_file, 'w') as f_asm:
+            write_head(f_asm, name)
+            dump_battle_animation(f_rom, f_asm, index, name)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
