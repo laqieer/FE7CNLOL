@@ -4,6 +4,7 @@
 
 import os, sys, getopt
 from GBAGame import *
+import struct
 
 battle_animation_table = {'AFEJ': 0x6A0008, 'AE7J': 0xE00008, 'AE7E': 0xE00008, 'BE8J': 0xC00008, 'BE8E': 0xC00008}
 
@@ -22,10 +23,42 @@ def write_head(f_asm, name):
     f_asm.write('\t.global %s_animation\n' % name)
     f_asm.write('\t.section .rodata\n')
 
+def find_sheet_pointers(script_data: bytes):
+    sheets = {}
+    index = 0
+    commands = list(struct.unpack("%dI" % (len(script_data) // 4), script_data))
+    it = iter(commands)
+    for command in it:
+        if command >> 24 == 0x86:
+            im_ptr = next(it)
+            if im_ptr not in sheets and is_valid_pointer(im_ptr):
+                sheets[im_ptr] = index
+                index += 1
+    return sheets
+
+def dump_sheets(f_rom, f_asm, sheets: dict, name):
+    for sheet_ptr, index in sheets.items():
+        sheet_addr = convert_pointer_to_offset(sheet_ptr)
+        sheet_data_len = get_lz77_src_data_length(f_rom, sheet_addr)
+        sheet_data = read_data(f_rom,sheet_addr, sheet_data_len)
+        sheet_data = lz77_compress_data(lz77_decompress_data(sheet_data))
+        f_asm.write(output_asm(sheet_data, '%s_sheet_%d' % (name, index)))
+
+def output_script(f_asm, script_data: bytes, sheets: dict, name):
+    f_asm.write('\n\t.align 2\n')
+    f_asm.write(name + '_script:\n\t.word ')
+    commands = list(struct.unpack("%dI" % (len(script_data) // 4), script_data))
+    for command in commands:
+        if command in sheets:
+            f_asm.write('%s_sheet_%d,' % (name, sheets[command]))
+        else:
+            f_asm.write('0x%X,' % command)
+    f_asm.write('\n')
+
 def dump_battle_animation(f_rom, f_asm, index, name):
     base_addr = get_battle_animation(f_rom, index)
     f_rom.seek(base_addr)
-    abbr = str(f_rom.read(12))[2:-1]
+    abbr = str(f_rom.read(11))[2:-1]
     modes_addr = read_rom_offset(f_rom, base_addr + 12)
     script_addr = read_rom_offset(f_rom, base_addr + 16)
     oam_r_addr = read_rom_offset(f_rom, base_addr + 20)
@@ -33,26 +66,28 @@ def dump_battle_animation(f_rom, f_asm, index, name):
     palette_addr = read_rom_offset(f_rom, base_addr + 28)
     palette_addr_len = get_lz77_src_data_length(f_rom, palette_addr)
     palette_data = read_data(f_rom, palette_addr, palette_addr_len)
+    palette_data = lz77_compress_data(lz77_decompress_data(palette_data))
     f_asm.write(output_asm(palette_data, name + '_pal'))
     oam_r_addr_len = get_lz77_src_data_length(f_rom, oam_r_addr)
     oam_r_data = read_data(f_rom, oam_r_addr, oam_r_addr_len)
+    oam_r_data = lz77_compress_data(lz77_decompress_data(oam_r_data))
     f_asm.write(output_asm(oam_r_data, name + '_oam_r'))
     oam_l_addr_len = get_lz77_src_data_length(f_rom, oam_l_addr)
     oam_l_data = read_data(f_rom, oam_l_addr, oam_l_addr_len)
+    oam_l_data = lz77_compress_data(lz77_decompress_data(oam_l_data))
     f_asm.write(output_asm(oam_l_data, name + '_oam_l'))
-    # todo handle script
-    f_asm.write('\n\t.align 2\n')
-    f_asm.write(name + '_script:\n')
+    script_addr_len = get_lz77_src_data_length(f_rom, script_addr)
+    script_data = read_data(f_rom, script_addr, script_addr_len)
+    script_data = lz77_decompress_data(script_data)
+    sheets = find_sheet_pointers(script_data)
+    dump_sheets(f_rom, f_asm, sheets, name)
+    output_script(f_asm, script_data, sheets, name)
     modes_data = read_data(f_rom, modes_addr, 96)
-    f_asm.write(output_asm(modes_data, name + '_modes'))
+    f_asm.write(output_asm(modes_data, name + '_modes', size=4))
     f_asm.write('\n\t.align 2\n')
     f_asm.write(name + '_animation:\n')
     f_asm.write('\t.string "%s"\n' % abbr)
-    f_asm.write('\t.word %s_modes\n' % name)
-    f_asm.write('\t.word %s_script\n' % name)
-    f_asm.write('\t.word %s_oam_r\n' % name)
-    f_asm.write('\t.word %s_oam_l\n' % name)
-    f_asm.write('\t.word %s_pal\n' % name)
+    f_asm.write('\t.word %s_modes,%s_script,%s_oam_r,%s_oam_l,%s_pal\n' % tuple([name] * 5))
 
 def main(argv):
     rom_file = None
