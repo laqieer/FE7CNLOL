@@ -4,6 +4,8 @@
 
 #include "AgbDebug.h"
 
+// NO$GBA Debug Message
+
 // originally for auto no$gba support, the string "no$gba" should be at this address,
 // the user needs to read this string out as the memory viewer won't show it.
 #define NOCASHGBAIDADDR 0x4FFFA00
@@ -40,6 +42,46 @@ int strlen_new(const char* src)
     return len;
 }
 
+// mGBA AGBPrint functions
+
+#define AGB_PRINT_BUFFER ((volatile unsigned short *) (0x09FD0000))
+#define AGB_PRINT_CONTEXT (( AGBPrintContext volatile *) (0x09FE20F8))
+#define AGB_PRINT_PROTECT (*(volatile unsigned short *)(0x09FE2FFE))
+
+typedef struct
+{
+    unsigned short request;
+    unsigned short bank;
+    unsigned short get;
+    unsigned short put;
+} AGBPrintContext;
+
+void AGBPrintFlush()
+{
+  asm volatile("swi 0xfa");
+}
+
+void AGBPrintInit(void)
+{
+	AGB_PRINT_PROTECT = (unsigned short) 0x20;
+	AGB_PRINT_CONTEXT->request = (unsigned short) 0x00;
+    AGB_PRINT_CONTEXT->get = (unsigned short) 0x00;
+    AGB_PRINT_CONTEXT->put = (unsigned short) 0x00;
+    AGB_PRINT_CONTEXT->bank = (unsigned short) 0xFD;
+    AGB_PRINT_PROTECT = (unsigned short) 0x00;
+}
+
+static void AGBPutChar(const char c)
+{
+    unsigned short data = AGB_PRINT_BUFFER[AGB_PRINT_CONTEXT->put >> 1];
+
+    AGB_PRINT_PROTECT = (unsigned short) 0x20;
+    data = (AGB_PRINT_CONTEXT->put & 1) ? (c << 8) | (data & 0xFF) : (data & 0xFF00) | c;
+    AGB_PRINT_BUFFER[AGB_PRINT_CONTEXT->put >> 1] = data;
+    AGB_PRINT_CONTEXT->put++;
+    AGB_PRINT_PROTECT = (unsigned short) 0x00;
+}
+
 // Emulator / Flashcard
 void _print(char *s)
 {
@@ -59,6 +101,16 @@ void _print(char *s)
                : "r0");
 	return;
 #endif
+#ifdef __DEBUG_MGBA
+	AGBPrintInit();
+	while (*s)
+    {
+        AGBPutChar(*s);
+        s++;
+    }
+	AGBPrintFlush();
+	return;
+#endif
 #ifdef __DEBUG_NOCASH
 	*(volatile unsigned int*)NOCASHGBAPRINTADDR2 = s;
 	return;
@@ -71,17 +123,6 @@ void _print(char *s)
 	return;
 #endif
 }
-/*
-// ARM code
-void _print(char *s)
-{
-  asm volatile("mov r0, %0;"
-               "swi 0xff0000;"
-               : // no ouput
-               : "r" (s)
-               : "r0");
-}
-*/
 
 // ÔÝÍ£
 void _pause()

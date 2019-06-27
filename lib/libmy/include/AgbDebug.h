@@ -7,8 +7,9 @@
 
 //#define __DEBUG_VBA_THUMB
 //#define __DEBUG_VBA_ARM
+#define __DEBUG_MGBA
 //#define __DEBUG_NOCASH
-#define __DEBUG_EZ_OMEGA
+//#define __DEBUG_EZ_OMEGA
 
 #include "FE7JFunc.h"
 
