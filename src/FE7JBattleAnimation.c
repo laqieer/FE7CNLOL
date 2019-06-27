@@ -851,6 +851,7 @@ void battleAnimationInit()
   if ( IfBattleAnimationIsAtTheLeftSide == 1 )
   {
     animationID = BattleAnimationIDLeftSide;
+	DEBUG("Animation ID (Left): 0x%x", animationID)
     palSlotIDInPalGroup = BattleAnimationPalSlotLeftSide;
     characterBattlePaletteID = CharaterBattleAnimationPaletteIDLeftSide;
 //    animation = FE7BattleAnimationBank + BattleAnimationIDLeftSide;
@@ -986,7 +987,8 @@ void battleAnimationInit()
   }
   if ( IfBattleAnimationIsAtTheRightSide == 1 )
   {
-    animationID = BattleAnimationIDRightSide;
+    animationID = BattleAnimationIDRightSide;	
+	DEBUG("Animation ID (Right): 0x%x", animationID)
 
 //	映射敌人的战斗动画
 	if(animationID == MirrorBattleAnimationID - 1)

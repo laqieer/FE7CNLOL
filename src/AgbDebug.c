@@ -4,14 +4,72 @@
 
 #include "AgbDebug.h"
 
-// THUMB code
+// originally for auto no$gba support, the string "no$gba" should be at this address,
+// the user needs to read this string out as the memory viewer won't show it.
+#define NOCASHGBAIDADDR 0x4FFFA00
+#define NOCASHGBAPRINTADDR1 0x4FFFA10 // automatically adds a newline after the string has finished
+#define NOCASHGBAPRINTADDR2 0x4FFFA14 // does not automatically add the newline. by default, NOCASHGBAPRINTADDR2 is used. this is used to keep strings consistent between no$gba and VBA-RR, but a user can choose to forgo this.
+
+// Write to EZ Omega Flashcard S71GL064A08 SRAM
+
+void EZO_SetRampage(unsigned short page)
+{
+	*(volatile unsigned short *)0x9fe0000 = 0xd200;
+	*(volatile unsigned short *)0x8000000 = 0x1500;
+	*(volatile unsigned short *)0x8020000 = 0xd200;
+	*(volatile unsigned short *)0x8040000 = 0x1500;
+	*(volatile unsigned short *)0x9c00000 = page;//E0
+	*(volatile unsigned short *)0x9fc0000 = 0x1500;
+}
+
+void EZO_WriteSram(unsigned int address, char * data , int size )
+{
+	for(int i = 0; i < size; i++)
+		*(volatile char*)(address + i) = data[i];
+}
+
+// debug print log length
+
+#define debug_print_length (*(unsigned int *)(0x0203FE00 - 4))
+
+int strlen_new(const char* src)
+{
+    int len = 0;
+    while(*src++ != '\0')
+        len ++;
+    return len;
+}
+
+// Emulator / Flashcard
 void _print(char *s)
 {
+#ifdef __DEBUG_VBA_THUMB
   asm volatile("mov r0, %0;"
                "swi 0xff;"
                : // no ouput
                : "r" (s)
                : "r0");
+	return;
+#endif
+#ifdef __DEBUG_VBA_ARM
+  asm volatile("mov r0, %0;"
+               "swi 0xff0000;"
+               : // no ouput
+               : "r" (s)
+               : "r0");
+	return;
+#endif
+#ifdef __DEBUG_NOCASH
+	*(volatile unsigned int*)NOCASHGBAPRINTADDR2 = s;
+	return;
+#endif
+#ifdef __DEBUG_EZ_OMEGA
+	EZO_SetRampage(0xB0);
+	EZO_WriteSram(0x0E000000 + debug_print_length, s, strlen_new(s) + 1);
+	debug_print_length += strlen_new(s) + 1;
+	EZO_SetRampage(0);
+	return;
+#endif
 }
 /*
 // ARM code
