@@ -51,3 +51,4 @@ typedef struct {
 
 // 单行文本最大显示宽度（像素）
 #define TEXT_LINE_WIDTH_MAX	0xC0
+//#define TEXT_LINE_WIDTH_MAX	(0xC0 - 14 * 2)
