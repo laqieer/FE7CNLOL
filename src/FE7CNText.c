@@ -8,6 +8,9 @@
 // 文本
 #include "text.h"
 
+//#include <string.h>
+unsigned int strlen (char *s);
+
 /*
 // 新增的文本的指针表，非压缩
 // 该数组中的数组元素是指向字符数组的指针
@@ -27,6 +30,154 @@ const char* const text[] =
 //	[0x04E6] = "\x83\xc4\x94\xbe"
 };
 */
+
+// 插入换行符
+void insertNewLine(char *text)
+{
+	for(char *p = text + strlen(text); p >= text; p--)
+	{
+		*(p + 1) = *p;
+	}
+	*text = 1;
+}
+
+// 取一行文本的显示宽度(文本最大长度length)
+int getLineWidthByLength(unsigned char *text, int length)
+{
+	int w = 0;
+	unsigned char R, C;
+	
+	for(unsigned char *p = text; *p > 2 && !(*p >= 8 && *p <= 0x11) && p <= text + length; p++)
+	{
+		if(*p >= 0x81)
+		{
+			R = *p;
+			C = *(++p);
+			if((R >= 0xA1 && R <= 0xFE) && (C >= 0xA1 && C <= 0xFE))
+			{
+				w += 14; // extended gbk font width
+			}
+			else
+			{
+				if(R > 0x98 || C < 0x80)
+				{
+					R = 0x83;
+					C = 0x9B;
+				}
+				w += *((unsigned char *)ppFontStruct->pCharGlyphs + 84 * (C - 128 + ((R - 129) << 7)) + 2);
+			}
+		}
+		else if(*p == 0x80)
+		{
+			C = *(++p);
+			if(C == 0x20)
+			{
+				w += getLineWidth(getTacticianName());
+			}
+			//TODO: C == 5, C == 6
+		}
+		//TODO: Ascii text
+	}
+	return w;
+};
+
+// 取一行文本的显示宽度
+int getLineWidth(unsigned char *text)
+{
+	int w = 0;
+	unsigned char R, C;
+	
+	for(unsigned char *p = text; *p > 2 && !(*p >= 8 && *p <= 0x11); p++)
+	{
+		if(*p >= 0x81)
+		{
+			R = *p;
+			C = *(++p);
+			if((R >= 0xA1 && R <= 0xFE) && (C >= 0xA1 && C <= 0xFE))
+			{
+				w += 14; // extended gbk font width
+			}
+			else
+			{
+				if(R > 0x98 || C < 0x80)
+				{
+					R = 0x83;
+					C = 0x9B;
+				}
+				w += *((unsigned char *)ppFontStruct->pCharGlyphs + 84 * (C - 128 + ((R - 129) << 7)) + 2);
+			}
+		}
+		else if(*p == 0x80)
+		{
+			C = *(++p);
+			if(C == 0x20)
+			{
+				w += getLineWidth(getTacticianName());
+			}
+			//TODO: C == 5, C == 6
+		}
+		//TODO: Ascii text
+	}
+	return w;
+};
+
+// 文本自动换行
+void autoInsertNewLine(unsigned char *text)
+{
+	int w = 0;
+	unsigned char R, C;
+	
+	for(unsigned char *p = text; *p > 0; w = 0)
+	{
+		if(*p == 0x10)
+			p += 2;
+		for(p++; *p > 2 && !(*p >= 8 && *p <= 0x11); p++)
+		{
+			if(*p >= 0x81)
+			{
+				R = *p;
+				C = *(++p);
+				if((R >= 0xA1 && R <= 0xFE) && (C >= 0xA1 && C <= 0xFE))
+				{
+					w += 14; // extended gbk font width
+				}
+				else
+				{
+/*					if(R > 0x98 || C < 0x80)
+					{
+						R = 0x83;
+						C = 0x9B;
+					}
+					w += *((unsigned char *)ppFontStruct->pCharGlyphs + 84 * (C - 128 + ((R - 129) << 7)) + 2);*/
+					return;
+				}
+			
+				if(w > TEXT_LINE_WIDTH_MAX)
+				{
+					insertNewLine(--p-1);
+					w = 0;
+				}
+			}
+			else if(*p == 0x80)
+			{
+				C = *(++p);
+				if(C == 0x20)
+				{
+					w += getLineWidth(getTacticianName());
+				}
+				//TODO: C == 5, C == 6
+			
+				if(w > TEXT_LINE_WIDTH_MAX)
+				{
+					insertNewLine(--p-1);
+					w = 0;
+				}
+			}
+		
+		//TODO: Ascii text			
+		}
+	}
+};
 
 // 解码文本
 // 输入文本ID,返回指向字符数组(解码后的文本)的指针
@@ -56,6 +207,7 @@ char *decodeText(int textID)
 			;	
 	else
 		huffmanDecompressText(compressedText[textID],decodedText);
+	autoInsertNewLine(decodedText);
 	return decodedText;
 }
 

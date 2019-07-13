@@ -30,3 +30,24 @@ char *decodeText(int textID);
 #pragma long_calls_off
 
 char *callDecodeText(int textID);
+
+typedef struct {
+	void *pVRAMRootPointer;
+	void *pCharGlyphs;
+	void *pDrawGlyphRoutine;
+	void *pVRAMPtrGetterMaybe;
+	short VRAMTileValueBase;
+	short nextTileIndex;
+	short paletteId;
+	unsigned char unk_16;
+	unsigned char unk_17;
+} FontInfo, *pFontInfo;
+
+#define	ppFontStruct	(*(pFontInfo *)0x2028D68)
+
+// 获取军师名字
+// char *getTacticianName();
+#define getTacticianName	sub(802EBB0)
+
+// 单行文本最大显示宽度（像素）
+#define TEXT_LINE_WIDTH_MAX	0xC0
