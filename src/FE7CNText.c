@@ -8,8 +8,10 @@
 // 文本
 #include "text.h"
 
+#include "AgbDebug.h"
+
 //#include <string.h>
-unsigned int strlen (char *s);
+unsigned int strlen (const char *s);
 
 /*
 // 新增的文本的指针表，非压缩
@@ -34,6 +36,7 @@ const char* const text[] =
 // 插入换行符
 void insertNewLine(char *text)
 {
+	DEBUG("insert new line at 0x%x", text)
 	for(char *p = text + strlen(text); p >= text; p--)
 	{
 		*(p + 1) = *p;
@@ -131,6 +134,8 @@ void autoInsertNewLine(unsigned char *text)
 	{
 		if(*p == 0x10)
 			p += 2;
+		if(*p > 2 && !(*p >= 8 && *p <= 0x11))
+			p--;
 		for(p++; *p > 2 && !(*p >= 8 && *p <= 0x11); p++)
 		{
 			if(*p >= 0x81)
@@ -143,18 +148,18 @@ void autoInsertNewLine(unsigned char *text)
 				}
 				else
 				{
-/*					if(R > 0x98 || C < 0x80)
+					if(R > 0x98 || C < 0x80)
 					{
 						R = 0x83;
 						C = 0x9B;
 					}
-					w += *((unsigned char *)ppFontStruct->pCharGlyphs + 84 * (C - 128 + ((R - 129) << 7)) + 2);*/
-					return;
+					w += *((unsigned char *)ppFontStruct->pCharGlyphs + 84 * (C - 128 + ((R - 129) << 7)) + 2);
+//					return;
 				}
 			
-				if(w > TEXT_LINE_WIDTH_MAX)
+				if(w > TEXT_LINE_WIDTH_MAX && *(p + 1) != 1 && *(p + 1) != 2)
 				{
-					insertNewLine(--p-1);
+					insertNewLine(--p);
 					w = 0;
 				}
 			}
@@ -167,9 +172,9 @@ void autoInsertNewLine(unsigned char *text)
 				}
 				//TODO: C == 5, C == 6
 			
-				if(w > TEXT_LINE_WIDTH_MAX)
+				if(w > TEXT_LINE_WIDTH_MAX && *(p + 1) != 1 && *(p + 1) != 2)
 				{
-					insertNewLine(--p-1);
+					insertNewLine(--p);
 					w = 0;
 				}
 			}

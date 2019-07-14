@@ -5,9 +5,11 @@
 #ifndef	agb_debug
 #define	agb_debug
 
-//#define __DEBUG_VBA_THUMB
+#define	__DEBUG
+
+#define __DEBUG_VBA_THUMB
 //#define __DEBUG_VBA_ARM
-#define __DEBUG_MGBA
+//#define __DEBUG_MGBA
 //#define __DEBUG_NOCASH
 //#define __DEBUG_EZ_OMEGA
 
