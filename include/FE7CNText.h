@@ -55,8 +55,8 @@ typedef struct {
 #define getTacticianName	sub(802EBB0)
 
 // 单行文本最大显示宽度（像素）
-#define TEXT_LINE_WIDTH_MAX	0xC0
-//#define TEXT_LINE_WIDTH_MAX	(0xC0 - 14 * 2)
+#define TEXT_LINE_WIDTH_MAX	0xC0	// R help text box
+//#define TEXT_LINE_WIDTH_MAX	0xC4	// speech bubble
 
 // 计算ascii文本（单字节）显示宽度（像素）
 // int GetStringTextWidthAscii(char *text);
