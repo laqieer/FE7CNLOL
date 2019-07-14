@@ -28,6 +28,10 @@
 	.callShowFont1 : {*.o(.callShowFont1)}
 	. = 0x80055DC;
 	.callShowFont2 : {*.o(.callShowFont2)}
+	. = 0x8005528;
+	.callCalculateDoubleByteCharacterWidth : {*.o(.callCalculateDoubleByteCharacterWidth)}
+	. = 0x80054CC;
+	.callGetStringTextWidth : {*.o(.callGetStringTextWidth)}
 	. = 0x805480C;
 	.callBattleAnimationInit : {*.o(.callBattleAnimationInit)}	
 	. = 0x8C0A560;

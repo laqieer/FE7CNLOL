@@ -5,6 +5,7 @@
 #pragma once
 
 #include "AgbTypes.h"
+#include "IDAPro.h"
 #include "callFunc.h"
 
 // 上一个处理的文本ID
@@ -31,6 +32,10 @@ char *decodeText(int textID);
 
 char *callDecodeText(int textID);
 
+#pragma long_calls
+int getStringTextWidth(unsigned __int8 *text);
+#pragma long_calls_off
+
 typedef struct {
 	void *pVRAMRootPointer;
 	void *pCharGlyphs;
@@ -39,7 +44,7 @@ typedef struct {
 	short VRAMTileValueBase;
 	short nextTileIndex;
 	short paletteId;
-	unsigned char unk_16;
+	unsigned char isAscii;
 	unsigned char unk_17;
 } FontInfo, *pFontInfo;
 
@@ -52,3 +57,7 @@ typedef struct {
 // 单行文本最大显示宽度（像素）
 #define TEXT_LINE_WIDTH_MAX	0xC0
 //#define TEXT_LINE_WIDTH_MAX	(0xC0 - 14 * 2)
+
+// 计算ascii文本（单字节）显示宽度（像素）
+// int GetStringTextWidthAscii(char *text);
+#define GetStringTextWidthAscii	sub(8005A94)

@@ -223,3 +223,80 @@ char *callDecodeText(int textID)
 	return decodeText(textID);
 }
 
+// ¼ÆËãË«×Ö½Ú×Ö¿í(ÏñËØ)
+char *calculateDoubleByteCharacterWidth(unsigned __int8 *character, _DWORD *width)
+{
+  unsigned int R; // r3
+  unsigned int C; // r2
+  char *result; // r0
+
+  R = *character;
+  C = character[1];
+  result = (char *)(character + 2);
+  if ( R >= 0x81 )
+  {
+    if((R >= 0xA1 && R <= 0xFE) && (C >= 0xA1 && C <= 0xFE))
+		*width = 14;
+	else
+	{
+		if ( R > 0x98 || C < 0x80 )
+		{
+		  R = 0x83;
+		  C = 0x9A;
+		}
+		*width = *((unsigned __int8 *)ppFontStruct->pCharGlyphs + 84 * (C - 128 + ((R - 129) << 7)) + 2);
+	}
+  }
+  return result;
+}
+
+__attribute__((section(".callCalculateDoubleByteCharacterWidth")))
+char *callCalculateDoubleByteCharacterWidth(unsigned __int8 *character, _DWORD *length)
+{
+	return calculateDoubleByteCharacterWidth(character, length);
+}
+
+int getStringTextWidth(unsigned __int8 *text)
+{
+  unsigned __int8 *p; // r4
+  int textWidth; // r0
+  unsigned int R; // r3
+  unsigned int C; // r2
+
+  p = text;
+  if ( ppFontStruct->isAscii )
+    return GetStringTextWidthAscii(text);
+  textWidth = 0;
+  while ( 1 )
+  {
+    R = *p;
+    if ( R <= 1 )
+      break;
+    ++p;
+    if ( R > 0x1F )
+    {
+      C = *p++;
+      if ( R >= 0x81 )
+      {
+		if((R >= 0xA1 && R <= 0xFE) && (C >= 0xA1 && C <= 0xFE))
+			textWidth += 14;
+		else
+		{
+			if ( R > 0x98 || C < 0x80 )
+			{
+			  R = 0x83;
+			  C = 0x9B;
+			}
+			textWidth += *((unsigned __int8 *)ppFontStruct->pCharGlyphs + 84 * (C - 128 + ((R - 129) << 7)) + 2);
+		}
+      }
+    }
+  }
+  return textWidth;
+}
+
+__attribute__((section(".callGetStringTextWidth")))
+int callGetStringTextWidth(unsigned __int8 *text)
+{
+	return getStringTextWidth(text);
+}
