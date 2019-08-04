@@ -341,3 +341,17 @@
 // int getPlayTime();
 #define getPlayTime	sub(8000EEC)
 
+// void SetPrimaryHBlankCallback(int pHBlankCallback);
+#define SetPrimaryHBlankCallback	sub(8002DF0)
+
+// void SetNextGameActionId(u8 nextGameActionId);
+#define SetNextGameActionId			sub(8013200)
+
+// void StartSongVolumeTransitionB(int a1, __int16 a2, __int16 a3, signed int a4);
+#define StartSongVolumeTransitionB	sub(8003B4C)
+
+// m4a sound functions
+
+// Starting a Performance Using a Song Number
+// void m4aSongNumStart(u16 n);
+#define	m4aSongNumStart				sub(80BF0D8)

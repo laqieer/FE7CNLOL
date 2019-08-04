@@ -7,6 +7,7 @@
 // 根据存档号取存档地址
 // 输入参数：存档号
 // 返回值：存档地址(指向存档槽的指针)
+/*
 _BYTE *GetSaveslotAddr(enum saveslot saveslotNum)
 {
 	_BYTE *pSaveslot;
@@ -40,6 +41,151 @@ _BYTE *GetSaveslotAddr(enum saveslot saveslotNum)
 
 	return pSaveslot;
 }
+*/
+
+// 存档索引与存档号映射表
+const enum saveslot saveslotNumTable[12] = {Saveslot1, Saveslot2, Saveslot3, Saveslot4, Saveslot5, Saveslot6, Saveslot7, Saveslot8, Saveslot9, Saveslot10, Saveslot11, Saveslot12};
+
+_BYTE *GetSaveslotAddrEx(enum saveslot saveslotNum)
+{
+	_BYTE *pSaveslot;
+
+	switch(saveslotNum)
+	{
+		case Saveslot1:
+			pSaveslot = Saveslot1Addr;
+			break;
+		case Saveslot2:
+			pSaveslot = Saveslot2Addr;
+			break;
+		case Saveslot3:
+			pSaveslot = Saveslot3Addr;
+			break;
+		case Saveslot4:
+			pSaveslot = Saveslot4Addr;
+			break;
+		case Saveslot5:
+			pSaveslot = Saveslot5Addr;
+			break;
+		case Saveslot6:
+			pSaveslot = Saveslot6Addr;
+			break;
+		case Saveslot7:
+			pSaveslot = Saveslot7Addr;
+			break;
+		case Saveslot8:
+			pSaveslot = Saveslot8Addr;
+			break;
+		case Saveslot9:
+			pSaveslot = Saveslot9Addr;
+			break;
+		case Saveslot10:
+			pSaveslot = Saveslot10Addr;
+			break;
+		case Saveslot11:
+			pSaveslot = Saveslot11Addr;
+			break;
+		case Saveslot12:
+			pSaveslot = Saveslot12Addr;
+			break;
+		case SuspendBackup:
+			pSaveslot = SuspendBackupAddr;
+			break;
+		case Suspend:
+			pSaveslot = SuspendAddr;
+			break;
+		case LinkArena:
+			pSaveslot = LinkArenaAddr;
+			break;
+		case SaveEmpty:
+			pSaveslot = SaveEmptyAddr;
+			break;
+		default:
+			pSaveslot = NULL;
+	}
+
+	return pSaveslot;
+}
+
+#ifndef __INTELLISENSE__
+__attribute__((section(".callGetSaveslotAddrEx")))
+#endif
+_BYTE *callGetSaveslotAddrEx(enum saveslot saveslotNum)
+{
+	return GetSaveslotAddrEx(saveslotNum);
+}
+/*
+// buggy
+bool ChechSave(int *saveslotHead, enum saveslot saveslotNum)
+{
+  int *saveslotHead2; // r4
+  signed int v4; // r1
+  int saveslotHead1; // [sp+0h] [bp-1Ch]
+
+  saveslotHead2 = saveslotHead;
+  if ( !saveslotHead )
+    saveslotHead2 = &saveslotHead1;
+  (*pprSRAMTransfer)(16 * saveslotNum + 0xE000064, saveslotHead2, 16);
+  if ( *((_WORD *)saveslotHead2 + 2) != 0x200A || saveslotNum > 6 )
+    return 0;
+  switch ( saveslotNum )
+  {
+    case Saveslot1:
+    case Saveslot2:
+    case Saveslot3:
+      v4 = 0x11217;
+      break;
+    case SuspendBackup:
+    case Suspend:
+      v4 = 0x20509;
+      break;
+    case LinkArena:
+      v4 = 0x20112;
+      break;
+    case SaveEmpty:
+      v4 = 0x20223;
+      break;
+    default:
+      return 0;
+  }
+  if ( *saveslotHead2 != v4 )
+    return 0;
+  return SaveMetadata_VerifyChecksum(saveslotHead2);
+}
+*/
+/*
+// white screen when starting game
+bool ChechSaveEx(int *saveslotHead, enum saveslot saveslotNum)
+{
+	int saveslotHead1;
+	int *saveslotHead2;
+	
+	if(saveslotNum > Saveslot12)
+		return 0;
+	saveslotHead2 = saveslotHead ? saveslotHead : &saveslotHead1;
+	(*pprSRAMTransfer)(16 * saveslotNum + 0xE000064, saveslotHead2, 16);
+	if(*saveslotHead2 == 0)
+		return 0;
+	return SaveMetadata_VerifyChecksum(saveslotHead2);
+}
+
+// check extended save slot by play time
+#ifndef __INTELLISENSE__
+__attribute__((section(".callChechSaveEx")))
+#endif
+bool callChechSaveEx(int *saveslotHead, unsigned int saveslotNum)
+{
+	return ChechSaveEx(saveslotHead, saveslotNum);
+}
+*/
+// disable save check
+#ifndef __INTELLISENSE__
+__attribute__((section(".callCheckSaveAndGetPointerEx")))
+#endif
+_BYTE *callCheckSaveAndGetPointerEx(enum saveslot saveslotNum)
+{
+	return GetSaveslotAddrEx(saveslotNum);
+}
 
 // 扩展后的存档程序
 // 输入参数: saveslotNum 存档槽序号
@@ -53,7 +199,7 @@ void SaveGameEx(enum saveslot saveslotNum)
 	// int v9, v10, v11, v12, v13, v14, v15;
 	
 	// 获取存档槽地址
-	pSaveslot = GetSaveslotAddr(saveslotNum);
+	pSaveslot = GetSaveslotAddrEx(saveslotNum);
 	
 	sub(80A1A60)(3);
 	*(_BYTE *)0x202BC00 = saveslotNum;

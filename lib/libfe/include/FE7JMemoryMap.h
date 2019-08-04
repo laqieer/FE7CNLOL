@@ -136,3 +136,15 @@ enum TileTransferType{
 // 右侧人物数据指针
 #define	pUnitRight	(*(Unit **)0x203E070)
 
+// 按键buffer (KeyStatusBuffer)
+#define	gKeyFirstTickDelay	(*(u8 *)0x2024C78)
+#define	gKeyNextTickDelay	(*(u8 *)0x2024C79)
+#define	gKeyTickDownCounter	(*(u8 *)0x2024C7A)
+#define	gKeyCurrent			(*(u16 *)0x2024C7C)
+#define	gKeyTickPresses		(*(u16 *)0x2024C7E)
+#define	gKeyNewPresses		(*(u16 *)0x2024C80)
+#define	gKeyPrevious		(*(u16 *)0x2024C82)
+#define	gKeyLastPressState	(*(u16 *)0x2024C84)
+#define	gKeyReleaseABLR		(*(u16 *)0x2024C86)
+#define	gKeyNewPresses2		(*(u16 *)0x2024C88)
+#define	gTimeSinceLastNonStartNonSelectKeyPressed	(*(u16 *)0x2024C8A)

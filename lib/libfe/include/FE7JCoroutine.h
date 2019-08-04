@@ -151,6 +151,8 @@ struct context{
 // 孤立并删除指定的上下文
 #define	isolateAndDeleteContext		sub(8004460)
 // void isolateAndDeleteContext(struct context *context);
+#define	isolateAndDeleteContextWrapper		sub(8012B8C)
+// void isolateAndDeleteContextWrapper(struct context *context);
 
 // 在分配表中新注册一个上下文(为新线程分配空间),返回指向新分配空间的指针
 #define	registerContext				sub(8004478)

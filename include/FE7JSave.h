@@ -22,7 +22,10 @@
 
 // 存档号定义
 // 0-6: 存档槽1，存档槽2，存档槽3，中断备份(校验和验证不通过时载入)，中断，通信斗技场，空位置
-enum saveslot {Saveslot1, Saveslot2, Saveslot3, SuspendBackup, Suspend, LinkArena, SaveEmpty};
+enum saveslot {Saveslot1, Saveslot2, Saveslot3, SuspendBackup, Suspend, LinkArena, SaveEmpty, Saveslot4, Saveslot5, Saveslot6, Saveslot7, Saveslot8, Saveslot9, Saveslot10, Saveslot11, Saveslot12};
+
+// 存档索引与存档号映射表
+extern const enum saveslot saveslotNumTable[];
 
 // 扩展的
 #pragma long_calls
@@ -49,10 +52,45 @@ void callSaveGameEx(enum saveslot saveslotNum);
 // Save Empty
 #define	SaveEmptyAddr		0xE007400
 
+// Save Extension
+#define SramExAddr		0xE008000
+
+// Save Slot Size
+#define SaveslotSize		0xD8C
+
+// extend save slots
+#define Saveslot4Addr		SramExAddr
+#define Saveslot5Addr		(SramExAddr + SaveslotSize)
+#define Saveslot6Addr		(SramExAddr + SaveslotSize * 2)
+#define Saveslot7Addr		(SramExAddr + SaveslotSize * 3)
+#define Saveslot8Addr		(SramExAddr + SaveslotSize * 4)
+#define Saveslot9Addr		(SramExAddr + SaveslotSize * 5)
+#define Saveslot10Addr		(SramExAddr + SaveslotSize * 6)
+#define Saveslot11Addr		(SramExAddr + SaveslotSize * 7)
+#define Saveslot12Addr		(SramExAddr + SaveslotSize * 8)
+
 // 根据存档号取存档地址
 // 输入参数：存档号
 // 返回值：存档地址
-_BYTE *GetSaveslotAddr(enum saveslot saveslotNum);
+#pragma long_calls
+_BYTE *GetSaveslotAddrEx(enum saveslot saveslotNum);
+#pragma long_calls_off
+
+_BYTE *callGetSaveslotAddrEx(enum saveslot saveslotNum);
+
+// 读取存档位的头部来校验存档位
+#pragma long_calls
+bool ChechSave(int *saveslotHead, enum saveslot saveslotNum);
+#pragma long_calls_off
+
+// 检查存档头部的校验和
+// bool SaveMetadata_VerifyChecksum(unsigned __int16 *saveslotHead);
+#define SaveMetadata_VerifyChecksum	sub(80A232C)
+
+// 从SRAM地址传输数据到RAM
+// void (*pprSRAMTransfer)(void *src, void *dst, int length);
+// length 单位: byte
+#define pprSRAMTransfer		(*(void (**)(void *, void *, int))0x3005D90)
 
 // from Stan
 /*It's not technically header, because it's not saved in the corresponding save block; instead they seem to be located at an array located at E000064 (indexed by save block id or whatever you want to call that, the same number you pass to GetSaveDataLocation)
@@ -202,3 +240,11 @@ typedef struct UnitDataInSave{
 // 最大存档人数
 #define maxUnitNumberInSave 	52
 
+// 读中断档或者中断备份档
+// void LoadSuspendedGame(int saveslotNum);
+// saveslotNum = SuspendBackup / Suspend
+#define LoadSuspendedGame		sub(80A1BEC)
+
+// 读存档
+// void LoadGame(int saveslotNum);
+#define	LoadGame				sub(80A1278)

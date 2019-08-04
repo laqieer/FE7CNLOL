@@ -47,7 +47,7 @@ export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
 export DEPSDIR	:=	$(CURDIR)/$(BUILD)
 # 链接脚本
-export LDS	=	$(OUTPUT).ld					
+export LDS	=	$(OUTPUT).ld
 
 # 要编译的文件类型清单
 

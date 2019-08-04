@@ -3,4 +3,4 @@
 SRAM_Ex = 0xE008000;
 
 . = SRAM_Ex;
-.sram : {skill.o(.bss)}
+/* .sram : {skill.o(.bss)} */

@@ -68,5 +68,28 @@
 	.callBattleAnimationScriptHandler : {*.o(.callBattleAnimationScriptHandler)}
 	. = 0x804C7C4;
 	.call_sub_804C7C4 : {*.o(.call_sub_804C7C4)}
+	. = 0x809F280;
+	.callGetSaveslotAddrEx : {*.o(.callGetSaveslotAddrEx)}
+/*	. = 0x809F10C;
+	.callChechSaveEx : {*.o(.callChechSaveEx)}	*/
+/*	. = 0x809F138;	*/
+	. = 0x809F134;
+	.checkSaveExNumber : {*.o(.checkSaveExNumber)}
+	. = 0x809F154;
+	.checkSaveExJptAddr : {*.o(.checkSaveExJptAddr)}
+	. = 0x809F328;
+	.callCheckSaveAndGetPointerEx : {*.o(.callCheckSaveAndGetPointerEx)}
 	. = 0x80A119C;
 	.callSaveGameEx : {*.o(.callSaveGameEx)}
+	. = 0x8DAD660;
+	.pEndSaveMenu1 : {*.o(.pEndSaveMenu1)}
+	. = 0x8DAD778;
+	.pEndSaveMenu2 : {*.o(.pEndSaveMenu2)}
+	. = 0x8DAD838;
+	.pEndSaveMenu3 : {*.o(.pEndSaveMenu3)}	
+	. = 0x8DAD488;
+	.pChapterTitleLoadMenuMainLoop1 : {*.o(.pChapterTitleLoadMenuMainLoop1)}
+	. = 0x8DAD6F0;
+	.pChapterTitleLoadMenuMainLoop2 : {*.o(.pChapterTitleLoadMenuMainLoop2)}
+	. = 0x8DAD7E0;
+	.pChapterTitleLoadMenuMainLoop3 : {*.o(.pChapterTitleLoadMenuMainLoop3)}
