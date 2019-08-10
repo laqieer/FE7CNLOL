@@ -522,3 +522,41 @@ void (*const pSub80A4D80_1)(struct context *) = sub_80A4D80_Ex;
 __attribute__((section(".pSub80A4D80_2")))
 #endif
 void (*const pSub80A4D80_2)(struct context *) = sub_80A4D80_Ex;
+
+#pragma long_calls
+bool sub_80A6E44_Ex(struct context *ctx, u8 DeltaY);
+#pragma long_calls_off
+
+bool sub_80A6E44_Ex(struct context *ctx, u8 DeltaY)
+{
+	int index;
+	int OffsetY;
+	
+	OffsetY = DeltaY << 24;
+	index = ctx->userSpace[3] & 3;
+	if(OffsetY <= 0)
+	{
+		if(index)
+			index--;
+		else
+			index = 2;
+	}
+	else
+	{
+		if(index == 2)
+			index = 0;
+		else
+			index++;		
+	}
+	ctx->userSpace[3] = index & 3;
+	return 1;
+}
+
+// enable to select all chapter titles in the menu
+#ifndef __INTELLISENSE__
+__attribute__((section(".call_sub_80A6E44_Ex")))
+#endif
+bool call_sub_80A6E44_Ex(struct context *ctx, u8 DeltaY)
+{
+	return sub_80A6E44_Ex(ctx, DeltaY);
+}
