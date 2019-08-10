@@ -19,6 +19,14 @@
 // void LoadChapterTitleGfx(int tileNum, unsigned int chapterID);
 #define	LoadChapterTitleGfx				sub(8082E2C)
 
+// 游戏中菜单一级菜单中显示选项
+// _BYTE *EnableItemInSavemenu(struct context *ctx, u8 flag);
+#define EnableItemInSavemenu			sub(80A6CA8)
+
+// 游戏中菜单附加内容子菜单中显示选项
+// _BYTE *EnableItemInExtramenu(struct context *ctx, u8 flag);
+#define EnableItemInExtramenu			sub(80A6CBC)
+
 /*
 void EndSaveMenu(struct context *ctx)
 {
@@ -559,4 +567,103 @@ __attribute__((section(".call_sub_80A6E44_Ex")))
 bool call_sub_80A6E44_Ex(struct context *ctx, u8 DeltaY)
 {
 	return sub_80A6E44_Ex(ctx, DeltaY);
+}
+
+// 计算主菜单中包含哪些选项，按位标识存储在userSpace[7]中
+/*void CalculateItemsShowInSavemenu(struct context *ctx)
+{
+  signed int v2; // r5
+  u8 *v3; // r0
+  signed int v4; // r1
+  _BYTE *v5; // r0
+
+  v2 = 0;
+  v3 = &ctx->userSpace[8];
+  *v3-- = 0;
+  *v3 = 0;
+  ctx->userSpace[9] = 0;
+  v3[3] = 0;
+  if ( *(_WORD *)&ctx->userSpace[27] == 256 )
+    sub(80A6CA8)(ctx, 1);
+  v4 = 0;
+  do
+  {
+    if ( ctx->userSpace[v4 + 14] != 255 )
+      ++v2;
+    ++v4;
+  }
+  while ( v4 <= 2 );
+  if ( v2 > 0 )
+  {
+    EnableItemInSavemenu(ctx, 2);
+    if ( v2 <= 2 )
+      EnableItemInSavemenu(ctx, 4);
+    EnableItemInSavemenu(ctx, 8);
+  }
+  if ( v2 <= 2 )
+    EnableItemInSavemenu(ctx, 16);
+  if ( sub(809F490)() << 24 )
+    EnableItemInExtramenu(ctx, 1);
+  if ( sub(809F4C8)() << 24 )
+    EnableItemInExtramenu(ctx, 2);
+  v5 = (_BYTE *)(sub(809F4F0)() << 24);
+  if ( v5 )
+    v5 = EnableItemInExtramenu(ctx, 4);
+  if ( sub(809F50C)(v5) )
+    EnableItemInExtramenu(ctx, 8);
+  EnableItemInExtramenu(ctx, 16);
+  if ( sub(809F5B0)() << 24 )
+    EnableItemInExtramenu(ctx, 32);
+  if ( sub(809F588)() << 24 )
+    EnableItemInExtramenu(ctx, 64);
+  if ( ctx->userSpace[9] )
+  {
+    ctx->userSpace[7] |= 0x20u;
+    ++ctx->userSpace[8];
+  }
+}	*/
+
+void CalculateItemsShowInSavemenuEx(struct context *ctx)
+{
+  u8 *v3; // r0
+  _BYTE *v5; // r0
+
+  v3 = &ctx->userSpace[8];
+  *v3-- = 0;
+  *v3 = 0;
+  ctx->userSpace[9] = 0;
+  v3[3] = 0;
+  if ( *(_WORD *)&ctx->userSpace[27] == 256 )
+    sub(80A6CA8)(ctx, 1);
+  EnableItemInSavemenu(ctx, 2);
+  EnableItemInSavemenu(ctx, 4);
+  EnableItemInSavemenu(ctx, 8);
+  EnableItemInSavemenu(ctx, 16);
+  if ( sub(809F490)() << 24 )
+    EnableItemInExtramenu(ctx, 1);
+  if ( sub(809F4C8)() << 24 )
+    EnableItemInExtramenu(ctx, 2);
+  v5 = (_BYTE *)(sub(809F4F0)() << 24);
+  if ( v5 )
+    v5 = EnableItemInExtramenu(ctx, 4);
+  if ( sub(809F50C)(v5) )
+    EnableItemInExtramenu(ctx, 8);
+  EnableItemInExtramenu(ctx, 16);
+  if ( sub(809F5B0)() << 24 )
+    EnableItemInExtramenu(ctx, 32);
+  if ( sub(809F588)() << 24 )
+    EnableItemInExtramenu(ctx, 64);
+  if ( ctx->userSpace[9] )
+  {
+    ctx->userSpace[7] |= 0x20u;
+    ++ctx->userSpace[8];
+  }
+}
+
+#ifndef __INTELLISENSE__
+__attribute__((section(".callCalculateItemsShowInSavemenu")))
+#endif
+void callCalculateItemsShowInSavemenu(struct context *ctx)
+{
+	CalculateItemsShowInSavemenuEx(ctx);
 }

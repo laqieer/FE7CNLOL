@@ -99,3 +99,5 @@
 	.pChapterTitleLoadMenuMainLoop3 : {*.o(.pChapterTitleLoadMenuMainLoop3)}
 	. = 0x80A6E44;
 	.call_sub_80A6E44_Ex : {*.o(.call_sub_80A6E44_Ex)}
+	. = 0x80A6CD0;
+	.callCalculateItemsShowInSavemenu : {*.o(.callCalculateItemsShowInSavemenu)}
