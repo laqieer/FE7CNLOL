@@ -86,7 +86,11 @@
 	. = 0x8DAD778;
 	.pEndSaveMenu2 : {*.o(.pEndSaveMenu2)}
 	. = 0x8DAD838;
-	.pEndSaveMenu3 : {*.o(.pEndSaveMenu3)}	
+	.pEndSaveMenu3 : {*.o(.pEndSaveMenu3)}
+	. = 0x8DAD4D8;
+	.pSub80A4D80_1 : {*.o(.pSub80A4D80_1)}
+	. = 0x8DAD720;
+	.pSub80A4D80_2 : {*.o(.pSub80A4D80_2)}
 	. = 0x8DAD488;
 	.pChapterTitleLoadMenuMainLoop1 : {*.o(.pChapterTitleLoadMenuMainLoop1)}
 	. = 0x8DAD6F0;

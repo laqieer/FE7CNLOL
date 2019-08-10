@@ -11,9 +11,13 @@
 // void ChapterTitleLoadMenuMainLoop(struct context *ctx);
 #define ChapterTitleLoadMenuMainLoop	sub(80A4B10)
 
-// 加载读档时的章节标题界面菜单的章节标题文本
+// 加载读档时的章节标题界面菜单的章节标题文本（3条）
 // void Load3ChapterTitleGfx(struct contect *ctx);
 #define	Load3ChapterTitleGfx			sub(80A4254)
+
+// 加载读档时的章节标题界面菜单的章节标题文本（单条）
+// void LoadChapterTitleGfx(int tileNum, unsigned int chapterID);
+#define	LoadChapterTitleGfx				sub(8082E2C)
 
 /*
 void EndSaveMenu(struct context *ctx)
@@ -286,3 +290,235 @@ void (*const pChapterTitleLoadMenuMainLoop2)(struct context *) = ChapterTitleLoa
 __attribute__((section(".pChapterTitleLoadMenuMainLoop3")))
 #endif
 void (*const pChapterTitleLoadMenuMainLoop3)(struct context *) = ChapterTitleLoadMenuMainLoopEx;
+
+/*void sub_80A4D80(struct context *ctx)
+{
+  u8 *v2; // r3
+  int v3; // r0
+  int v4; // r1
+  u8 *v5; // r2
+  int v6; // r0
+  unsigned int v7; // r1
+  u8 *v8; // r10
+  __int16 v9; // r6
+  __int16 v10; // r5
+  __int16 v11; // r4
+  __int16 v12; // ST04_2
+  __int16 v13; // r8
+  __int16 v14; // r5
+  __int16 v15; // r4
+  __int16 v16; // ST04_2
+  __int16 v17; // r6
+  __int16 v18; // r5
+  __int16 v19; // r4
+  __int16 v20; // r0
+
+  v2 = ctx->userSpace;
+  v3 = ctx->userSpace[0];
+  if ( v3 == 8 )
+  {
+    sub(80A7058)(ctx->userSpace[3], ctx);
+    sub(80A7058)(4, ctx);
+    v4 = ctx->userSpace[3];
+    v5 = &ctx->userSpace[v4 + 14];
+    if ( *v5 == 255 )
+      LoadChapterTitleGfx((((ctx->userSpace[3] << 11) + 0x16800) & 0x1FFFFu) >> 5, 0xFFFFFFFF);
+    else
+      LoadChapterTitleGfx((((ctx->userSpace[3] << 11) + 0x16800) & 0x1FFFFu) >> 5, *v5);
+    sub(80A715C)(ctx->userSpace[3]);
+    goto LABEL_20;
+  }
+  if ( v3 == 32 )
+  {
+    sub(80A6CD0)(ctx);
+    v6 = *(unsigned __int16 *)&ctx->userSpace[25];
+    if ( v6 == 16 )
+    {
+      letContextGotoLabel(ctx, 18);
+      StartSongVolumeTransitionB(192, 0, 16, 0);
+    }
+    else if ( v6 == 64 )
+    {
+      letContextGotoLabel(ctx, 17);
+    }
+    else if ( sub(80A6EE0)(ctx) << 24 )
+    {
+      if ( ctx->userSpace[4] == 255 )
+      {
+        ctx->userSpace[3] = sub(80A6DD4)(ctx->userSpace[3], 1, 1);
+      }
+      else
+      {
+        ctx->userSpace[3] = ctx->userSpace[4];
+        ctx->userSpace[4] = -1;
+      }
+      letContextGotoLabel(ctx, 5);
+    }
+    goto LABEL_20;
+  }
+  if ( v3 != 48 )
+  {
+LABEL_20:
+    v7 = ctx->userSpace[0];
+    v8 = ctx->userSpace;
+    if ( v7 == 16 )
+    {
+      v9 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 256);
+      v10 = Div(-16 * *(short *)(0x80C0E24 + 4 * 29), 256);
+      v11 = Div(16 * *(short *)(0x80C0E24 + 4 * 29), 256);
+      v12 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 256);
+      SetOBJAttribute(ctx->userSpace[3], v9, v10, v11, v12);
+    }
+    else if ( v7 > 7 )
+    {
+      if ( v7 <= 0xF )
+      {
+        v17 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 256);
+        v18 = Div(-16 * *(short *)(0x80C0E24 + 4 * 29), 32 * *v8 - 224);
+        v19 = Div(16 * *(short *)(0x80C0E24 + 4 * 29), 256);
+        v20 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 32 * *v8 - 224);
+        SetOBJAttribute(ctx->userSpace[3], v17, v18, v19, v20);
+      }
+    }
+    else
+    {
+      v13 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 256);
+      v14 = Div(-16 * *(short *)(0x80C0E24 + 4 * 29), 256 - 32 * *v8);
+      v15 = Div(16 * *(short *)(0x80C0E24 + 4 * 29), 256);
+      v16 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 256 - 32 * *v8);
+      SetOBJAttribute(ctx->userSpace[3], v13, v14, v15, v16);
+    }
+    ++*v8;
+    return;
+  }
+  ctx->userSpace[3] = 0;
+  ctx->userSpace[4] = -1;
+  *v2 = 0;
+  ctx->userSpace[2] = 0;
+  *(_WORD *)&ctx->userSpace[25] = (unsigned __int8)sub(80A3FE0)(ctx->userSpace[7], 0);
+  if ( !(*(u8 *)0x202BC35 & 2) )
+    m4aSongNumStart(0x38Bu);
+  letContextGotoLabel(ctx, 4);
+}	*/
+
+void sub_80A4D80_Ex(struct context *ctx)
+{
+  u8 *v2; // r3
+  int v3; // r0
+  int v4; // r1
+  u8 *v5; // r2
+  int v6; // r0
+  unsigned int v7; // r1
+  u8 *v8; // r10
+  __int16 v9; // r6
+  __int16 v10; // r5
+  __int16 v11; // r4
+  __int16 v12; // ST04_2
+  __int16 v13; // r8
+  __int16 v14; // r5
+  __int16 v15; // r4
+  __int16 v16; // ST04_2
+  __int16 v17; // r6
+  __int16 v18; // r5
+  __int16 v19; // r4
+  __int16 v20; // r0
+  int pageNum;
+
+  v2 = ctx->userSpace;
+  v3 = ctx->userSpace[0];
+  pageNum = *(u8 *)&ctx->userSpace[66] & 3;
+  if ( v3 == 8 )
+  {
+    v4 = ctx->userSpace[3];
+    readChapterInfoInSaveslotEx(saveslotNumTable[3 * pageNum] + v4, ctx, v4);
+    sub(80A7058)(4, ctx);
+    v5 = &ctx->userSpace[v4 + 14];
+    if ( *v5 == 255 )
+      LoadChapterTitleGfx((((v4 << 11) + 0x16800) & 0x1FFFFu) >> 5, 0xFFFFFFFF);
+    else
+      LoadChapterTitleGfx((((v4 << 11) + 0x16800) & 0x1FFFFu) >> 5, *v5);
+    sub(80A715C)(v4);
+    goto LABEL_20;
+  }
+  if ( v3 == 32 )
+  {
+    sub(80A6CD0)(ctx);
+    v6 = *(unsigned __int16 *)&ctx->userSpace[25];
+    if ( v6 == 16 )
+    {
+      letContextGotoLabel(ctx, 18);
+      StartSongVolumeTransitionB(192, 0, 16, 0);
+    }
+    else if ( v6 == 64 )
+    {
+      letContextGotoLabel(ctx, 17);
+    }
+    else if ( sub(80A6EE0)(ctx) << 24 )
+    {
+      if ( ctx->userSpace[4] == 255 )
+      {
+        ctx->userSpace[3] = sub(80A6DD4)(ctx->userSpace[3], 1, 1);
+      }
+      else
+      {
+        ctx->userSpace[3] = ctx->userSpace[4];
+        ctx->userSpace[4] = -1;
+      }
+      letContextGotoLabel(ctx, 5);
+    }
+    goto LABEL_20;
+  }
+  if ( v3 != 48 )
+  {
+LABEL_20:
+    v7 = ctx->userSpace[0];
+    v8 = ctx->userSpace;
+    if ( v7 == 16 )
+    {
+      v9 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 256);
+      v10 = Div(-16 * *(short *)(0x80C0E24 + 4 * 29), 256);
+      v11 = Div(16 * *(short *)(0x80C0E24 + 4 * 29), 256);
+      v12 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 256);
+      SetOBJAttribute(ctx->userSpace[3], v9, v10, v11, v12);
+    }
+    else if ( v7 > 7 )
+    {
+      if ( v7 <= 0xF )
+      {
+        v17 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 256);
+        v18 = Div(-16 * *(short *)(0x80C0E24 + 4 * 29), 32 * *v8 - 224);
+        v19 = Div(16 * *(short *)(0x80C0E24 + 4 * 29), 256);
+        v20 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 32 * *v8 - 224);
+        SetOBJAttribute(ctx->userSpace[3], v17, v18, v19, v20);
+      }
+    }
+    else
+    {
+      v13 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 256);
+      v14 = Div(-16 * *(short *)(0x80C0E24 + 4 * 29), 256 - 32 * *v8);
+      v15 = Div(16 * *(short *)(0x80C0E24 + 4 * 29), 256);
+      v16 = Div(16 * *(short *)(0x80C0E24 + 4 * 61), 256 - 32 * *v8);
+      SetOBJAttribute(ctx->userSpace[3], v13, v14, v15, v16);
+    }
+    ++*v8;
+    return;
+  }
+  ctx->userSpace[3] = 0;
+  ctx->userSpace[4] = -1;
+  *v2 = 0;
+  ctx->userSpace[2] = 0;
+  *(_WORD *)&ctx->userSpace[25] = (unsigned __int8)sub(80A3FE0)(ctx->userSpace[7], 0);
+  if ( !(*(u8 *)0x202BC35 & 2) )
+    m4aSongNumStart(0x38Bu);
+  letContextGotoLabel(ctx, 4);
+}
+
+#ifndef __INTELLISENSE__
+__attribute__((section(".pSub80A4D80_1")))
+#endif
+void (*const pSub80A4D80_1)(struct context *) = sub_80A4D80_Ex;
+
+#ifndef __INTELLISENSE__
+__attribute__((section(".pSub80A4D80_2")))
+#endif
+void (*const pSub80A4D80_2)(struct context *) = sub_80A4D80_Ex;
