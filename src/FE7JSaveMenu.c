@@ -27,6 +27,11 @@
 // _BYTE *EnableItemInExtramenu(struct context *ctx, u8 flag);
 #define EnableItemInExtramenu			sub(80A6CBC)
 
+// 设置章节标题颜色
+// void Set3ChapterTitleColor(unsigned __int8 selectedIndex);
+#define Set3ChapterTitleColor			sub(80A715C)
+
+
 /*
 void EndSaveMenu(struct context *ctx)
 {
@@ -266,6 +271,8 @@ void ChapterTitleLoadMenuMainLoopEx(struct context *ctx)
 //			readChapterInfoInSaveslot(saveslotNumTable[3 * pageNum] + i, ctx);
 			readChapterInfoInSaveslotEx(saveslotNumTable[3 * pageNum] + i, ctx, i);
 		Load3ChapterTitleGfx(ctx);
+		saveslotNum = *(u8 *)&ctx->userSpace[3];
+		Set3ChapterTitleColor(saveslotNum);
 	}
 	else
 	{
