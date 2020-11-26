@@ -276,7 +276,7 @@ def automake_palette_group(palette: list):
         elif color_blue in color_table_FEB:
             s += '0x%04X,' % color_table_FEB[color_blue][0]
         else:
-            s += color_blue
+            s += '0x%04X,' % color_blue
     s += '\n\t'
     # output green palette
     for color in pal_blue.color_list:
@@ -286,7 +286,7 @@ def automake_palette_group(palette: list):
         elif color_blue in color_table_FEB:
             s += '0x%04X,' % color_table_FEB[color_blue][1]
         else:
-            s += color_blue
+            s += '0x%04X,' % color_blue
     s += '\n\t'
     # output purple palette
     for color in pal_blue.color_list:
@@ -296,7 +296,7 @@ def automake_palette_group(palette: list):
         elif color_blue in color_table_FEB:
             s += '0x%04X,' % color_table_FEB[color_blue][2]
         else:
-            s += color_blue
+            s += '0x%04X,' % color_blue
     s += '\n\t' + pal_blue.tostring_raw() + '\n'
     return s
 
@@ -306,7 +306,8 @@ def clear_rectangle(image: Image, x=0, y=0, width=8, height=8):
     Fill in a rectangle area with transparent color.
     """
     draw = ImageDraw.Draw(image)
-    draw.rectangle([x, y, min(x + width, image.width), min(y + height, image.height)], fill=0)
+    # -1 necessary due to https://github.com/python-pillow/Pillow/issues/3597
+    draw.rectangle([x, y, min(x + width, image.width) - 1, min(y + height, image.height) - 1], fill=0)
 
 
 def is_transparent(image: Image):
@@ -911,8 +912,8 @@ class Frame:
                 dimension = '_%dx%d' % (space['width'], space['height'])
                 x0 = space['x0']
                 y0 = space['y0']
-                dx = space['x'] + self.bbox_p1[0] - 148
-                dy = space['y'] + self.bbox_p1[1] - 88
+                dx = space['x'] + self.bbox_p2[0] - 148
+                dy = space['y'] + self.bbox_p2[1] - 88
                 h_flip = space['h_flip']
                 v_flip = space['v_flip']
                 if side == 'left':
@@ -1134,6 +1135,8 @@ def parse_modes(name, f_text, f_asm, script_file=None, split_conf_file=None, abb
                                 if im.width >= 480:
                                     is_pierce = True
                                     im_p = im.crop((240, 0, 480, 160))
+                                    im = im.crop((0, 0, 240, 160))
+                                elif im.width > 240 and im.width < 480:
                                     im = im.crop((0, 0, 240, 160))
                                 frame_id = frames.add(im)
                                 sheet_id = frames.frame_list[frame_id].sheet_index
