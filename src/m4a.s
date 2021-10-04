@@ -1,5 +1,7 @@
     .include "../include/m4a.inc"
 
+    .syntax unified
+
     .text
 
     .global SoundMainRAM
