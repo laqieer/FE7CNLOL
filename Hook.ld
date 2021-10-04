@@ -101,3 +101,5 @@
 	.call_sub_80A6E44_Ex : {*.o(.call_sub_80A6E44_Ex)}
 	. = 0x80A6CD0;
 	.callCalculateItemsShowInSavemenu : {*.o(.callCalculateItemsShowInSavemenu)}
+	. = 0x80BF0A8;
+	..compressedSamplesSupport : {*.o(..compressedSamplesSupport)}
