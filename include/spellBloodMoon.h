@@ -10,6 +10,7 @@
 #include "FE7JSound.h"
 
 extern const SongHeader se_d01;
+extern const SongHeader se_mixkit_fire_explosion_1343;
 
 void spellBloodMoon(void *AIS);
 
