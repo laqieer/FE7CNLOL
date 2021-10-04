@@ -102,7 +102,7 @@ const u32 spellAnimationTableBase = &spellAnimationTable;
 // 修改火球的魔法动画ID，便于测试
 __attribute__((section(".fireAnimationID")))
 // const int fireAnimationID = FireSpell;
-const int fireAnimationID = FireSeaSpell;
+const int fireAnimationID = spellBloodMoon;
 
 // 吸血魔法动画测试
 __attribute__((section(".NosferatuAnimationID")))
