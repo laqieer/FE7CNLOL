@@ -1,5 +1,5 @@
 //#define SoundMainRAM_Buffer 0x3002378
-#define SoundMainRAM_Buffer 0x3005DA0
+#define SoundMainRAM_Buffer 0x3005E00
 void SoundMainRAM();
 
 __attribute__((section(".soundMainRAMSrc")))
