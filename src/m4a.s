@@ -1,3 +1,4 @@
+    .include "../include/gba.inc"
     .include "../include/m4a.inc"
 
     .syntax unified
