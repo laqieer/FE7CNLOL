@@ -4,7 +4,7 @@
 
     .syntax unified
 
-    .set gSampleDecodingBuffer 0x3005DC0
+    .set gSampleDecodingBuffer, 0x3005DC0
     
     .text
 
