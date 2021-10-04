@@ -47,7 +47,8 @@ void BloodMoon(struct context *ctx)
 			loadHazymoonOBJ3(AIS);
 			Pal2Red((u32)BGPaletteBuffer + 32 * 1);
 			Pal2Red((u32)OBJPaletteBuffer + 32 * 2);
-			PlaySFX(312,256,120,0);
+			//PlaySFX(312,256,120,0);
+			m4aMPlayStart(mp08,&se_mixkit_fire_explosion_1343);
 			break;
 		case 70:
 			loadResireRST3(v2,loadResireRST5(v2,42,15,0,2),30);
@@ -58,12 +59,12 @@ void BloodMoon(struct context *ctx)
 			Pal2Red((u32)BGPaletteBuffer + 32 * 1);
 			break;
 		case 125:
-			PlaySFX(313,256,*(u16 *)(v2 + 2),1);
+			//PlaySFX(313,256,*(u16 *)(v2 + 2),1);
 			break;
 		case 151:
 			loadHazymoonOBJ2(AIS);
 			break;
-		case 160:
+		case 220:
 //			PlaySFX(738,256,*(u16 *)(v2 + 2),1);
 			// m4aSongNumStartOrChange(mp07,&se_d01);
 			// m4aSongNumStartOrContinue(mp07,&se_d01);
@@ -73,7 +74,6 @@ void BloodMoon(struct context *ctx)
 //			m4aSongAutoStart(mp08,&se_d01);
 			// 直接用指定播放器播放指定音乐的m4aMPlayStart函数
 			//m4aMPlayStart(mp08,&se_d01);
-            m4aMPlayStart(mp08,&se_mixkit_fire_explosion_1343);
 //			m4aMPlayStart(0x3005D10,&se_d01);
 			break;
 		case 226:
@@ -84,7 +84,7 @@ void BloodMoon(struct context *ctx)
 			loadALPHA(v2,35,20,16,0,0);
 			loadResireBG2(v2);
 			Pal2Red((u32)BGPaletteBuffer + 32 * 1);
-			PlaySFX(124,256,*(u16 *)(v2 + 2),1);
+			//PlaySFX(124,256,*(u16 *)(v2 + 2),1);
 			break;
 		case 240:
 			loadResireRST3(v2,loadResireRST5(v2,42,15,0,2),30);
@@ -93,7 +93,7 @@ void BloodMoon(struct context *ctx)
 		case 285:
 			loadResireBG(v2,missOrHit);
 			Pal2Red((u32)BGPaletteBuffer + 32 * 1);
-			PlaySFX(125,256,*(u16 *)(v2 + 2),1);
+			//PlaySFX(125,256,*(u16 *)(v2 + 2),1);
 			break;
 		case 290:
 			*(u16 *)(v2 + 16) |= 9u;

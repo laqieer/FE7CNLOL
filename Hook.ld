@@ -102,4 +102,4 @@
 	. = 0x80A6CD0;
 	.callCalculateItemsShowInSavemenu : {*.o(.callCalculateItemsShowInSavemenu)}
 	. = 0x80BF0A8;
-	..compressedSamplesSupport : {*.o(..compressedSamplesSupport)}
+	.compressedSamplesSupport : {*.o(.compressedSamplesSupport)}
